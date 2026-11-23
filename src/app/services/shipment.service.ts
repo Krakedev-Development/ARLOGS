@@ -9,13 +9,13 @@ import {
   ServicePrefix,
   WarehouseId,
   WarehouseItem,
-  WarehouseMovement
+  WarehouseMovement,
 } from '../models/shipment.model';
 import { INITIAL_MOCK_JOBS } from '../models/mock-data';
 import { AuditService } from './audit.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ShipmentService {
   private auditService = inject(AuditService);
@@ -44,7 +44,7 @@ export class ShipmentService {
         LCL: [1850, 1460, 15],
         CUSTOMS: [780, 520, 15],
         COURIER: [640, 480, 15],
-        INLAND: [420, 310, 15]
+        INLAND: [420, 310, 15],
       };
       const [baseVenta, baseCosto, basePlazo] = baseByService[calc.servicio];
       const variance = (idx % 4) * 280;
@@ -64,7 +64,7 @@ export class ShipmentService {
           valorFacturadoReal: valorVentaCotizado + realDelta,
           costoReal: costoEstimadoCotizado + (idx % 3 === 0 ? 60 : -40),
           estadoCobro: (idx % 3 === 0 ? 'FACTURADA' : 'COBRADA') as ShipmentJob['estadoCobro'],
-          fechaFactura: calc.h10_informeSalida || calc.h6_pesoRecibido || '2026-11-05'
+          fechaFactura: calc.h10_informeSalida || calc.h6_pesoRecibido || '2026-11-05',
         };
       }
 
@@ -73,7 +73,7 @@ export class ShipmentService {
         valorVentaCotizado,
         costoEstimadoCotizado,
         plazoPagoDias,
-        estadoCobro: 'PENDIENTE_FACTURAR' as const
+        estadoCobro: 'PENDIENTE_FACTURAR' as const,
       };
     });
     this.jobs.set(computedJobs);
@@ -96,7 +96,7 @@ export class ShipmentService {
         estado: 'PENDIENTE',
         valorVentaCotizado: 2650,
         costoEstimadoCotizado: 2120,
-        plazoPagoDias: 15
+        plazoPagoDias: 15,
       },
       {
         id: 'QR-023-26',
@@ -114,8 +114,8 @@ export class ShipmentService {
         estado: 'PENDIENTE',
         valorVentaCotizado: 7000,
         costoEstimadoCotizado: 5950,
-        plazoPagoDias: 30
-      }
+        plazoPagoDias: 30,
+      },
     ];
     this.quotations.set(initialQuotes);
 
@@ -137,7 +137,7 @@ export class ShipmentService {
         fechaIngreso: '2026-10-18',
         ubicacionRack: 'RACK-A04',
         estado: 'PARCIAL',
-        ultimaGuiaRemision: 'GR-001-0118'
+        ultimaGuiaRemision: 'GR-001-0118',
       },
       {
         id: 'KAR-102',
@@ -154,7 +154,7 @@ export class ShipmentService {
         pesoKg: 940,
         fechaIngreso: '2026-11-04',
         ubicacionRack: 'RACK-B02',
-        estado: 'EN_BODEGA'
+        estado: 'EN_BODEGA',
       },
       {
         id: 'KAR-103',
@@ -171,7 +171,7 @@ export class ShipmentService {
         pesoKg: 2450,
         fechaIngreso: '2026-11-07',
         ubicacionRack: 'ZONA-C11',
-        estado: 'EN_BODEGA'
+        estado: 'EN_BODEGA',
       },
       {
         id: 'KAR-104',
@@ -189,8 +189,8 @@ export class ShipmentService {
         fechaIngreso: '2026-10-25',
         ubicacionRack: 'PATIO-03',
         estado: 'DESPACHADO',
-        ultimaGuiaRemision: 'GR-002-0094'
-      }
+        ultimaGuiaRemision: 'GR-002-0094',
+      },
     ];
     this.warehouseItems.set(initialItems);
 
@@ -207,7 +207,7 @@ export class ShipmentService {
         descripcion: 'Compresores centrífugos embalaje exportación',
         responsable: 'Jorge Zambrano',
         fecha: '2026-11-07 15:10',
-        observacion: 'Conteo físico conforme (18 bultos intactos)'
+        observacion: 'Conteo físico conforme (18 bultos intactos)',
       },
       {
         id: 'MOV-303',
@@ -222,7 +222,7 @@ export class ShipmentService {
         transporteInland: 'I901-2026 / Placa GSY-4821',
         responsable: 'Jorge Zambrano',
         fecha: '2026-11-06 10:40',
-        observacion: 'Despacho total con Guía de Remisión'
+        observacion: 'Despacho total con Guía de Remisión',
       },
       {
         id: 'MOV-302',
@@ -237,8 +237,8 @@ export class ShipmentService {
         transporteInland: 'Inland Local / Placa PBA-9102',
         responsable: 'Jorge Zambrano',
         fecha: '2026-11-05 09:20',
-        observacion: 'Retiro parcial solicitado por planta Quito'
-      }
+        observacion: 'Retiro parcial solicitado por planta Quito',
+      },
     ];
     this.warehouseMovements.set(initialMoves);
   }
@@ -250,7 +250,7 @@ export class ShipmentService {
 
   // Set user role
   setUserRole(role: UserRole): void {
-    const user = DEMO_USERS.find(u => u.role === role);
+    const user = DEMO_USERS.find((u) => u.role === role);
     if (user) {
       this.currentUser.set(user);
     }
@@ -261,12 +261,14 @@ export class ShipmentService {
     const user = this.currentUser();
     const role = user.role;
     if (role !== 'gerencia' && role !== 'admin') {
-      throw new Error('Solo el perfil de Gerencia o Administrador puede modificar el umbral de alerta.');
+      throw new Error(
+        'Solo el perfil de Gerencia o Administrador puede modificar el umbral de alerta.',
+      );
     }
     const prev = this.alertThresholdDays();
     this.alertThresholdDays.set(days);
     // Recalculate all jobs with new threshold
-    this.jobs.update(list => list.map(job => this.calculateJobMetrics(job, days)));
+    this.jobs.update((list) => list.map((job) => this.calculateJobMetrics(job, days)));
 
     if (prev !== days) {
       this.auditService.record({
@@ -276,13 +278,17 @@ export class ShipmentService {
         categoria: 'GERENCIA_SLA',
         entidad: 'SLA_UMBRAL',
         accion: 'Cambio de Umbral de Alerta',
-        detalle: `Límite días abiertos: ${prev}d -> ${days}d`
+        detalle: `Límite días abiertos: ${prev}d -> ${days}d`,
       });
     }
   }
 
   // Applicable milestones check
-  isMilestoneApplicable(service: ServiceType, aduanaPorArlogs: 'SI' | 'NO' | 'N/A', milestoneNum: number): boolean {
+  isMilestoneApplicable(
+    service: ServiceType,
+    aduanaPorArlogs: 'SI' | 'NO' | 'N/A',
+    milestoneNum: number,
+  ): boolean {
     if (service === 'INLAND') {
       return milestoneNum === 1;
     }
@@ -309,7 +315,10 @@ export class ShipmentService {
   }
 
   // Difference in calendar days between two ISO date strings (date2 - date1)
-  calculateCalendarDays(date1Str: string | null | undefined, date2Str: string | null | undefined): number | 'N/A' {
+  calculateCalendarDays(
+    date1Str: string | null | undefined,
+    date2Str: string | null | undefined,
+  ): number | 'N/A' {
     if (!date1Str || !date2Str) return 'N/A';
     const d1 = new Date(date1Str + 'T00:00:00');
     const d2 = new Date(date2Str + 'T00:00:00');
@@ -326,7 +335,10 @@ export class ShipmentService {
 
     // 1. Respuesta shipper (H2 - H1)
     if (this.isMilestoneApplicable(s, aduana, 2) && job.h1_asignacion && job.h2_respuestaShipper) {
-      updated.diasRespuestaShipper = this.calculateCalendarDays(job.h1_asignacion, job.h2_respuestaShipper);
+      updated.diasRespuestaShipper = this.calculateCalendarDays(
+        job.h1_asignacion,
+        job.h2_respuestaShipper,
+      );
     } else {
       updated.diasRespuestaShipper = 'N/A';
     }
@@ -340,49 +352,81 @@ export class ShipmentService {
 
     // 3. Coordinación real de origen (H4 - H1)
     if (this.isMilestoneApplicable(s, aduana, 4) && job.h1_asignacion && job.h4_zarpeAtd) {
-      updated.diasCoordinacionOrigen = this.calculateCalendarDays(job.h1_asignacion, job.h4_zarpeAtd);
+      updated.diasCoordinacionOrigen = this.calculateCalendarDays(
+        job.h1_asignacion,
+        job.h4_zarpeAtd,
+      );
     } else {
       updated.diasCoordinacionOrigen = 'N/A';
     }
 
     // 4. Tránsito (H5 - H4)
-    if (this.isMilestoneApplicable(s, aduana, 4) && this.isMilestoneApplicable(s, aduana, 5) && job.h4_zarpeAtd && job.h5_arriboAta) {
+    if (
+      this.isMilestoneApplicable(s, aduana, 4) &&
+      this.isMilestoneApplicable(s, aduana, 5) &&
+      job.h4_zarpeAtd &&
+      job.h5_arriboAta
+    ) {
       updated.diasTransito = this.calculateCalendarDays(job.h4_zarpeAtd, job.h5_arriboAta);
     } else {
       updated.diasTransito = 'N/A';
     }
 
     // 5. Gestión sin aduana (H6 - H1)
-    if (aduana === 'NO' && ['AEREO', 'FCL', 'LCL'].includes(s) && job.h1_asignacion && job.h6_pesoRecibido) {
-      updated.diasGestionSinAduana = this.calculateCalendarDays(job.h1_asignacion, job.h6_pesoRecibido);
+    if (
+      aduana === 'NO' &&
+      ['AEREO', 'FCL', 'LCL'].includes(s) &&
+      job.h1_asignacion &&
+      job.h6_pesoRecibido
+    ) {
+      updated.diasGestionSinAduana = this.calculateCalendarDays(
+        job.h1_asignacion,
+        job.h6_pesoRecibido,
+      );
     } else {
       updated.diasGestionSinAduana = 'N/A';
     }
 
     // 6. Arribo a declaración (H7 - H5)
     if (this.isMilestoneApplicable(s, aduana, 7) && job.h5_arriboAta && job.h7_declaracion) {
-      updated.diasArriboDeclaracion = this.calculateCalendarDays(job.h5_arriboAta, job.h7_declaracion);
+      updated.diasArriboDeclaracion = this.calculateCalendarDays(
+        job.h5_arriboAta,
+        job.h7_declaracion,
+      );
     } else {
       updated.diasArriboDeclaracion = 'N/A';
     }
 
     // 7. Declaración a pago (H8 - H7)
     if (this.isMilestoneApplicable(s, aduana, 8) && job.h7_declaracion && job.h8_pagoLiquidacion) {
-      updated.diasDeclaracionPago = this.calculateCalendarDays(job.h7_declaracion, job.h8_pagoLiquidacion);
+      updated.diasDeclaracionPago = this.calculateCalendarDays(
+        job.h7_declaracion,
+        job.h8_pagoLiquidacion,
+      );
     } else {
       updated.diasDeclaracionPago = 'N/A';
     }
 
     // 8. Pago a informe (H10 - H8)
-    if (this.isMilestoneApplicable(s, aduana, 10) && job.h8_pagoLiquidacion && job.h10_informeSalida) {
-      updated.diasPagoInforme = this.calculateCalendarDays(job.h8_pagoLiquidacion, job.h10_informeSalida);
+    if (
+      this.isMilestoneApplicable(s, aduana, 10) &&
+      job.h8_pagoLiquidacion &&
+      job.h10_informeSalida
+    ) {
+      updated.diasPagoInforme = this.calculateCalendarDays(
+        job.h8_pagoLiquidacion,
+        job.h10_informeSalida,
+      );
     } else {
       updated.diasPagoInforme = 'N/A';
     }
 
     // 9. Días en aduana (H9 - H7)
     if (this.isMilestoneApplicable(s, aduana, 9) && job.h7_declaracion && job.h9_salidaAutorizada) {
-      updated.diasEnAduana = this.calculateCalendarDays(job.h7_declaracion, job.h9_salidaAutorizada);
+      updated.diasEnAduana = this.calculateCalendarDays(
+        job.h7_declaracion,
+        job.h9_salidaAutorizada,
+      );
     } else {
       updated.diasEnAduana = 'N/A';
     }
@@ -395,7 +439,12 @@ export class ShipmentService {
     }
 
     // 11. Diferencia de peso %
-    if (job.pesoOrigen && job.pesoOrigen > 0 && job.pesoRecibido !== null && job.pesoRecibido !== undefined) {
+    if (
+      job.pesoOrigen &&
+      job.pesoOrigen > 0 &&
+      job.pesoRecibido !== null &&
+      job.pesoRecibido !== undefined
+    ) {
       const diffPct = ((job.pesoRecibido - job.pesoOrigen) / job.pesoOrigen) * 100;
       updated.diferenciaPesoPct = (diffPct > 0 ? '+' : '') + diffPct.toFixed(1) + '%';
     } else {
@@ -411,12 +460,10 @@ export class ShipmentService {
     }
 
     // Closure check
-    let isClosed = false;
-    if (aduana === 'NO' && ['AEREO', 'FCL', 'LCL'].includes(s)) {
-      isClosed = !!job.h6_pesoRecibido;
-    } else {
-      isClosed = !!job.h10_informeSalida;
-    }
+    const isClosed =
+      aduana === 'NO' && ['AEREO', 'FCL', 'LCL'].includes(s)
+        ? !!job.h6_pesoRecibido
+        : !!job.h10_informeSalida;
 
     if (isClosed) {
       updated.estado = 'CERRADO';
@@ -426,9 +473,11 @@ export class ShipmentService {
       // Calculate open days (referenceDate - H1)
       if (job.h1_asignacion) {
         const d1 = new Date(job.h1_asignacion + 'T00:00:00');
-        const diffDays = Math.round((this.referenceDate.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.round(
+          (this.referenceDate.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24),
+        );
         updated.diasAbiertos = diffDays >= 0 ? diffDays : 0;
-        
+
         // Strict threshold check: > threshold means REVISAR
         if (updated.diasAbiertos > threshold) {
           updated.estado = 'REVISAR';
@@ -454,7 +503,7 @@ export class ShipmentService {
 
     if (user.role === 'cliente_a' || user.role === 'cliente_b') {
       const targetClientId = user.clienteId || (user.role === 'cliente_a' ? 'CLI-001' : 'CLI-002');
-      return all.filter(j => j.clienteId === targetClientId);
+      return all.filter((j) => j.clienteId === targetClientId);
     }
     // Admin, Pricing, Operaciones, Gerencia see all jobs
     return all;
@@ -463,14 +512,16 @@ export class ShipmentService {
   // Strict adversarial test check: Attempt to fetch a single job by Ref
   getJobByRef(refArlogs: string): ShipmentJob | null {
     const user = this.currentUser();
-    const job = this.jobs().find(j => j.refArlogs.toLowerCase() === refArlogs.toLowerCase());
+    const job = this.jobs().find((j) => j.refArlogs.toLowerCase() === refArlogs.toLowerCase());
     if (!job) return null;
 
     // Strict client-level data isolation
     if (user.role === 'cliente_a' || user.role === 'cliente_b') {
       const targetClientId = user.clienteId || (user.role === 'cliente_a' ? 'CLI-001' : 'CLI-002');
       if (job.clienteId !== targetClientId) {
-        console.warn(`[SECURITY VIOLATION BLOCKED] ${user.role} attempted access to reference ${refArlogs} belonging to ${job.cliente}`);
+        console.warn(
+          `[SECURITY VIOLATION BLOCKED] ${user.role} attempted access to reference ${refArlogs} belonging to ${job.cliente}`,
+        );
         return null; // Server returns 403 / 404 forbidden
       }
     }
@@ -487,10 +538,10 @@ export class ShipmentService {
     let updatedJob: ShipmentJob | null = null;
     const diffs: string[] = [];
 
-    this.jobs.update(list => {
-      return list.map(item => {
+    this.jobs.update((list) => {
+      return list.map((item) => {
         if (item.refArlogs === refArlogs) {
-          (Object.keys(changes) as (keyof ShipmentJob)[]).forEach(k => {
+          (Object.keys(changes) as (keyof ShipmentJob)[]).forEach((k) => {
             const oldVal = item[k] ?? 'vacío';
             const newVal = changes[k] ?? 'vacío';
             if (oldVal !== newVal) {
@@ -515,7 +566,8 @@ export class ShipmentService {
         categoria: 'OPERACION_HITOS',
         entidad: refArlogs,
         accion: 'Modificación Operativa / Hitos',
-        detalle: diffs.slice(0, 4).join(' | ') + (diffs.length > 4 ? ` (+${diffs.length - 4} más)` : '')
+        detalle:
+          diffs.slice(0, 4).join(' | ') + (diffs.length > 4 ? ` (+${diffs.length - 4} más)` : ''),
       });
     }
 
@@ -539,10 +591,10 @@ export class ShipmentService {
     const newQuote: Quotation = {
       ...data,
       id: qrId,
-      estado: 'PENDIENTE'
+      estado: 'PENDIENTE',
     };
 
-    this.quotations.update(list => [newQuote, ...list]);
+    this.quotations.update((list) => [newQuote, ...list]);
     const user = this.currentUser();
     this.auditService.record({
       usuario: user.nombre,
@@ -551,7 +603,7 @@ export class ShipmentService {
       categoria: 'PRICING_QR',
       entidad: qrId,
       accion: 'Nueva Cotización QR',
-      detalle: `Cliente: ${data.cliente} | ${data.servicio} | Venta $${data.valorVentaCotizado ?? 0} | OC: ${data.ordenesCompra.join(', ')}`
+      detalle: `Cliente: ${data.cliente} | ${data.servicio} | Venta $${data.valorVentaCotizado ?? 0} | OC: ${data.ordenesCompra.join(', ')}`,
     });
     return newQuote;
   }
@@ -573,7 +625,7 @@ export class ShipmentService {
       throw new Error('Solo Pricing puede aprobar cotizaciones.');
     }
 
-    const quote = this.quotations().find(q => q.id === quotationId);
+    const quote = this.quotations().find((q) => q.id === quotationId);
     if (!quote) throw new Error('Cotización no encontrada.');
     if (quote.estado === 'APROBADA') {
       throw new Error('Esta cotización ya fue aprobada y tiene una referencia activa.');
@@ -617,15 +669,19 @@ export class ShipmentService {
       valorVentaCotizado: quote.valorVentaCotizado ?? 0,
       costoEstimadoCotizado: quote.costoEstimadoCotizado ?? 0,
       plazoPagoDias: quote.plazoPagoDias ?? 15,
-      estadoCobro: 'PENDIENTE_FACTURAR'
+      estadoCobro: 'PENDIENTE_FACTURAR',
     };
 
     const calculatedJob = this.calculateJobMetrics(newJob, this.alertThresholdDays());
 
     // Update quote
-    this.quotations.update(list => list.map(q => q.id === quotationId ? { ...q, estado: 'APROBADA', refArlogsGenerada: newRef } : q));
+    this.quotations.update((list) =>
+      list.map((q) =>
+        q.id === quotationId ? { ...q, estado: 'APROBADA', refArlogsGenerada: newRef } : q,
+      ),
+    );
     // Add job to operations pool
-    this.jobs.update(list => [calculatedJob, ...list]);
+    this.jobs.update((list) => [calculatedJob, ...list]);
 
     const user = this.currentUser();
     this.auditService.record({
@@ -635,7 +691,7 @@ export class ShipmentService {
       categoria: 'PRICING_QR',
       entidad: newRef,
       accion: 'Aprobación de Cotización',
-      detalle: `${quotationId} aprobada -> Referencia ${newRef} transferida a Operaciones`
+      detalle: `${quotationId} aprobada -> Referencia ${newRef} transferida a Operaciones`,
     });
 
     return calculatedJob;
@@ -644,27 +700,27 @@ export class ShipmentService {
   // Update Pending Quotation (Pricing / Gerencia / Admin)
   updateQuotation(
     quotationId: string,
-    patch: Partial<Omit<Quotation, 'id' | 'estado' | 'refArlogsGenerada'>>
+    patch: Partial<Omit<Quotation, 'id' | 'estado' | 'refArlogsGenerada'>>,
   ): Quotation {
     const user = this.currentUser();
     if (user.role !== 'pricing' && user.role !== 'gerencia' && user.role !== 'admin') {
       throw new Error('No tiene permisos para editar cotizaciones.');
     }
-    const existing = this.quotations().find(q => q.id === quotationId);
+    const existing = this.quotations().find((q) => q.id === quotationId);
     if (!existing) throw new Error('Cotización no encontrada.');
     if (existing.estado === 'APROBADA') {
       throw new Error('Una cotización aprobada no puede editarse.');
     }
 
     let updated!: Quotation;
-    this.quotations.update(list =>
-      list.map(q => {
+    this.quotations.update((list) =>
+      list.map((q) => {
         if (q.id === quotationId) {
           updated = { ...q, ...patch };
           return updated;
         }
         return q;
-      })
+      }),
     );
 
     this.auditService.record({
@@ -674,7 +730,7 @@ export class ShipmentService {
       categoria: 'PRICING_QR',
       entidad: quotationId,
       accion: 'Edición de Cotización QR',
-      detalle: `Cliente: ${updated.cliente} | ${updated.servicio} | Origen: ${updated.puertoEmbarque}`
+      detalle: `Cliente: ${updated.cliente} | ${updated.servicio} | Origen: ${updated.puertoEmbarque}`,
     });
     return updated;
   }
@@ -685,13 +741,13 @@ export class ShipmentService {
     if (user.role !== 'pricing' && user.role !== 'gerencia' && user.role !== 'admin') {
       throw new Error('No tiene permisos para eliminar cotizaciones.');
     }
-    const existing = this.quotations().find(q => q.id === quotationId);
+    const existing = this.quotations().find((q) => q.id === quotationId);
     if (!existing) throw new Error('Cotización no encontrada.');
     if (existing.estado === 'APROBADA') {
       throw new Error('No se puede eliminar una cotización ya aprobada con referencia operativa.');
     }
 
-    this.quotations.update(list => list.filter(q => q.id !== quotationId));
+    this.quotations.update((list) => list.filter((q) => q.id !== quotationId));
     this.auditService.record({
       usuario: user.nombre,
       email: user.email,
@@ -699,7 +755,7 @@ export class ShipmentService {
       categoria: 'PRICING_QR',
       entidad: quotationId,
       accion: 'Eliminación de Cotización QR',
-      detalle: `Cotización de ${existing.cliente} (${existing.servicio}) removida de bandeja`
+      detalle: `Cotización de ${existing.cliente} (${existing.servicio}) removida de bandeja`,
     });
   }
 
@@ -742,7 +798,7 @@ export class ShipmentService {
       ordenesCompra: data.ordenesCompra,
       guiaMaster: data.guiaMaster?.trim() || 'PENDIENTE',
       hawbHbl: 'PENDIENTE',
-      contenedor: data.servicio === 'FCL' ? (data.contenedor?.trim() || 'PENDIENTE') : 'N/A',
+      contenedor: data.servicio === 'FCL' ? data.contenedor?.trim() || 'PENDIENTE' : 'N/A',
       pesoOrigen: Number(data.pesoOrigen) > 0 ? Number(data.pesoOrigen) : 180,
       pesoRecibido: null,
       h1_asignacion: this.referenceDate.toISOString().split('T')[0],
@@ -758,11 +814,11 @@ export class ShipmentService {
       responsablePago: 'CLIENTE',
       regimenAduana: data.aduanaPorArlogs === 'SI' ? 'Régimen 10 (Consumo)' : 'N/A',
       distritoAduana: data.servicio === 'AEREO' ? 'Guayaquil Aéreo' : 'Guayaquil Marítimo',
-      aforoAduana: 'Documental'
+      aforoAduana: 'Documental',
     };
 
     const calculated = this.calculateJobMetrics(newJob, this.alertThresholdDays());
-    this.jobs.update(list => [calculated, ...list]);
+    this.jobs.update((list) => [calculated, ...list]);
 
     this.auditService.record({
       usuario: user.nombre,
@@ -771,7 +827,7 @@ export class ShipmentService {
       categoria: 'OPERACION_HITOS',
       entidad: newRef,
       accion: 'Alta de Embarque Operativo',
-      detalle: `Cliente: ${data.cliente} | ${data.servicio} | OC: ${data.ordenesCompra.join(', ')}`
+      detalle: `Cliente: ${data.cliente} | ${data.servicio} | OC: ${data.ordenesCompra.join(', ')}`,
     });
     return calculated;
   }
@@ -782,10 +838,10 @@ export class ShipmentService {
     if (user.role !== 'operaciones' && user.role !== 'gerencia' && user.role !== 'admin') {
       throw new Error('No tiene permisos para eliminar embarques.');
     }
-    const existing = this.jobs().find(j => j.refArlogs === refArlogs);
+    const existing = this.jobs().find((j) => j.refArlogs === refArlogs);
     if (!existing) throw new Error(`Embarque ${refArlogs} no encontrado.`);
 
-    this.jobs.update(list => list.filter(j => j.refArlogs !== refArlogs));
+    this.jobs.update((list) => list.filter((j) => j.refArlogs !== refArlogs));
     this.auditService.record({
       usuario: user.nombre,
       email: user.email,
@@ -793,7 +849,7 @@ export class ShipmentService {
       categoria: 'OPERACION_HITOS',
       entidad: refArlogs,
       accion: 'Eliminación de Embarque',
-      detalle: `Referencia ${refArlogs} (${existing.cliente}) eliminada del seguimiento`
+      detalle: `Referencia ${refArlogs} (${existing.cliente}) eliminada del seguimiento`,
     });
   }
 
@@ -805,18 +861,20 @@ export class ShipmentService {
       valorFacturadoReal: number;
       costoReal: number;
       estadoCobro: 'FACTURADA' | 'COBRADA' | 'VENCIDA';
-    }
+    },
   ): ShipmentJob {
     const user = this.currentUser();
     if (user.role !== 'contabilidad' && user.role !== 'gerencia' && user.role !== 'admin') {
-      throw new Error('Solo Contabilidad, Gerencia o Administración pueden emitir facturas o cobros.');
+      throw new Error(
+        'Solo Contabilidad, Gerencia o Administración pueden emitir facturas o cobros.',
+      );
     }
 
     let updatedJob: ShipmentJob | null = null;
     const today = this.referenceDate.toISOString().split('T')[0];
 
-    this.jobs.update(list =>
-      list.map(j => {
+    this.jobs.update((list) =>
+      list.map((j) => {
         if (j.refArlogs !== refArlogs) return j;
         updatedJob = {
           ...j,
@@ -824,10 +882,10 @@ export class ShipmentService {
           valorFacturadoReal: Number(billing.valorFacturadoReal),
           costoReal: Number(billing.costoReal),
           estadoCobro: billing.estadoCobro,
-          fechaFactura: j.fechaFactura ?? today
+          fechaFactura: j.fechaFactura ?? today,
         };
         return updatedJob;
-      })
+      }),
     );
 
     if (!updatedJob) throw new Error(`Referencia ${refArlogs} no encontrada.`);
@@ -840,7 +898,7 @@ export class ShipmentService {
       categoria: 'FACTURACION',
       entidad: refArlogs,
       accion: billing.estadoCobro === 'COBRADA' ? 'Registro de Cobro' : 'Emisión de Factura',
-      detalle: `${billing.facturaNumero} | Facturado $${billing.valorFacturadoReal.toFixed(0)} | Profit $${profitReal.toFixed(0)} | Estado: ${billing.estadoCobro}`
+      detalle: `${billing.facturaNumero} | Facturado $${billing.valorFacturadoReal.toFixed(0)} | Profit $${profitReal.toFixed(0)} | Estado: ${billing.estadoCobro}`,
     });
 
     return updatedJob;
@@ -861,11 +919,17 @@ export class ShipmentService {
     observacion?: string;
   }): WarehouseItem {
     const user = this.currentUser();
-    if (user.role !== 'bodegas' && user.role !== 'operaciones' && user.role !== 'gerencia' && user.role !== 'admin') {
+    if (
+      user.role !== 'bodegas' &&
+      user.role !== 'operaciones' &&
+      user.role !== 'gerencia' &&
+      user.role !== 'admin'
+    ) {
       throw new Error('No tiene permisos para registrar ingresos en bodega.');
     }
 
-    const bodegaNombre = input.bodegaId === 'BODEGA_1' ? 'Bodega Norte (GYE)' : 'Bodega Sur (Puerto Marítimo)';
+    const bodegaNombre =
+      input.bodegaId === 'BODEGA_1' ? 'Bodega Norte (GYE)' : 'Bodega Sur (Puerto Marítimo)';
     const maxItemNum = this.warehouseItems().reduce((max, i) => {
       const m = /^KAR-(\d+)$/i.exec(i.id);
       return m ? Math.max(max, Number(m[1])) : max;
@@ -888,10 +952,10 @@ export class ShipmentService {
       pesoKg: Number(input.pesoKg) || 0,
       fechaIngreso: today,
       ubicacionRack: input.ubicacionRack.trim().toUpperCase() || 'RACK-01',
-      estado: 'EN_BODEGA'
+      estado: 'EN_BODEGA',
     };
 
-    this.warehouseItems.update(list => [newItem, ...list]);
+    this.warehouseItems.update((list) => [newItem, ...list]);
     this.recordWarehouseMovement({
       itemId: id,
       bodegaNombre,
@@ -902,7 +966,7 @@ export class ShipmentService {
       cliente: newItem.cliente,
       descripcion: newItem.descripcion,
       responsable: user.nombre,
-      observacion: input.observacion?.trim() || 'Conteo físico e ingreso a Kardex'
+      observacion: input.observacion?.trim() || 'Conteo físico e ingreso a Kardex',
     });
 
     this.auditService.record({
@@ -912,7 +976,7 @@ export class ShipmentService {
       categoria: 'BODEGA_KARDEX',
       entidad: `${id} (${newItem.ordenCompra})`,
       accion: 'Ingreso físico a Bodega',
-      detalle: `${bodegaNombre} | ${newItem.cantidadInicial} ${newItem.unidad} | ${newItem.descripcion}`
+      detalle: `${bodegaNombre} | ${newItem.cantidadInicial} ${newItem.unidad} | ${newItem.descripcion}`,
     });
 
     return newItem;
@@ -927,16 +991,23 @@ export class ShipmentService {
     observacion?: string;
   }): WarehouseItem {
     const user = this.currentUser();
-    if (user.role !== 'bodegas' && user.role !== 'operaciones' && user.role !== 'gerencia' && user.role !== 'admin') {
+    if (
+      user.role !== 'bodegas' &&
+      user.role !== 'operaciones' &&
+      user.role !== 'gerencia' &&
+      user.role !== 'admin'
+    ) {
       throw new Error('No tiene permisos para emitir guías de remisión.');
     }
 
-    const existing = this.warehouseItems().find(i => i.id === input.itemId);
+    const existing = this.warehouseItems().find((i) => i.id === input.itemId);
     if (!existing) throw new Error('Ítem de Kardex no encontrado.');
 
     const qty = Number(input.cantidadSalida);
     if (!qty || qty <= 0 || qty > existing.cantidadDisponible) {
-      throw new Error(`Cantidad inválida. Disponible actual: ${existing.cantidadDisponible} ${existing.unidad}.`);
+      throw new Error(
+        `Cantidad inválida. Disponible actual: ${existing.cantidadDisponible} ${existing.unidad}.`,
+      );
     }
 
     const remision = input.guiaRemision.trim().toUpperCase();
@@ -945,18 +1016,18 @@ export class ShipmentService {
     }
 
     let updatedItem!: WarehouseItem;
-    this.warehouseItems.update(list =>
-      list.map(i => {
+    this.warehouseItems.update((list) =>
+      list.map((i) => {
         if (i.id !== input.itemId) return i;
         const remaining = i.cantidadDisponible - qty;
         updatedItem = {
           ...i,
           cantidadDisponible: remaining,
           estado: remaining === 0 ? 'DESPACHADO' : 'PARCIAL',
-          ultimaGuiaRemision: remision
+          ultimaGuiaRemision: remision,
         };
         return updatedItem;
-      })
+      }),
     );
 
     this.recordWarehouseMovement({
@@ -970,7 +1041,7 @@ export class ShipmentService {
       descripcion: existing.descripcion,
       transporteInland: input.transporteInland.trim() || 'Inland Local',
       responsable: user.nombre,
-      observacion: input.observacion?.trim() || 'Despacho con Guía de Remisión'
+      observacion: input.observacion?.trim() || 'Despacho con Guía de Remisión',
     });
 
     this.auditService.record({
@@ -980,7 +1051,7 @@ export class ShipmentService {
       categoria: 'BODEGA_KARDEX',
       entidad: `${remision} (${existing.ordenCompra})`,
       accion: 'Salida Kardex / Guía de Remisión',
-      detalle: `${existing.bodegaNombre} | Retiro: ${qty} ${existing.unidad} (Saldo: ${updatedItem.cantidadDisponible}) | ${input.transporteInland}`
+      detalle: `${existing.bodegaNombre} | Retiro: ${qty} ${existing.unidad} (Saldo: ${updatedItem.cantidadDisponible}) | ${input.transporteInland}`,
     });
 
     return updatedItem;
@@ -994,28 +1065,29 @@ export class ShipmentService {
       const match = /^MOV-(\d+)$/i.exec(x.id);
       return match ? Math.max(max, Number(match[1])) : max;
     }, 304);
-    this.warehouseMovements.update(list => [{ id: `MOV-${maxMov + 1}`, fecha, ...m }, ...list]);
+    this.warehouseMovements.update((list) => [{ id: `MOV-${maxMov + 1}`, fecha, ...m }, ...list]);
   }
 
   // Excel Export (Lazy-loaded SheetJS to keep initial startup fast)
   async exportToExcel(filteredJobs: ShipmentJob[]): Promise<void> {
     const user = this.currentUser();
-    const canSeeFinancials = user.role === 'gerencia' || user.role === 'admin' || user.role === 'contabilidad';
-    const rows = filteredJobs.map(j => {
-      const base: Record<string, any> = {
+    const canSeeFinancials =
+      user.role === 'gerencia' || user.role === 'admin' || user.role === 'contabilidad';
+    const rows = filteredJobs.map((j) => {
+      const base: Record<string, string | number | boolean | null | undefined> = {
         'Ref ARLOGS': j.refArlogs,
         'QR Cotización': j.qrCode,
-        'Modalidad': j.servicio,
-        'Estado': j.estado,
+        Modalidad: j.servicio,
+        Estado: j.estado,
         'Días Abiertos': j.diasAbiertos,
-        'Shipper': j.shipper,
+        Shipper: j.shipper,
         'País Origen': j.paisOrigen,
-        'Puerto': j.puertoEmbarque,
-        'Incoterm': j.incoterm,
+        Puerto: j.puertoEmbarque,
+        Incoterm: j.incoterm,
         'Órdenes de Compra': j.ordenesCompra.join(', '),
         'Guía Máster / BL': j.guiaMaster,
         'HAWB / HBL': j.hawbHbl,
-        'Contenedor': j.contenedor,
+        Contenedor: j.contenedor,
         'Peso Origen (kg)': j.pesoOrigen ?? 'N/A',
         'Peso Recibido (kg)': j.pesoRecibido ?? 'N/A',
         'Dif. Peso %': j.diferenciaPesoPct,
@@ -1038,7 +1110,7 @@ export class ShipmentService {
         'Decl. a Pago (8-7)': j.diasDeclaracionPago,
         'Pago a Inf. (10-8)': j.diasPagoInforme,
         'Días en Aduana (9-7)': j.diasEnAduana,
-        'Ciclo Total (10-1)': j.diasCicloTotal
+        'Ciclo Total (10-1)': j.diasCicloTotal,
       };
 
       // Only internal profiles see client name
@@ -1064,4 +1136,3 @@ export class ShipmentService {
     XLSX.writeFile(workbook, fileName);
   }
 }
-

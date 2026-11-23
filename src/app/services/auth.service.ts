@@ -6,7 +6,7 @@ import {
   RoleUser,
   SCREEN_DEFINITIONS,
   ScreenId,
-  UserRole
+  UserRole,
 } from '../models/shipment.model';
 import { ShipmentService } from './shipment.service';
 import { AuditService } from './audit.service';
@@ -19,14 +19,14 @@ export interface LoginResult {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private shipmentService = inject(ShipmentService);
   private auditService = inject(AuditService);
 
   readonly isLoggedIn = signal<boolean>(false);
-  readonly registeredUsers = signal<RoleUser[]>(DEMO_USERS.map(u => ({ ...u })));
+  readonly registeredUsers = signal<RoleUser[]>(DEMO_USERS.map((u) => ({ ...u })));
   readonly currentUser = this.shipmentService.currentUser;
 
   // Editable screen permissions per role
@@ -38,7 +38,7 @@ export class AuthService {
     contabilidad: [...ROLE_DEFINITIONS.contabilidad.defaultScreens],
     bodegas: [...ROLE_DEFINITIONS.bodegas.defaultScreens],
     cliente_a: [...ROLE_DEFINITIONS.cliente_a.defaultScreens],
-    cliente_b: [...ROLE_DEFINITIONS.cliente_b.defaultScreens]
+    cliente_b: [...ROLE_DEFINITIONS.cliente_b.defaultScreens],
   });
 
   readonly screenDefinitions = SCREEN_DEFINITIONS;
@@ -50,15 +50,13 @@ export class AuthService {
   });
 
   readonly clientUsers = computed<RoleUser[]>(() =>
-    this.registeredUsers().filter(u => u.role === 'cliente_a' || u.role === 'cliente_b')
+    this.registeredUsers().filter((u) => u.role === 'cliente_a' || u.role === 'cliente_b'),
   );
 
   // Validates credentials and prepares session without unmounting Login until 3D animation completes
   authenticateCredentials(email: string, password: string): LoginResult {
     const normalizedEmail = email.trim().toLowerCase();
-    const user = this.registeredUsers().find(
-      u => u.email.toLowerCase() === normalizedEmail
-    );
+    const user = this.registeredUsers().find((u) => u.email.toLowerCase() === normalizedEmail);
 
     if (!user || user.password !== password) {
       this.auditService.record({
@@ -68,7 +66,7 @@ export class AuthService {
         categoria: 'SESION',
         entidad: normalizedEmail || 'LOGIN',
         accion: 'Intento Fallido de Ingreso',
-        detalle: 'Contraseña incorrecta o correo no registrado'
+        detalle: 'Contraseña incorrecta o correo no registrado',
       });
       return { ok: false, error: 'Credenciales incorrectas. Verifica tu correo y contraseña.' };
     }
@@ -81,7 +79,7 @@ export class AuthService {
         categoria: 'SESION',
         entidad: user.email,
         accion: 'Acceso Bloqueado (Cuenta Suspendida)',
-        detalle: 'Intento de inicio de sesión con cuenta desactivada'
+        detalle: 'Intento de inicio de sesión con cuenta desactivada',
       });
       return { ok: false, error: 'Esta cuenta está desactivada. Contacta al Administrador.' };
     }
@@ -93,9 +91,7 @@ export class AuthService {
 
     const nowTs = this.formatNow();
     const updatedUser: RoleUser = { ...user, ultimoAcceso: nowTs };
-    this.registeredUsers.update(list =>
-      list.map(u => (u.id === user.id ? updatedUser : u))
-    );
+    this.registeredUsers.update((list) => list.map((u) => (u.id === user.id ? updatedUser : u)));
 
     this.shipmentService.setCurrentUser(updatedUser);
 
@@ -106,13 +102,13 @@ export class AuthService {
       categoria: 'SESION',
       entidad: updatedUser.clienteId ?? updatedUser.email,
       accion: 'Inicio de Sesión Exitoso',
-      detalle: `Acceso concedido como ${ROLE_DEFINITIONS[updatedUser.role].label}`
+      detalle: `Acceso concedido como ${ROLE_DEFINITIONS[updatedUser.role].label}`,
     });
 
     return {
       ok: true,
       user: updatedUser,
-      defaultScreen: this.getDefaultScreen(updatedUser.role)
+      defaultScreen: this.getDefaultScreen(updatedUser.role),
     };
   }
 
@@ -129,8 +125,9 @@ export class AuthService {
   }
 
   quickDemoLogin(role: UserRole): LoginResult {
-    const user = this.registeredUsers().find(u => u.role === role && u.activo)
-      ?? this.registeredUsers().find(u => u.role === role);
+    const user =
+      this.registeredUsers().find((u) => u.role === role && u.activo) ??
+      this.registeredUsers().find((u) => u.role === role);
     if (!user) {
       return { ok: false, error: 'No existe un usuario activo para ese rol.' };
     }
@@ -138,8 +135,9 @@ export class AuthService {
   }
 
   switchActiveRole(role: UserRole): ScreenId {
-    const user = this.registeredUsers().find(u => u.role === role && u.activo)
-      ?? this.registeredUsers().find(u => u.role === role);
+    const user =
+      this.registeredUsers().find((u) => u.role === role && u.activo) ??
+      this.registeredUsers().find((u) => u.role === role);
     if (user) {
       this.shipmentService.setCurrentUser(user);
     } else {
@@ -157,7 +155,7 @@ export class AuthService {
       categoria: 'SESION',
       entidad: actor.email,
       accion: 'Cierre de Sesión',
-      detalle: 'Sesión finalizada manualmente por el usuario'
+      detalle: 'Sesión finalizada manualmente por el usuario',
     });
     this.isLoggedIn.set(false);
   }
@@ -180,7 +178,8 @@ export class AuthService {
     if (role === 'pricing' && allowed.includes('pricing')) return 'pricing';
     if (role === 'contabilidad' && allowed.includes('facturacion')) return 'facturacion';
     if (role === 'bodegas' && allowed.includes('bodegas')) return 'bodegas';
-    if ((role === 'cliente_a' || role === 'cliente_b') && allowed.includes('cliente')) return 'cliente';
+    if ((role === 'cliente_a' || role === 'cliente_b') && allowed.includes('cliente'))
+      return 'cliente';
     return allowed[0];
   }
 
@@ -190,17 +189,18 @@ export class AuthService {
 
   toggleRoleScreenAccess(role: UserRole, screen: ScreenId): { ok: boolean; error?: string } {
     if (role === 'admin' && screen === 'admin') {
-      return { ok: false, error: 'El rol Administrador debe conservar acceso al módulo de Administración.' };
+      return {
+        ok: false,
+        error: 'El rol Administrador debe conservar acceso al módulo de Administración.',
+      };
     }
 
     let enabled = false;
-    this.roleScreenMatrix.update(matrix => {
+    this.roleScreenMatrix.update((matrix) => {
       const current = matrix[role] ?? [];
       const exists = current.includes(screen);
       enabled = !exists;
-      const next = exists
-        ? current.filter(s => s !== screen)
-        : [...current, screen];
+      const next = exists ? current.filter((s) => s !== screen) : [...current, screen];
       return { ...matrix, [role]: next };
     });
 
@@ -212,7 +212,7 @@ export class AuthService {
       categoria: 'SEGURIDAD_ROLES',
       entidad: `${role} -> ${screen}`,
       accion: 'Actualización Matriz RBAC',
-      detalle: `Pantalla '${screen}' ${enabled ? 'HABILITADA' : 'REVOCADA'} para rol ${ROLE_DEFINITIONS[role].label}`
+      detalle: `Pantalla '${screen}' ${enabled ? 'HABILITADA' : 'REVOCADA'} para rol ${ROLE_DEFINITIONS[role].label}`,
     });
 
     return { ok: true };
@@ -229,7 +229,7 @@ export class AuthService {
     if (!input.nombre.trim() || !cleanEmail) {
       return { ok: false, error: 'Nombre del contacto y correo corporativo son obligatorios.' };
     }
-    if (this.registeredUsers().some(u => u.email.toLowerCase() === cleanEmail)) {
+    if (this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail)) {
       return { ok: false, error: `Ya existe una credencial para el correo ${cleanEmail}.` };
     }
 
@@ -255,10 +255,10 @@ export class AuthService {
       avatarIcon: input.clienteId === 'CLI-001' ? 'bi-building-fill' : 'bi-box-seam-fill',
       descripcion: ROLE_DEFINITIONS[role].summary,
       credencialEmitidaEn: nowTs,
-      credencialEmitidaPor: actor.nombre
+      credencialEmitidaPor: actor.nombre,
     };
 
-    this.registeredUsers.update(list => [newClientUser, ...list]);
+    this.registeredUsers.update((list) => [newClientUser, ...list]);
 
     this.auditService.record({
       usuario: actor.nombre,
@@ -267,31 +267,31 @@ export class AuthService {
       categoria: 'CREDENCIAL_CLIENTE',
       entidad: cleanEmail,
       accion: 'Emisión de Credencial Cliente',
-      detalle: `Acceso emitido para ${clienteNombre} (${input.clienteId}) | Contacto: ${newClientUser.nombre}`
+      detalle: `Acceso emitido para ${clienteNombre} (${input.clienteId}) | Contacto: ${newClientUser.nombre}`,
     });
 
     return { ok: true, user: newClientUser };
   }
 
   regenerateClientPassword(userId: string): { ok: boolean; error?: string; newPassword?: string } {
-    const target = this.registeredUsers().find(u => u.id === userId);
+    const target = this.registeredUsers().find((u) => u.id === userId);
     if (!target) return { ok: false, error: 'Cuenta de cliente no encontrada.' };
 
     const newPassword = this.generateTempPassword(target.clienteId || 'CLI');
     const actor = this.currentUser();
     const nowTs = this.formatNow();
 
-    this.registeredUsers.update(list =>
-      list.map(u =>
+    this.registeredUsers.update((list) =>
+      list.map((u) =>
         u.id === userId
           ? {
               ...u,
               password: newPassword,
               credencialEmitidaEn: nowTs,
-              credencialEmitidaPor: actor.nombre
+              credencialEmitidaPor: actor.nombre,
             }
-          : u
-      )
+          : u,
+      ),
     );
 
     this.auditService.record({
@@ -301,7 +301,7 @@ export class AuthService {
       categoria: 'CREDENCIAL_CLIENTE',
       entidad: target.email,
       accion: 'Rotación de Clave Cliente',
-      detalle: `Nueva clave temporal generada para ${target.clienteNombre || target.nombre}`
+      detalle: `Nueva clave temporal generada para ${target.clienteNombre || target.nombre}`,
     });
 
     return { ok: true, newPassword };
@@ -322,7 +322,7 @@ export class AuthService {
       return { ok: false, error: 'Nombre, correo y contraseña son obligatorios.' };
     }
 
-    const exists = this.registeredUsers().some(u => u.email.toLowerCase() === cleanEmail);
+    const exists = this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail);
     if (exists) {
       return { ok: false, error: `Ya existe un usuario registrado con el correo ${cleanEmail}.` };
     }
@@ -344,12 +344,12 @@ export class AuthService {
             clienteId: roleMeta.clienteId,
             clienteNombre: roleMeta.clienteNombre,
             credencialEmitidaEn: this.formatNow(),
-            credencialEmitidaPor: actor.nombre
+            credencialEmitidaPor: actor.nombre,
           }
-        : {})
+        : {}),
     };
 
-    this.registeredUsers.update(list => [newUser, ...list]);
+    this.registeredUsers.update((list) => [newUser, ...list]);
 
     this.auditService.record({
       usuario: actor.nombre,
@@ -358,7 +358,7 @@ export class AuthService {
       categoria: roleMeta.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES',
       entidad: cleanEmail,
       accion: 'Creación de Usuario',
-      detalle: `Usuario ${newUser.nombre} creado con rol ${ROLE_DEFINITIONS[input.role].label}`
+      detalle: `Usuario ${newUser.nombre} creado con rol ${ROLE_DEFINITIONS[input.role].label}`,
     });
 
     return { ok: true, user: newUser };
@@ -374,7 +374,7 @@ export class AuthService {
       role: UserRole;
       activo: boolean;
       clienteId?: string;
-    }
+    },
   ): { ok: boolean; error?: string } {
     const cleanEmail = changes.email.trim().toLowerCase();
     if (!changes.nombre.trim() || !cleanEmail || !changes.password.trim()) {
@@ -382,7 +382,7 @@ export class AuthService {
     }
 
     const duplicate = this.registeredUsers().some(
-      u => u.id !== id && u.email.toLowerCase() === cleanEmail
+      (u) => u.id !== id && u.email.toLowerCase() === cleanEmail,
     );
     if (duplicate) {
       return { ok: false, error: `El correo ${cleanEmail} ya pertenece a otro usuario.` };
@@ -393,12 +393,12 @@ export class AuthService {
       return { ok: false, error: 'No puedes desactivar tu propia sesión activa.' };
     }
 
-    const previous = this.registeredUsers().find(u => u.id === id);
+    const previous = this.registeredUsers().find((u) => u.id === id);
     const roleMeta = this.getDefaultMetaForRole(changes.role, changes.clienteId);
     let updatedRef: RoleUser | null = null;
 
-    this.registeredUsers.update(list =>
-      list.map(u => {
+    this.registeredUsers.update((list) =>
+      list.map((u) => {
         if (u.id !== id) return u;
         const merged: RoleUser = {
           ...u,
@@ -411,11 +411,11 @@ export class AuthService {
           avatarIcon: roleMeta.avatarIcon,
           descripcion: ROLE_DEFINITIONS[changes.role].summary,
           clienteId: roleMeta.clienteId,
-          clienteNombre: roleMeta.clienteNombre
+          clienteNombre: roleMeta.clienteNombre,
         };
         updatedRef = merged;
         return merged;
-      })
+      }),
     );
 
     if (updatedRef && id === currentActiveId) {
@@ -430,22 +430,22 @@ export class AuthService {
       categoria: 'SEGURIDAD_ROLES',
       entidad: cleanEmail,
       accion: 'Edición de Usuario / Rol',
-      detalle: `Rol: ${previous?.role ?? '?'} -> ${changes.role} | Estado: ${changes.activo ? 'Activo' : 'Suspendido'}`
+      detalle: `Rol: ${previous?.role ?? '?'} -> ${changes.role} | Estado: ${changes.activo ? 'Activo' : 'Suspendido'}`,
     });
 
     return { ok: true };
   }
 
   toggleUserActive(id: string): { ok: boolean; error?: string } {
-    const target = this.registeredUsers().find(u => u.id === id);
+    const target = this.registeredUsers().find((u) => u.id === id);
     if (!target) return { ok: false, error: 'Usuario no encontrado.' };
     if (target.id === this.currentUser().id) {
       return { ok: false, error: 'No puedes desactivar tu propia cuenta mientras está en uso.' };
     }
 
     const nextActive = !target.activo;
-    this.registeredUsers.update(list =>
-      list.map(u => (u.id === id ? { ...u, activo: nextActive } : u))
+    this.registeredUsers.update((list) =>
+      list.map((u) => (u.id === id ? { ...u, activo: nextActive } : u)),
     );
 
     const actor = this.currentUser();
@@ -456,7 +456,7 @@ export class AuthService {
       categoria: target.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES',
       entidad: target.email,
       accion: nextActive ? 'Activación de Cuenta' : 'Suspensión de Cuenta',
-      detalle: `Estado actualizado a ${nextActive ? 'ACTIVO' : 'SUSPENDIDO'}`
+      detalle: `Estado actualizado a ${nextActive ? 'ACTIVO' : 'SUSPENDIDO'}`,
     });
 
     return { ok: true };
@@ -466,17 +466,17 @@ export class AuthService {
     if (id === this.currentUser().id) {
       return { ok: false, error: 'No puedes eliminar el usuario con sesión activa.' };
     }
-    const target = this.registeredUsers().find(u => u.id === id);
+    const target = this.registeredUsers().find((u) => u.id === id);
     if (!target) return { ok: false, error: 'Usuario no encontrado.' };
 
     if (target.role === 'admin') {
-      const adminCount = this.registeredUsers().filter(u => u.role === 'admin').length;
+      const adminCount = this.registeredUsers().filter((u) => u.role === 'admin').length;
       if (adminCount <= 1) {
         return { ok: false, error: 'Debe existir al menos un Administrador en el sistema.' };
       }
     }
 
-    this.registeredUsers.update(list => list.filter(u => u.id !== id));
+    this.registeredUsers.update((list) => list.filter((u) => u.id !== id));
 
     const actor = this.currentUser();
     this.auditService.record({
@@ -486,14 +486,18 @@ export class AuthService {
       categoria: 'SEGURIDAD_ROLES',
       entidad: target.email,
       accion: 'Eliminación de Usuario',
-      detalle: `Cuenta ${target.nombre} (${ROLE_DEFINITIONS[target.role].label}) eliminada`
+      detalle: `Cuenta ${target.nombre} (${ROLE_DEFINITIONS[target.role].label}) eliminada`,
     });
 
     return { ok: true };
   }
 
   private generateTempPassword(prefix: string): string {
-    const clean = prefix.replace(/[^A-Z0-9]/gi, '').slice(0, 4).toUpperCase() || 'ARLG';
+    const clean =
+      prefix
+        .replace(/[^A-Z0-9]/gi, '')
+        .slice(0, 4)
+        .toUpperCase() || 'ARLG';
     const rand = Math.floor(1000 + Math.random() * 9000);
     return `${clean}-${rand}*26`;
   }
@@ -506,7 +510,7 @@ export class AuthService {
 
   private getDefaultMetaForRole(
     role: UserRole,
-    explicitClientId?: string
+    explicitClientId?: string,
   ): { avatarIcon: string; clienteId?: string; clienteNombre?: string } {
     switch (role) {
       case 'admin':
@@ -526,7 +530,10 @@ export class AuthService {
         return {
           avatarIcon: 'bi-building-fill',
           clienteId: cid,
-          clienteNombre: cid === 'CLI-002' ? 'Comercial Pacífico DEMO Cía. Ltda.' : 'Industrias Andinas DEMO S.A.'
+          clienteNombre:
+            cid === 'CLI-002'
+              ? 'Comercial Pacífico DEMO Cía. Ltda.'
+              : 'Industrias Andinas DEMO S.A.',
         };
       }
       case 'cliente_b': {
@@ -534,7 +541,10 @@ export class AuthService {
         return {
           avatarIcon: 'bi-box-seam-fill',
           clienteId: cid,
-          clienteNombre: cid === 'CLI-001' ? 'Industrias Andinas DEMO S.A.' : 'Comercial Pacífico DEMO Cía. Ltda.'
+          clienteNombre:
+            cid === 'CLI-001'
+              ? 'Industrias Andinas DEMO S.A.'
+              : 'Comercial Pacífico DEMO Cía. Ltda.',
         };
       }
     }

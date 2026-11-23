@@ -28,10 +28,10 @@ import { ScreenId } from './models/shipment.model';
     ClientPortalComponent,
     AdminComponent,
     LoginComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
   ],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   private shipmentService = inject(ShipmentService);

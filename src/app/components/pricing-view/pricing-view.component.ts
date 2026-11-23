@@ -11,15 +11,11 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
   imports: [CommonModule, FormsModule],
   template: `
     <div class="pricing-view py-2">
-
       <!-- Header & Action -->
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <h5 class="fw-bold mb-0 text-dark font-heading">Gestión de Cotizaciones y Aprobaciones</h5>
 
-        <button
-          type="button"
-          class="btn btn-sm btn-brand-primary"
-          (click)="openCreateModal()">
+        <button type="button" class="btn btn-sm btn-brand-primary" (click)="openCreateModal()">
           <i class="bi bi-plus-lg me-1"></i>
           <span>Nueva Cotización (QR)</span>
         </button>
@@ -27,7 +23,6 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
 
       <!-- Main Unified Table Card with Integrated Search & Filter Toolbar -->
       <div class="card-executive overflow-hidden mb-3">
-        
         <!-- Integrated Toolbar Header -->
         <div class="p-3 bg-slate-50 border-bottom border-slate-200">
           <div class="row g-2 align-items-center">
@@ -41,9 +36,14 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                   class="form-control border-start-0"
                   placeholder="Buscar por QR, cliente, shipper o OC..."
                   [ngModel]="searchQuery()"
-                  (ngModelChange)="searchQuery.set($event); pricingPage.set(1)">
+                  (ngModelChange)="searchQuery.set($event); pricingPage.set(1)"
+                />
                 @if (searchQuery()) {
-                  <button class="btn btn-outline-secondary" type="button" (click)="searchQuery.set(''); pricingPage.set(1)">
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="searchQuery.set(''); pricingPage.set(1)"
+                  >
                     <i class="bi bi-x"></i>
                   </button>
                 }
@@ -51,7 +51,11 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
             </div>
 
             <div class="col-6 col-md-3">
-              <select class="form-select form-select-sm" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event); pricingPage.set(1)">
+              <select
+                class="form-select form-select-sm"
+                [ngModel]="filterStatus()"
+                (ngModelChange)="filterStatus.set($event); pricingPage.set(1)"
+              >
                 <option value="ALL">Todos los estados</option>
                 <option value="PENDIENTE">Pendientes de aprobación</option>
                 <option value="APROBADA">Aprobadas</option>
@@ -59,7 +63,11 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
             </div>
 
             <div class="col-6 col-md-2">
-              <select class="form-select form-select-sm" [ngModel]="filterModality()" (ngModelChange)="filterModality.set($event); pricingPage.set(1)">
+              <select
+                class="form-select form-select-sm"
+                [ngModel]="filterModality()"
+                (ngModelChange)="filterModality.set($event); pricingPage.set(1)"
+              >
                 <option value="ALL">Todas las modalidades</option>
                 <option value="AEREO">Aéreo (A)</option>
                 <option value="FCL">FCL (F)</option>
@@ -70,9 +78,18 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
               </select>
             </div>
 
-            <div class="col-12 col-md-2 text-md-end d-flex align-items-center justify-content-between justify-content-md-end gap-2">
-              <span class="fs-xxs text-muted mono-font">Pendientes: <strong class="text-warning">{{ pendingCount() }}</strong></span>
-              <button type="button" class="btn btn-sm btn-outline-secondary px-2" (click)="resetFilters()" title="Limpiar filtros">
+            <div
+              class="col-12 col-md-2 text-md-end d-flex align-items-center justify-content-between justify-content-md-end gap-2"
+            >
+              <span class="fs-xxs text-muted mono-font"
+                >Pendientes: <strong class="text-warning">{{ pendingCount() }}</strong></span
+              >
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary px-2"
+                (click)="resetFilters()"
+                title="Limpiar filtros"
+              >
                 <i class="bi bi-arrow-counterclockwise"></i>
               </button>
             </div>
@@ -109,45 +126,70 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                     <strong class="text-dark">{{ q.cliente }}</strong>
                   </td>
                   <td>
-                    <span class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font">{{ q.servicio }}</span>
+                    <span
+                      class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font"
+                      >{{ q.servicio }}</span
+                    >
                   </td>
                   <td>
-                    <div class="text-truncate" style="max-width: 140px;" [title]="q.shipper">{{ q.shipper }}</div>
+                    <div class="text-truncate" style="max-width: 140px;" [title]="q.shipper">
+                      {{ q.shipper }}
+                    </div>
                   </td>
                   <td>
-                    <div class="text-truncate" style="max-width: 130px;" [title]="q.puertoEmbarque + ', ' + q.paisOrigen">
+                    <div
+                      class="text-truncate"
+                      style="max-width: 130px;"
+                      [title]="q.puertoEmbarque + ', ' + q.paisOrigen"
+                    >
                       {{ q.puertoEmbarque }}, {{ q.paisOrigen }}
                     </div>
                   </td>
-                  <td><span class="badge bg-slate-50 text-dark border border-slate-200 mono-font">{{ q.incoterm }}</span></td>
+                  <td>
+                    <span class="badge bg-slate-50 text-dark border border-slate-200 mono-font">{{
+                      q.incoterm
+                    }}</span>
+                  </td>
                   <td>
                     <span class="mono-font fs-xs">{{ q.ordenesCompra.join(', ') }}</span>
                   </td>
                   <td>
-                    <span class="badge"
-                          [class.bg-blue-50]="q.aduanaPorArlogs === 'SI'"
-                          [class.text-blue-700]="q.aduanaPorArlogs === 'SI'"
-                          [class.bg-slate-50]="q.aduanaPorArlogs !== 'SI'"
-                          [class.text-slate-500]="q.aduanaPorArlogs !== 'SI'">
+                    <span
+                      class="badge"
+                      [class.bg-blue-50]="q.aduanaPorArlogs === 'SI'"
+                      [class.text-blue-700]="q.aduanaPorArlogs === 'SI'"
+                      [class.bg-slate-50]="q.aduanaPorArlogs !== 'SI'"
+                      [class.text-slate-500]="q.aduanaPorArlogs !== 'SI'"
+                    >
                       {{ q.aduanaPorArlogs }}
                     </span>
                   </td>
                   <td class="text-end">
                     <div class="mono-font fw-bold text-dark fs-xs">
-                      \${{ (q.valorVentaCotizado ?? 0) | number:'1.0-0' }}
+                      \${{ q.valorVentaCotizado ?? 0 | number: '1.0-0' }}
                     </div>
-                    <div class="fs-xxs mono-font" [class.text-success]="profitEst >= 0" [class.text-danger]="profitEst < 0">
-                      Profit: \${{ profitEst | number:'1.0-0' }}
+                    <div
+                      class="fs-xxs mono-font"
+                      [class.text-success]="profitEst >= 0"
+                      [class.text-danger]="profitEst < 0"
+                    >
+                      Profit: \${{ profitEst | number: '1.0-0' }}
                     </div>
                   </td>
                   <td>
-                    <span class="badge-subtle" [class.badge-subtle-emerald]="q.estado === 'APROBADA'" [class.badge-subtle-amber]="q.estado === 'PENDIENTE'">
+                    <span
+                      class="badge-subtle"
+                      [class.badge-subtle-emerald]="q.estado === 'APROBADA'"
+                      [class.badge-subtle-amber]="q.estado === 'PENDIENTE'"
+                    >
                       {{ q.estado }}
                     </span>
                   </td>
                   <td>
                     @if (q.refArlogsGenerada) {
-                      <strong class="text-primary mono-font fs-xs">{{ q.refArlogsGenerada }}</strong>
+                      <strong class="text-primary mono-font fs-xs">{{
+                        q.refArlogsGenerada
+                      }}</strong>
                     } @else {
                       <span class="text-muted fs-xxs">Pendiente</span>
                     }
@@ -158,7 +200,8 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                         type="button"
                         class="btn btn-sm btn-outline-secondary py-1 px-2 fs-xs"
                         (click)="openEditModal(q)"
-                        title="Modificar cotización">
+                        title="Modificar cotización"
+                      >
                         <i class="bi bi-pencil"></i>
                       </button>
 
@@ -167,7 +210,8 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                           type="button"
                           class="btn btn-sm btn-success py-1 px-2 fs-xs"
                           (click)="approveQuotation(q)"
-                          title="Aprobar y generar código ARLOGS">
+                          title="Aprobar y generar código ARLOGS"
+                        >
                           <i class="bi bi-check-lg me-1"></i>Aprobar
                         </button>
                       }
@@ -187,18 +231,47 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
 
         <!-- Functional Pagination Footer -->
         @if (filteredQuotations().length > 0) {
-          <div class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs">
+          <div
+            class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs"
+          >
             <div class="d-flex align-items-center gap-2 text-muted">
               <span>
-                Mostrando <strong>{{ pricingStartIndex() }}</strong>–<strong>{{ pricingEndIndex() }}</strong> de <strong>{{ filteredQuotations().length }}</strong> cotizaciones
+                Mostrando <strong>{{ pricingStartIndex() }}</strong>–<strong>{{
+                  pricingEndIndex()
+                }}</strong>
+                de <strong>{{ filteredQuotations().length }}</strong> cotizaciones
               </span>
               <span class="d-none d-sm-inline">&bull;</span>
               <div class="d-flex align-items-center gap-1 d-none d-sm-flex">
                 <span class="text-muted fs-xxs">Filas:</span>
                 <div class="btn-group btn-group-sm pagination-size-group">
-                  <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="pricingPageSize() === 5" [class.btn-outline-secondary]="pricingPageSize() !== 5" (click)="pricingPageSize.set(5); pricingPage.set(1)">5</button>
-                  <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="pricingPageSize() === 6" [class.btn-outline-secondary]="pricingPageSize() !== 6" (click)="pricingPageSize.set(6); pricingPage.set(1)">6</button>
-                  <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="pricingPageSize() === 12" [class.btn-outline-secondary]="pricingPageSize() !== 12" (click)="pricingPageSize.set(12); pricingPage.set(1)">12</button>
+                  <button
+                    type="button"
+                    class="btn btn-xs py-0 px-2 fs-xxs"
+                    [class.btn-dark]="pricingPageSize() === 5"
+                    [class.btn-outline-secondary]="pricingPageSize() !== 5"
+                    (click)="pricingPageSize.set(5); pricingPage.set(1)"
+                  >
+                    5
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs py-0 px-2 fs-xxs"
+                    [class.btn-dark]="pricingPageSize() === 6"
+                    [class.btn-outline-secondary]="pricingPageSize() !== 6"
+                    (click)="pricingPageSize.set(6); pricingPage.set(1)"
+                  >
+                    6
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs py-0 px-2 fs-xxs"
+                    [class.btn-dark]="pricingPageSize() === 12"
+                    [class.btn-outline-secondary]="pricingPageSize() !== 12"
+                    (click)="pricingPageSize.set(12); pricingPage.set(1)"
+                  >
+                    12
+                  </button>
                 </div>
               </div>
             </div>
@@ -208,7 +281,8 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                 type="button"
                 class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                 [disabled]="pricingPage() === 1"
-                (click)="pricingPage.set(pricingPage() - 1)">
+                (click)="pricingPage.set(pricingPage() - 1)"
+              >
                 <i class="bi bi-chevron-left"></i>
               </button>
               @for (p of pricingPageNumbers(); track p) {
@@ -217,7 +291,8 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                   class="btn btn-sm py-0 px-2 fs-xs"
                   [class.btn-dark]="pricingPage() === p"
                   [class.btn-outline-secondary]="pricingPage() !== p"
-                  (click)="pricingPage.set(p)">
+                  (click)="pricingPage.set(p)"
+                >
                   {{ p }}
                 </button>
               }
@@ -225,7 +300,8 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                 type="button"
                 class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                 [disabled]="pricingPage() === totalPricingPages()"
-                (click)="pricingPage.set(pricingPage() + 1)">
+                (click)="pricingPage.set(pricingPage() + 1)"
+              >
                 <i class="bi bi-chevron-right"></i>
               </button>
             </div>
@@ -235,17 +311,29 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
 
       <!-- Create / Edit Quotation Modal -->
       @if (showQuoteModal) {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+        <div
+          class="modal fade show d-block"
+          tabindex="-1"
+          style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+        >
           <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               <div class="modal-header bg-slate-900 text-white border-0 py-3">
                 <div class="d-flex align-items-center gap-2">
                   <i class="bi bi-tag-fill text-warning"></i>
                   <h6 class="modal-title mb-0 fw-bold font-heading">
-                    {{ editingQuoteId ? 'Editar Cotización ' + editingQuoteId : 'Nueva Cotización (QR)' }}
+                    {{
+                      editingQuoteId
+                        ? 'Editar Cotización ' + editingQuoteId
+                        : 'Nueva Cotización (QR)'
+                    }}
                   </h6>
                 </div>
-                <button type="button" class="btn-close btn-close-white" (click)="showQuoteModal = false"></button>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  (click)="showQuoteModal = false"
+                ></button>
               </div>
 
               <form (ngSubmit)="onSubmitQuote()">
@@ -253,7 +341,12 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Cliente</label>
-                      <select class="form-select" [(ngModel)]="quoteForm.clienteId" name="clienteId" (ngModelChange)="onClientSelect($event)">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="quoteForm.clienteId"
+                        name="clienteId"
+                        (ngModelChange)="onClientSelect($event)"
+                      >
                         <option value="CLI-001">Industrias Andinas S.A. (CLI-001)</option>
                         <option value="CLI-002">Comercial Pacífico Cía. Ltda. (CLI-002)</option>
                       </select>
@@ -261,7 +354,12 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
 
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Modalidad de Servicio</label>
-                      <select class="form-select" [(ngModel)]="quoteForm.servicio" name="servicio" (ngModelChange)="onServiceSelect($event)">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="quoteForm.servicio"
+                        name="servicio"
+                        (ngModelChange)="onServiceSelect($event)"
+                      >
                         <option value="AEREO">Aéreo (A)</option>
                         <option value="FCL">FCL Contenedor (F)</option>
                         <option value="LCL">LCL Consolidado (L)</option>
@@ -273,17 +371,40 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
 
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Proveedor (Shipper)</label>
-                      <input type="text" class="form-control" [(ngModel)]="quoteForm.shipper" name="shipper" placeholder="Ej. Yiwu Supply Chain Co." required>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="quoteForm.shipper"
+                        name="shipper"
+                        placeholder="Ej. Yiwu Supply Chain Co."
+                        required
+                      />
                     </div>
 
                     <div class="col-12 col-md-3">
                       <label class="form-label fs-xs fw-semibold">País de Origen</label>
-                      <input type="text" class="form-control" [(ngModel)]="quoteForm.paisOrigen" name="paisOrigen" placeholder="Ej. China" required>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="quoteForm.paisOrigen"
+                        name="paisOrigen"
+                        placeholder="Ej. China"
+                        required
+                      />
                     </div>
 
                     <div class="col-12 col-md-3">
-                      <label class="form-label fs-xs fw-semibold">Puerto / Aeropuerto Embarque</label>
-                      <input type="text" class="form-control" [(ngModel)]="quoteForm.puertoEmbarque" name="puertoEmbarque" placeholder="Ej. Ningbo (CNNGB)" required>
+                      <label class="form-label fs-xs fw-semibold"
+                        >Puerto / Aeropuerto Embarque</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="quoteForm.puertoEmbarque"
+                        name="puertoEmbarque"
+                        placeholder="Ej. Ningbo (CNNGB)"
+                        required
+                      />
                     </div>
 
                     <div class="col-6 col-md-3">
@@ -300,7 +421,12 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
 
                     <div class="col-6 col-md-3">
                       <label class="form-label fs-xs fw-semibold">Aduana por ARLOGS</label>
-                      <select class="form-select" [(ngModel)]="quoteForm.aduanaPorArlogs" name="aduanaPorArlogs" [disabled]="quoteForm.servicio === 'INLAND'">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="quoteForm.aduanaPorArlogs"
+                        name="aduanaPorArlogs"
+                        [disabled]="quoteForm.servicio === 'INLAND'"
+                      >
                         <option value="SI">SÍ</option>
                         <option value="NO">NO</option>
                         <option value="N/A">N/A</option>
@@ -308,30 +434,63 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                     </div>
 
                     <div class="col-12 col-md-6">
-                      <label class="form-label fs-xs fw-semibold">Órdenes de Compra (separadas por coma)</label>
-                      <input type="text" class="form-control mono-font" [(ngModel)]="quoteForm.ordenesCompraStr" name="ordenesCompraStr" placeholder="OC-1001, OC-1002" required>
+                      <label class="form-label fs-xs fw-semibold"
+                        >Órdenes de Compra (separadas por coma)</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control mono-font"
+                        [(ngModel)]="quoteForm.ordenesCompraStr"
+                        name="ordenesCompraStr"
+                        placeholder="OC-1001, OC-1002"
+                        required
+                      />
                     </div>
 
                     <!-- Commercial Pricing Breakdown -->
                     <div class="col-12 col-md-4">
-                      <label class="form-label fs-xs fw-semibold text-primary">Valor Venta Cotizado (USD)</label>
+                      <label class="form-label fs-xs fw-semibold text-primary"
+                        >Valor Venta Cotizado (USD)</label
+                      >
                       <div class="input-group input-group-sm">
                         <span class="input-group-text">$</span>
-                        <input type="number" class="form-control mono-font fw-bold" [(ngModel)]="quoteForm.valorVentaCotizado" name="valorVentaCotizado" min="0" step="50" required>
+                        <input
+                          type="number"
+                          class="form-control mono-font fw-bold"
+                          [(ngModel)]="quoteForm.valorVentaCotizado"
+                          name="valorVentaCotizado"
+                          min="0"
+                          step="50"
+                          required
+                        />
                       </div>
                     </div>
 
                     <div class="col-12 col-md-4">
-                      <label class="form-label fs-xs fw-semibold text-secondary">Costo Estimado Cotizado (USD)</label>
+                      <label class="form-label fs-xs fw-semibold text-secondary"
+                        >Costo Estimado Cotizado (USD)</label
+                      >
                       <div class="input-group input-group-sm">
                         <span class="input-group-text">$</span>
-                        <input type="number" class="form-control mono-font" [(ngModel)]="quoteForm.costoEstimadoCotizado" name="costoEstimadoCotizado" min="0" step="50" required>
+                        <input
+                          type="number"
+                          class="form-control mono-font"
+                          [(ngModel)]="quoteForm.costoEstimadoCotizado"
+                          name="costoEstimadoCotizado"
+                          min="0"
+                          step="50"
+                          required
+                        />
                       </div>
                     </div>
 
                     <div class="col-12 col-md-4">
                       <label class="form-label fs-xs fw-semibold">Plazo de Pago (Días)</label>
-                      <select class="form-select form-select-sm" [(ngModel)]="quoteForm.plazoPagoDias" name="plazoPagoDias">
+                      <select
+                        class="form-select form-select-sm"
+                        [(ngModel)]="quoteForm.plazoPagoDias"
+                        name="plazoPagoDias"
+                      >
                         <option [value]="0">Contado (0 días)</option>
                         <option [value]="15">15 días</option>
                         <option [value]="30">30 días crédito</option>
@@ -343,7 +502,13 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
                 </div>
 
                 <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
-                  <button type="button" class="btn btn-sm btn-light border" (click)="showQuoteModal = false">Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    (click)="showQuoteModal = false"
+                  >
+                    Cancelar
+                  </button>
                   <button type="submit" class="btn btn-sm btn-brand-primary">
                     <i class="bi bi-check-lg me-1"></i>
                     <span>{{ editingQuoteId ? 'Guardar Cambios' : 'Emitir Cotización' }}</span>
@@ -354,20 +519,39 @@ import { Quotation, ServiceType, ServicePrefix } from '../../models/shipment.mod
           </div>
         </div>
       }
-
     </div>
   `,
-  styles: [`
-    .bg-slate-50 { background-color: #F8FAFC !important; }
-    .bg-slate-100 { background-color: #F1F5F9 !important; }
-    .bg-slate-900 { background-color: #0F172A !important; }
-    .text-slate-500 { color: #64748B !important; }
-    .text-slate-700 { color: #334155 !important; }
-    .border-slate-100 { border-color: #F1F5F9 !important; }
-    .border-slate-200 { border-color: #E2E8F0 !important; }
-    .bg-blue-50 { background-color: #EFF6FF !important; }
-    .text-blue-700 { color: #1D4ED8 !important; }
-  `]
+  styles: [
+    `
+      .bg-slate-50 {
+        background-color: #f8fafc !important;
+      }
+      .bg-slate-100 {
+        background-color: #f1f5f9 !important;
+      }
+      .bg-slate-900 {
+        background-color: #0f172a !important;
+      }
+      .text-slate-500 {
+        color: #64748b !important;
+      }
+      .text-slate-700 {
+        color: #334155 !important;
+      }
+      .border-slate-100 {
+        border-color: #f1f5f9 !important;
+      }
+      .border-slate-200 {
+        border-color: #e2e8f0 !important;
+      }
+      .bg-blue-50 {
+        background-color: #eff6ff !important;
+      }
+      .text-blue-700 {
+        color: #1d4ed8 !important;
+      }
+    `,
+  ],
 })
 export class PricingViewComponent {
   private shipmentService = inject(ShipmentService);
@@ -388,8 +572,8 @@ export class PricingViewComponent {
 
   quoteForm = this.emptyForm();
 
-  readonly pendingCount = computed(() =>
-    this.quotations().filter(q => q.estado === 'PENDIENTE').length
+  readonly pendingCount = computed(
+    () => this.quotations().filter((q) => q.estado === 'PENDIENTE').length,
   );
 
   readonly filteredQuotations = computed(() => {
@@ -399,26 +583,27 @@ export class PricingViewComponent {
     const modality = this.filterModality();
 
     if (status !== 'ALL') {
-      list = list.filter(item => item.estado === status);
+      list = list.filter((item) => item.estado === status);
     }
     if (modality !== 'ALL') {
-      list = list.filter(item => item.servicio === modality);
+      list = list.filter((item) => item.servicio === modality);
     }
     if (q) {
-      list = list.filter(item =>
-        item.id.toLowerCase().includes(q) ||
-        item.cliente.toLowerCase().includes(q) ||
-        item.shipper.toLowerCase().includes(q) ||
-        item.paisOrigen.toLowerCase().includes(q) ||
-        item.puertoEmbarque.toLowerCase().includes(q) ||
-        item.ordenesCompra.some(oc => oc.toLowerCase().includes(q))
+      list = list.filter(
+        (item) =>
+          item.id.toLowerCase().includes(q) ||
+          item.cliente.toLowerCase().includes(q) ||
+          item.shipper.toLowerCase().includes(q) ||
+          item.paisOrigen.toLowerCase().includes(q) ||
+          item.puertoEmbarque.toLowerCase().includes(q) ||
+          item.ordenesCompra.some((oc) => oc.toLowerCase().includes(q)),
       );
     }
     return list;
   });
 
   readonly totalPricingPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredQuotations().length / this.pricingPageSize()))
+    Math.max(1, Math.ceil(this.filteredQuotations().length / this.pricingPageSize())),
   );
 
   readonly paginatedQuotations = computed(() => {
@@ -428,11 +613,13 @@ export class PricingViewComponent {
   });
 
   readonly pricingStartIndex = computed(() =>
-    this.filteredQuotations().length === 0 ? 0 : (this.pricingPage() - 1) * this.pricingPageSize() + 1
+    this.filteredQuotations().length === 0
+      ? 0
+      : (this.pricingPage() - 1) * this.pricingPageSize() + 1,
   );
 
   readonly pricingEndIndex = computed(() =>
-    Math.min(this.pricingPage() * this.pricingPageSize(), this.filteredQuotations().length)
+    Math.min(this.pricingPage() * this.pricingPageSize(), this.filteredQuotations().length),
   );
 
   readonly pricingPageNumbers = computed(() => {
@@ -454,7 +641,7 @@ export class PricingViewComponent {
       aduanaPorArlogs: 'SI' as 'SI' | 'NO' | 'N/A',
       valorVentaCotizado: 2400,
       costoEstimadoCotizado: 1850,
-      plazoPagoDias: 15
+      plazoPagoDias: 15,
     };
   }
 
@@ -487,13 +674,14 @@ export class PricingViewComponent {
       aduanaPorArlogs: q.aduanaPorArlogs,
       valorVentaCotizado: q.valorVentaCotizado ?? 2200,
       costoEstimadoCotizado: q.costoEstimadoCotizado ?? 1750,
-      plazoPagoDias: q.plazoPagoDias ?? 15
+      plazoPagoDias: q.plazoPagoDias ?? 15,
     };
     this.showQuoteModal = true;
   }
 
   onClientSelect(clienteId: string): void {
-    this.quoteForm.cliente = clienteId === 'CLI-001' ? 'Industrias Andinas S.A.' : 'Comercial Pacífico Cía. Ltda.';
+    this.quoteForm.cliente =
+      clienteId === 'CLI-001' ? 'Industrias Andinas S.A.' : 'Comercial Pacífico Cía. Ltda.';
   }
 
   onServiceSelect(serv: ServiceType): void {
@@ -503,7 +691,7 @@ export class PricingViewComponent {
       LCL: 'L',
       CUSTOMS: 'C',
       COURIER: 'AC',
-      INLAND: 'I'
+      INLAND: 'I',
     };
     this.quoteForm.serviceCode = map[serv];
     if (serv === 'INLAND') {
@@ -512,12 +700,22 @@ export class PricingViewComponent {
   }
 
   onSubmitQuote(): void {
-    if (!this.quoteForm.shipper.trim() || !this.quoteForm.paisOrigen.trim() || !this.quoteForm.puertoEmbarque.trim()) {
-      this.toastService.error('Incorrecto', 'Complete todos los campos obligatorios de shipper, país y puerto.');
+    if (
+      !this.quoteForm.shipper.trim() ||
+      !this.quoteForm.paisOrigen.trim() ||
+      !this.quoteForm.puertoEmbarque.trim()
+    ) {
+      this.toastService.error(
+        'Incorrecto',
+        'Complete todos los campos obligatorios de shipper, país y puerto.',
+      );
       return;
     }
 
-    const ocs = this.quoteForm.ordenesCompraStr.split(',').map(s => s.trim()).filter(Boolean);
+    const ocs = this.quoteForm.ordenesCompraStr
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (ocs.length === 0) {
       this.toastService.error('Incorrecto', 'Debe ingresar al menos una orden de compra.');
       return;
@@ -538,7 +736,7 @@ export class PricingViewComponent {
           aduanaPorArlogs: this.quoteForm.aduanaPorArlogs,
           valorVentaCotizado: Number(this.quoteForm.valorVentaCotizado) || 0,
           costoEstimadoCotizado: Number(this.quoteForm.costoEstimadoCotizado) || 0,
-          plazoPagoDias: Number(this.quoteForm.plazoPagoDias) || 0
+          plazoPagoDias: Number(this.quoteForm.plazoPagoDias) || 0,
         });
         this.showQuoteModal = false;
         this.toastService.success('Correcto — Actualizado', `Cotización ${updated.id} modificada.`);
@@ -557,13 +755,14 @@ export class PricingViewComponent {
           aduanaPorArlogs: this.quoteForm.aduanaPorArlogs,
           valorVentaCotizado: Number(this.quoteForm.valorVentaCotizado) || 0,
           costoEstimadoCotizado: Number(this.quoteForm.costoEstimadoCotizado) || 0,
-          plazoPagoDias: Number(this.quoteForm.plazoPagoDias) || 0
+          plazoPagoDias: Number(this.quoteForm.plazoPagoDias) || 0,
         });
         this.showQuoteModal = false;
         this.toastService.success('Correcto — Creado', `Cotización ${created.id} registrada.`);
       }
-    } catch (err: any) {
-      this.toastService.error('Incorrecto', err?.message ?? 'Error al procesar la cotización.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al procesar la cotización.';
+      this.toastService.error('Incorrecto', message);
     }
   }
 
@@ -572,10 +771,11 @@ export class PricingViewComponent {
       const job = this.shipmentService.approveQuotation(q.id);
       this.toastService.success(
         'Correcto — Aprobado',
-        `Cotización ${q.id} aprobada. Código generado: ${job.refArlogs}`
+        `Cotización ${q.id} aprobada. Código generado: ${job.refArlogs}`,
       );
-    } catch (err: any) {
-      this.toastService.error('Incorrecto', err?.message ?? 'No se pudo aprobar la cotización.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'No se pudo aprobar la cotización.';
+      this.toastService.error('Incorrecto', message);
     }
   }
 }

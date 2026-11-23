@@ -10,7 +10,7 @@ export interface ToastItem {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private nextId = 1;
@@ -20,7 +20,7 @@ export class ToastService {
     const id = this.nextId++;
     const item: ToastItem = { id, type, title, message };
 
-    this.toasts.update(list => [item, ...list].slice(0, 4));
+    this.toasts.update((list) => [item, ...list].slice(0, 4));
 
     if (durationMs > 0) {
       setTimeout(() => this.dismiss(id), durationMs);
@@ -44,7 +44,6 @@ export class ToastService {
   }
 
   dismiss(id: number): void {
-    this.toasts.update(list => list.filter(t => t.id !== id));
+    this.toasts.update((list) => list.filter((t) => t.id !== id));
   }
 }
-

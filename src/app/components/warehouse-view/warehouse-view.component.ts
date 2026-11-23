@@ -11,12 +11,15 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="warehouse-view py-2">
-
       <!-- Header & Action -->
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <h5 class="fw-bold mb-0 text-dark font-heading">Bodegas &amp; Control Kardex</h5>
 
-        <button type="button" class="btn btn-sm btn-brand-primary d-flex align-items-center gap-1" (click)="openReceiptModal()">
+        <button
+          type="button"
+          class="btn btn-sm btn-brand-primary d-flex align-items-center gap-1"
+          (click)="openReceiptModal()"
+        >
           <i class="bi bi-box-arrow-in-down"></i>
           <span>Registrar Ingreso a Bodega</span>
         </button>
@@ -26,45 +29,71 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
       <div class="stat-ribbon bg-white border border-slate-200 rounded-3 p-3 mb-3 shadow-xs">
         <div class="row g-2 align-items-center text-center text-sm-start">
           <div class="col-6 col-md-3 border-end-sm">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-slate-100 text-dark rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-slate-100 text-dark rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-building"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Bodega Norte (GYE)</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Bodega Norte (GYE)</span
+                >
                 <span class="fs-5 fw-bold mono-font text-dark">{{ summary().b1Units }} u.</span>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3 border-end-sm">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-blue-50 text-primary rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-blue-50 text-primary rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-building-check"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Bodega Sur (Puerto)</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Bodega Sur (Puerto)</span
+                >
                 <span class="fs-5 fw-bold mono-font text-primary">{{ summary().b2Units }} u.</span>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3 border-end-sm">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-emerald-50 text-success rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-emerald-50 text-success rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-boxes"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Saldo Disponible</span>
-                <span class="fs-5 fw-bold mono-font text-success">{{ summary().totalAvailable }} u.</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Saldo Disponible</span
+                >
+                <span class="fs-5 fw-bold mono-font text-success"
+                  >{{ summary().totalAvailable }} u.</span
+                >
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-amber-50 text-warning rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-amber-50 text-warning rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-file-earmark-text"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Movimientos</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Movimientos</span
+                >
                 <span class="fs-5 fw-bold mono-font text-dark">{{ movements().length }}</span>
               </div>
             </div>
@@ -74,7 +103,6 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
       <!-- Main Unified Table Card with Integrated Toolbar & Pagination -->
       <div class="card-executive overflow-hidden mb-3">
-        
         <!-- Integrated Toolbar Header -->
         <div class="p-3 bg-slate-50 border-bottom border-slate-200">
           <div class="row g-2 align-items-center">
@@ -88,9 +116,14 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                   class="form-control border-start-0"
                   placeholder="Buscar por OC, Descripción, Rack o Guía..."
                   [ngModel]="searchQuery()"
-                  (ngModelChange)="searchQuery.set($event); whPage.set(1)">
+                  (ngModelChange)="searchQuery.set($event); whPage.set(1)"
+                />
                 @if (searchQuery()) {
-                  <button class="btn btn-outline-secondary" type="button" (click)="searchQuery.set(''); whPage.set(1)">
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="searchQuery.set(''); whPage.set(1)"
+                  >
                     <i class="bi bi-x"></i>
                   </button>
                 }
@@ -98,7 +131,11 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
             </div>
 
             <div class="col-6 col-md-3">
-              <select class="form-select form-select-sm" [ngModel]="filterWarehouse()" (ngModelChange)="filterWarehouse.set($event); whPage.set(1)">
+              <select
+                class="form-select form-select-sm"
+                [ngModel]="filterWarehouse()"
+                (ngModelChange)="filterWarehouse.set($event); whPage.set(1)"
+              >
                 <option value="ALL">Todas las bodegas (2)</option>
                 <option value="BODEGA_1">Bodega Norte (GYE)</option>
                 <option value="BODEGA_2">Bodega Sur (Puerto)</option>
@@ -106,7 +143,11 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
             </div>
 
             <div class="col-6 col-md-3">
-              <select class="form-select form-select-sm" [ngModel]="filterState()" (ngModelChange)="filterState.set($event); whPage.set(1)">
+              <select
+                class="form-select form-select-sm"
+                [ngModel]="filterState()"
+                (ngModelChange)="filterState.set($event); whPage.set(1)"
+              >
                 <option value="ALL">Todos los estados</option>
                 <option value="EN_BODEGA">En Bodega (Completo)</option>
                 <option value="PARCIAL">Despacho Parcial</option>
@@ -114,9 +155,18 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
               </select>
             </div>
 
-            <div class="col-12 col-md-2 text-md-end d-flex align-items-center justify-content-between justify-content-md-end gap-2">
-              <span class="fs-xxs text-muted mono-font">Lotes: <strong>{{ filteredItems().length }}</strong></span>
-              <button type="button" class="btn btn-sm btn-outline-secondary px-2" (click)="resetFilters()" title="Limpiar filtros">
+            <div
+              class="col-12 col-md-2 text-md-end d-flex align-items-center justify-content-between justify-content-md-end gap-2"
+            >
+              <span class="fs-xxs text-muted mono-font"
+                >Lotes: <strong>{{ filteredItems().length }}</strong></span
+              >
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary px-2"
+                (click)="resetFilters()"
+                title="Limpiar filtros"
+              >
                 <i class="bi bi-arrow-counterclockwise"></i>
               </button>
             </div>
@@ -153,14 +203,34 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                     </span>
                   </td>
                   <td>
-                    <div class="fw-semibold text-dark fs-xs text-truncate" style="max-width: 150px;">{{ item.cliente }}</div>
-                    <span class="mono-font badge bg-slate-100 text-dark border border-slate-200 fs-xxs">{{ item.ordenCompra }}</span>
+                    <div
+                      class="fw-semibold text-dark fs-xs text-truncate"
+                      style="max-width: 150px;"
+                    >
+                      {{ item.cliente }}
+                    </div>
+                    <span
+                      class="mono-font badge bg-slate-100 text-dark border border-slate-200 fs-xxs"
+                      >{{ item.ordenCompra }}</span
+                    >
                   </td>
                   <td>
-                    <div class="text-dark fs-xs text-truncate" style="max-width: 200px;" [title]="item.descripcion">{{ item.descripcion }}</div>
+                    <div
+                      class="text-dark fs-xs text-truncate"
+                      style="max-width: 200px;"
+                      [title]="item.descripcion"
+                    >
+                      {{ item.descripcion }}
+                    </div>
                   </td>
-                  <td class="text-end mono-font fs-xs">{{ item.cantidadInicial }} {{ item.unidad }}</td>
-                  <td class="text-end mono-font fs-xs fw-bold" [class.text-success]="item.cantidadDisponible > 0" [class.text-muted]="item.cantidadDisponible === 0">
+                  <td class="text-end mono-font fs-xs">
+                    {{ item.cantidadInicial }} {{ item.unidad }}
+                  </td>
+                  <td
+                    class="text-end mono-font fs-xs fw-bold"
+                    [class.text-success]="item.cantidadDisponible > 0"
+                    [class.text-muted]="item.cantidadDisponible === 0"
+                  >
                     {{ item.cantidadDisponible }} {{ item.unidad }}
                   </td>
                   <td class="mono-font fs-xs">{{ item.pesoKg }} kg</td>
@@ -169,7 +239,9 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                       <span class="dot"></span>{{ item.estado }}
                     </span>
                     @if (item.ultimaGuiaRemision) {
-                      <div class="mono-font fs-xxs text-muted mt-1">Guía: {{ item.ultimaGuiaRemision }}</div>
+                      <div class="mono-font fs-xxs text-muted mt-1">
+                        Guía: {{ item.ultimaGuiaRemision }}
+                      </div>
                     }
                   </td>
                   <td class="text-end">
@@ -178,7 +250,8 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                       class="btn btn-sm btn-outline-primary py-1 px-2 fs-xs"
                       [disabled]="item.cantidadDisponible <= 0"
                       (click)="openDispatchModal(item)"
-                      title="Emitir Guía de Remisión">
+                      title="Emitir Guía de Remisión"
+                    >
                       <i class="bi bi-truck me-1"></i>Despacho
                     </button>
                   </td>
@@ -196,18 +269,45 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
         <!-- Functional Pagination Footer -->
         @if (filteredItems().length > 0) {
-          <div class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs">
+          <div
+            class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs"
+          >
             <div class="d-flex align-items-center gap-2 text-muted">
               <span>
-                Mostrando <strong>{{ whStartIndex() }}</strong>–<strong>{{ whEndIndex() }}</strong> de <strong>{{ filteredItems().length }}</strong> lotes
+                Mostrando <strong>{{ whStartIndex() }}</strong>–<strong>{{ whEndIndex() }}</strong>
+                de <strong>{{ filteredItems().length }}</strong> lotes
               </span>
               <span class="d-none d-sm-inline">&bull;</span>
               <div class="d-flex align-items-center gap-1 d-none d-sm-flex">
                 <span class="text-muted fs-xxs">Filas:</span>
                 <div class="btn-group btn-group-sm pagination-size-group">
-                  <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="whPageSize() === 5" [class.btn-outline-secondary]="whPageSize() !== 5" (click)="whPageSize.set(5); whPage.set(1)">5</button>
-                  <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="whPageSize() === 6" [class.btn-outline-secondary]="whPageSize() !== 6" (click)="whPageSize.set(6); whPage.set(1)">6</button>
-                  <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="whPageSize() === 12" [class.btn-outline-secondary]="whPageSize() !== 12" (click)="whPageSize.set(12); whPage.set(1)">12</button>
+                  <button
+                    type="button"
+                    class="btn btn-xs py-0 px-2 fs-xxs"
+                    [class.btn-dark]="whPageSize() === 5"
+                    [class.btn-outline-secondary]="whPageSize() !== 5"
+                    (click)="whPageSize.set(5); whPage.set(1)"
+                  >
+                    5
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs py-0 px-2 fs-xxs"
+                    [class.btn-dark]="whPageSize() === 6"
+                    [class.btn-outline-secondary]="whPageSize() !== 6"
+                    (click)="whPageSize.set(6); whPage.set(1)"
+                  >
+                    6
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs py-0 px-2 fs-xxs"
+                    [class.btn-dark]="whPageSize() === 12"
+                    [class.btn-outline-secondary]="whPageSize() !== 12"
+                    (click)="whPageSize.set(12); whPage.set(1)"
+                  >
+                    12
+                  </button>
                 </div>
               </div>
             </div>
@@ -217,7 +317,8 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                 type="button"
                 class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                 [disabled]="whPage() === 1"
-                (click)="whPage.set(whPage() - 1)">
+                (click)="whPage.set(whPage() - 1)"
+              >
                 <i class="bi bi-chevron-left"></i>
               </button>
               @for (p of whPageNumbers(); track p) {
@@ -226,7 +327,8 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                   class="btn btn-sm py-0 px-2 fs-xs"
                   [class.btn-dark]="whPage() === p"
                   [class.btn-outline-secondary]="whPage() !== p"
-                  (click)="whPage.set(p)">
+                  (click)="whPage.set(p)"
+                >
                   {{ p }}
                 </button>
               }
@@ -234,7 +336,8 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                 type="button"
                 class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                 [disabled]="whPage() === totalWhPages()"
-                (click)="whPage.set(whPage() + 1)">
+                (click)="whPage.set(whPage() + 1)"
+              >
                 <i class="bi bi-chevron-right"></i>
               </button>
             </div>
@@ -244,15 +347,25 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
       <!-- Receipt Modal -->
       @if (showReceiptModal) {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+        <div
+          class="modal fade show d-block"
+          tabindex="-1"
+          style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+        >
           <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               <div class="modal-header bg-slate-900 text-white border-0 py-3">
                 <div class="d-flex align-items-center gap-2">
                   <i class="bi bi-box-arrow-in-down text-warning"></i>
-                  <h6 class="modal-title mb-0 fw-bold font-heading">Registrar Ingreso a Bodega (Kardex Físico)</h6>
+                  <h6 class="modal-title mb-0 fw-bold font-heading">
+                    Registrar Ingreso a Bodega (Kardex Físico)
+                  </h6>
                 </div>
-                <button type="button" class="btn-close btn-close-white" (click)="showReceiptModal = false"></button>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  (click)="showReceiptModal = false"
+                ></button>
               </div>
 
               <form (ngSubmit)="submitReceipt()">
@@ -260,7 +373,11 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Bodega de Destino</label>
-                      <select class="form-select" [(ngModel)]="receiptForm.bodegaId" name="bodegaId">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="receiptForm.bodegaId"
+                        name="bodegaId"
+                      >
                         <option value="BODEGA_1">Bodega Norte (Av. Juan Tanca Marengo, GYE)</option>
                         <option value="BODEGA_2">Bodega Sur — Puerto Marítimo (GYE)</option>
                       </select>
@@ -268,7 +385,11 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Empresa Cliente</label>
-                      <select class="form-select" [(ngModel)]="receiptForm.clienteId" name="clienteId">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="receiptForm.clienteId"
+                        name="clienteId"
+                      >
                         <option value="CLI-001">Industrias Andinas S.A. (CLI-001)</option>
                         <option value="CLI-002">Comercial Pacífico Cía. Ltda. (CLI-002)</option>
                       </select>
@@ -276,22 +397,53 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Orden de Compra</label>
-                      <input type="text" class="form-control mono-font" [(ngModel)]="receiptForm.ordenCompra" name="ordenCompra" placeholder="OC-7001" required>
+                      <input
+                        type="text"
+                        class="form-control mono-font"
+                        [(ngModel)]="receiptForm.ordenCompra"
+                        name="ordenCompra"
+                        placeholder="OC-7001"
+                        required
+                      />
                     </div>
 
                     <div class="col-12 col-md-6">
-                      <label class="form-label fs-xs fw-semibold">Referencia Embarque (Opcional)</label>
-                      <input type="text" class="form-control mono-font" [(ngModel)]="receiptForm.refArlogs" name="refArlogs" placeholder="I901-2026">
+                      <label class="form-label fs-xs fw-semibold"
+                        >Referencia Embarque (Opcional)</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control mono-font"
+                        [(ngModel)]="receiptForm.refArlogs"
+                        name="refArlogs"
+                        placeholder="I901-2026"
+                      />
                     </div>
 
                     <div class="col-12">
-                      <label class="form-label fs-xs fw-semibold">Descripción del Producto / Lote</label>
-                      <input type="text" class="form-control" [(ngModel)]="receiptForm.descripcion" name="descripcion" placeholder="Ej. Filtros hidráulicos de alta presión" required>
+                      <label class="form-label fs-xs fw-semibold"
+                        >Descripción del Producto / Lote</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="receiptForm.descripcion"
+                        name="descripcion"
+                        placeholder="Ej. Filtros hidráulicos de alta presión"
+                        required
+                      />
                     </div>
 
                     <div class="col-6 col-md-4">
                       <label class="form-label fs-xs fw-semibold">Cantidad Ingresada</label>
-                      <input type="number" class="form-control mono-font" [(ngModel)]="receiptForm.cantidad" name="cantidad" min="1" required>
+                      <input
+                        type="number"
+                        class="form-control mono-font"
+                        [(ngModel)]="receiptForm.cantidad"
+                        name="cantidad"
+                        min="1"
+                        required
+                      />
                     </div>
 
                     <div class="col-6 col-md-4">
@@ -307,18 +459,36 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
                     <div class="col-6 col-md-4">
                       <label class="form-label fs-xs fw-semibold">Peso Total (kg)</label>
-                      <input type="number" class="form-control mono-font" [(ngModel)]="receiptForm.pesoKg" name="pesoKg" min="1">
+                      <input
+                        type="number"
+                        class="form-control mono-font"
+                        [(ngModel)]="receiptForm.pesoKg"
+                        name="pesoKg"
+                        min="1"
+                      />
                     </div>
 
                     <div class="col-6 col-md-4">
                       <label class="form-label fs-xs fw-semibold">Ubicación Rack / Pasillo</label>
-                      <input type="text" class="form-control mono-font" [(ngModel)]="receiptForm.ubicacionRack" name="ubicacionRack" placeholder="RACK-B02">
+                      <input
+                        type="text"
+                        class="form-control mono-font"
+                        [(ngModel)]="receiptForm.ubicacionRack"
+                        name="ubicacionRack"
+                        placeholder="RACK-B02"
+                      />
                     </div>
                   </div>
                 </div>
 
                 <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
-                  <button type="button" class="btn btn-sm btn-light border" (click)="showReceiptModal = false">Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    (click)="showReceiptModal = false"
+                  >
+                    Cancelar
+                  </button>
                   <button type="submit" class="btn btn-sm btn-brand-primary">
                     <i class="bi bi-check-lg me-1"></i>Registrar Ingreso
                   </button>
@@ -331,7 +501,11 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
 
       <!-- Dispatch Modal -->
       @if (dispatchTarget()) {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+        <div
+          class="modal fade show d-block"
+          tabindex="-1"
+          style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+        >
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               <div class="modal-header bg-slate-900 text-white border-0 py-3">
@@ -341,7 +515,11 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                     Emitir Guía de Remisión — {{ dispatchTarget()?.id }}
                   </h6>
                 </div>
-                <button type="button" class="btn-close btn-close-white" (click)="dispatchTarget.set(null)"></button>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  (click)="dispatchTarget.set(null)"
+                ></button>
               </div>
 
               <form (ngSubmit)="submitDispatch()">
@@ -354,7 +532,10 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                       </div>
                       <div class="d-flex justify-content-between mb-1">
                         <span class="text-muted">Disponible en Rack</span>
-                        <strong class="mono-font text-success">{{ dispatchTarget()?.cantidadDisponible }} {{ dispatchTarget()?.unidad }}</strong>
+                        <strong class="mono-font text-success"
+                          >{{ dispatchTarget()?.cantidadDisponible }}
+                          {{ dispatchTarget()?.unidad }}</strong
+                        >
                       </div>
                       <div class="d-flex justify-content-between">
                         <span class="text-muted">Cliente</span>
@@ -363,12 +544,22 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                     </div>
 
                     <div>
-                      <label class="form-label fs-xs fw-semibold">Número de Guía de Remisión (SRI / ARLOGS)</label>
-                      <input type="text" class="form-control mono-font" [(ngModel)]="dispatchForm.guiaRemision" name="guiaRemision" required>
+                      <label class="form-label fs-xs fw-semibold"
+                        >Número de Guía de Remisión (SRI / ARLOGS)</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control mono-font"
+                        [(ngModel)]="dispatchForm.guiaRemision"
+                        name="guiaRemision"
+                        required
+                      />
                     </div>
 
                     <div>
-                      <label class="form-label fs-xs fw-semibold">Cantidad a Despachar ({{ dispatchTarget()?.unidad }})</label>
+                      <label class="form-label fs-xs fw-semibold"
+                        >Cantidad a Despachar ({{ dispatchTarget()?.unidad }})</label
+                      >
                       <input
                         type="number"
                         class="form-control mono-font fw-bold"
@@ -376,23 +567,44 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
                         name="cantidadSalida"
                         min="1"
                         [max]="dispatchTarget()?.cantidadDisponible ?? 1"
-                        required>
+                        required
+                      />
                     </div>
 
                     <div>
-                      <label class="form-label fs-xs fw-semibold">Transportista / Placa / Inland</label>
-                      <input type="text" class="form-control" [(ngModel)]="dispatchForm.transporteInland" name="transporteInland" placeholder="Ej. Camión Hino GBD-4512">
+                      <label class="form-label fs-xs fw-semibold"
+                        >Transportista / Placa / Inland</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="dispatchForm.transporteInland"
+                        name="transporteInland"
+                        placeholder="Ej. Camión Hino GBD-4512"
+                      />
                     </div>
 
                     <div>
                       <label class="form-label fs-xs fw-semibold">Observación</label>
-                      <input type="text" class="form-control" [(ngModel)]="dispatchForm.observacion" name="observacion" placeholder="Entrega en planta matriz">
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="dispatchForm.observacion"
+                        name="observacion"
+                        placeholder="Entrega en planta matriz"
+                      />
                     </div>
                   </div>
                 </div>
 
                 <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
-                  <button type="button" class="btn btn-sm btn-light border" (click)="dispatchTarget.set(null)">Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    (click)="dispatchTarget.set(null)"
+                  >
+                    Cancelar
+                  </button>
                   <button type="submit" class="btn btn-sm btn-brand-primary">
                     <i class="bi bi-check-lg me-1"></i>Generar Guía y Despachar
                   </button>
@@ -402,26 +614,53 @@ import { WarehouseId, WarehouseItem } from '../../models/shipment.model';
           </div>
         </div>
       }
-
     </div>
   `,
-  styles: [`
-    .stat-icon { width: 32px; height: 32px; font-size: 1rem; }
-    .bg-slate-50 { background-color: #F8FAFC !important; }
-    .bg-slate-100 { background-color: #F1F5F9 !important; }
-    .bg-slate-900 { background-color: #0F172A !important; }
-    .text-slate-500 { color: #64748B !important; }
-    .text-slate-700 { color: #334155 !important; }
-    .border-slate-100 { border-color: #F1F5F9 !important; }
-    .border-slate-200 { border-color: #E2E8F0 !important; }
-    .bg-blue-50 { background-color: #EFF6FF !important; }
-    .bg-emerald-50 { background-color: #ECFDF5 !important; }
-    .bg-amber-50 { background-color: #FFFBEB !important; }
+  styles: [
+    `
+      .stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
+      .bg-slate-50 {
+        background-color: #f8fafc !important;
+      }
+      .bg-slate-100 {
+        background-color: #f1f5f9 !important;
+      }
+      .bg-slate-900 {
+        background-color: #0f172a !important;
+      }
+      .text-slate-500 {
+        color: #64748b !important;
+      }
+      .text-slate-700 {
+        color: #334155 !important;
+      }
+      .border-slate-100 {
+        border-color: #f1f5f9 !important;
+      }
+      .border-slate-200 {
+        border-color: #e2e8f0 !important;
+      }
+      .bg-blue-50 {
+        background-color: #eff6ff !important;
+      }
+      .bg-emerald-50 {
+        background-color: #ecfdf5 !important;
+      }
+      .bg-amber-50 {
+        background-color: #fffbeb !important;
+      }
 
-    @media (min-width: 576px) {
-      .border-end-sm { border-right: 1px solid #E2E8F0; }
-    }
-  `]
+      @media (min-width: 576px) {
+        .border-end-sm {
+          border-right: 1px solid #e2e8f0;
+        }
+      }
+    `,
+  ],
 })
 export class WarehouseViewComponent {
   private shipmentService = inject(ShipmentService);
@@ -460,21 +699,21 @@ export class WarehouseViewComponent {
     cantidad: 10,
     unidad: 'Cajas',
     pesoKg: 100,
-    ubicacionRack: 'RACK-A01'
+    ubicacionRack: 'RACK-A01',
   };
 
   dispatchForm = {
     guiaRemision: '',
     cantidadSalida: 0,
     transporteInland: '',
-    observacion: ''
+    observacion: '',
   };
 
   readonly filteredItems = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
     const wh = this.filterWarehouse();
     const st = this.filterState();
-    return this.items().filter(i => {
+    return this.items().filter((i) => {
       if (wh !== 'ALL' && i.bodegaId !== wh) return false;
       if (st !== 'ALL' && i.estado !== st) return false;
       if (!q) return true;
@@ -490,7 +729,7 @@ export class WarehouseViewComponent {
   });
 
   readonly totalWhPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredItems().length / this.whPageSize()))
+    Math.max(1, Math.ceil(this.filteredItems().length / this.whPageSize())),
   );
 
   readonly paginatedItems = computed(() => {
@@ -500,11 +739,11 @@ export class WarehouseViewComponent {
   });
 
   readonly whStartIndex = computed(() =>
-    this.filteredItems().length === 0 ? 0 : (this.whPage() - 1) * this.whPageSize() + 1
+    this.filteredItems().length === 0 ? 0 : (this.whPage() - 1) * this.whPageSize() + 1,
   );
 
   readonly whEndIndex = computed(() =>
-    Math.min(this.whPage() * this.whPageSize(), this.filteredItems().length)
+    Math.min(this.whPage() * this.whPageSize(), this.filteredItems().length),
   );
 
   readonly whPageNumbers = computed(() => {
@@ -514,24 +753,27 @@ export class WarehouseViewComponent {
 
   readonly summary = computed(() => {
     const list = this.items();
-    const b1 = list.filter(i => i.bodegaId === 'BODEGA_1');
-    const b2 = list.filter(i => i.bodegaId === 'BODEGA_2');
+    const b1 = list.filter((i) => i.bodegaId === 'BODEGA_1');
+    const b2 = list.filter((i) => i.bodegaId === 'BODEGA_2');
     const b1Units = b1.reduce((acc, i) => acc + i.cantidadDisponible, 0);
     const b2Units = b2.reduce((acc, i) => acc + i.cantidadDisponible, 0);
     return {
       b1Units,
       b2Units,
-      b1Lots: b1.filter(i => i.cantidadDisponible > 0).length,
-      b2Lots: b2.filter(i => i.cantidadDisponible > 0).length,
-      totalAvailable: b1Units + b2Units
+      b1Lots: b1.filter((i) => i.cantidadDisponible > 0).length,
+      b2Lots: b2.filter((i) => i.cantidadDisponible > 0).length,
+      totalAvailable: b1Units + b2Units,
     };
   });
 
   getStatePill(state: string): string {
     switch (state) {
-      case 'EN_BODEGA': return 'status-cerrado';
-      case 'PARCIAL': return 'status-abierto';
-      default: return 'status-na';
+      case 'EN_BODEGA':
+        return 'status-cerrado';
+      case 'PARCIAL':
+        return 'status-abierto';
+      default:
+        return 'status-na';
     }
   }
 
@@ -553,7 +795,7 @@ export class WarehouseViewComponent {
       cantidad: 12,
       unidad: 'Cajas',
       pesoKg: 180,
-      ubicacionRack: 'RACK-A06'
+      ubicacionRack: 'RACK-A06',
     };
     this.showReceiptModal = true;
   }
@@ -563,22 +805,24 @@ export class WarehouseViewComponent {
       this.toastService.error('Incorrecto', 'Orden de compra y descripción son obligatorias.');
       return;
     }
-    const cliente = this.receiptForm.clienteId === 'CLI-001'
-      ? 'Industrias Andinas DEMO S.A.'
-      : 'Comercial Pacífico DEMO Cía. Ltda.';
+    const cliente =
+      this.receiptForm.clienteId === 'CLI-001'
+        ? 'Industrias Andinas DEMO S.A.'
+        : 'Comercial Pacífico DEMO Cía. Ltda.';
     try {
       const created = this.shipmentService.registerWarehouseReceipt({
         ...this.receiptForm,
         refArlogs: this.receiptForm.refArlogs || '',
-        cliente
+        cliente,
       });
       this.showReceiptModal = false;
       this.toastService.success(
         'Correcto — Ingreso Kardex',
-        `${created.id} (${created.cantidadDisponible} ${created.unidad}) ingresado en ${created.bodegaNombre}.`
+        `${created.id} (${created.cantidadDisponible} ${created.unidad}) ingresado en ${created.bodegaNombre}.`,
       );
-    } catch (err: any) {
-      this.toastService.error('Incorrecto', err?.message ?? 'No se pudo registrar el ingreso.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'No se pudo registrar el ingreso.';
+      this.toastService.error('Incorrecto', message);
     }
   }
 
@@ -589,7 +833,7 @@ export class WarehouseViewComponent {
       guiaRemision: `GR-${item.bodegaId === 'BODEGA_1' ? '001' : '002'}-0${seq}`,
       cantidadSalida: item.cantidadDisponible,
       transporteInland: `Inland / ${item.ordenCompra}`,
-      observacion: 'Retiro autorizado por cliente'
+      observacion: 'Retiro autorizado por cliente',
     };
   }
 
@@ -599,15 +843,16 @@ export class WarehouseViewComponent {
     try {
       const updated = this.shipmentService.dispatchWarehouseItem({
         itemId: target.id,
-        ...this.dispatchForm
+        ...this.dispatchForm,
       });
       this.dispatchTarget.set(null);
       this.toastService.success(
         'Correcto — Guía de Remisión',
-        `Guía ${updated.ultimaGuiaRemision} emitida. Saldo restante: ${updated.cantidadDisponible} ${updated.unidad}.`
+        `Guía ${updated.ultimaGuiaRemision} emitida. Saldo restante: ${updated.cantidadDisponible} ${updated.unidad}.`,
       );
-    } catch (err: any) {
-      this.toastService.error('Incorrecto', err?.message ?? 'No se pudo emitir la guía de remisión.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'No se pudo emitir la guía de remisión.';
+      this.toastService.error('Incorrecto', message);
     }
   }
 }

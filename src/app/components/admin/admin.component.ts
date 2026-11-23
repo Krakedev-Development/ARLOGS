@@ -23,20 +23,22 @@ interface UserFormState {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="admin-panel py-2">
-
       <!-- Header & Action Ribbon -->
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <h5 class="fw-bold mb-0 text-dark font-heading">Administración y Seguridad</h5>
 
         <div class="d-flex align-items-center gap-2 flex-wrap w-100 w-lg-auto">
           <!-- Segmented Tab Navigation -->
-          <div class="d-flex flex-wrap gap-1 bg-white p-1 rounded-3 border border-slate-200 shadow-xs">
+          <div
+            class="d-flex flex-wrap gap-1 bg-white p-1 rounded-3 border border-slate-200 shadow-xs"
+          >
             <button
               type="button"
               class="btn btn-sm rounded-2 px-3 fs-xs fw-semibold"
               [class.btn-dark]="activeSection() === 'users'"
               [class.btn-light]="activeSection() !== 'users'"
-              (click)="activeSection.set('users')">
+              (click)="activeSection.set('users')"
+            >
               <i class="bi bi-people-fill me-1"></i>Usuarios ({{ users().length }})
             </button>
             <button
@@ -44,15 +46,19 @@ interface UserFormState {
               class="btn btn-sm rounded-2 px-3 fs-xs fw-semibold"
               [class.btn-dark]="activeSection() === 'clients'"
               [class.btn-light]="activeSection() !== 'clients'"
-              (click)="activeSection.set('clients')">
-              <i class="bi bi-key-fill me-1"></i>Credenciales Clientes ({{ clientAccounts().length }})
+              (click)="activeSection.set('clients')"
+            >
+              <i class="bi bi-key-fill me-1"></i>Credenciales Clientes ({{
+                clientAccounts().length
+              }})
             </button>
             <button
               type="button"
               class="btn btn-sm rounded-2 px-3 fs-xs fw-semibold"
               [class.btn-dark]="activeSection() === 'roles'"
               [class.btn-light]="activeSection() !== 'roles'"
-              (click)="activeSection.set('roles')">
+              (click)="activeSection.set('roles')"
+            >
               <i class="bi bi-grid-3x3-gap-fill me-1"></i>Roles y Permisos
             </button>
             <button
@@ -60,7 +66,8 @@ interface UserFormState {
               class="btn btn-sm rounded-2 px-3 fs-xs fw-semibold"
               [class.btn-dark]="activeSection() === 'audit'"
               [class.btn-light]="activeSection() !== 'audit'"
-              (click)="activeSection.set('audit')">
+              (click)="activeSection.set('audit')"
+            >
               <i class="bi bi-journal-check me-1"></i>Auditoría ({{ auditLogs().length }})
             </button>
           </div>
@@ -69,8 +76,13 @@ interface UserFormState {
           <button
             type="button"
             class="btn btn-sm btn-brand-primary"
-            (click)="activeSection() === 'clients' ? openClientCredModal() : openCreateModal()">
-            <i class="bi" [class.bi-key-fill]="activeSection() === 'clients'" [class.bi-person-plus-fill]="activeSection() !== 'clients'"></i>
+            (click)="activeSection() === 'clients' ? openClientCredModal() : openCreateModal()"
+          >
+            <i
+              class="bi"
+              [class.bi-key-fill]="activeSection() === 'clients'"
+              [class.bi-person-plus-fill]="activeSection() !== 'clients'"
+            ></i>
             <span>{{ activeSection() === 'clients' ? 'Emitir Credencial' : 'Nuevo Usuario' }}</span>
           </button>
         </div>
@@ -80,45 +92,71 @@ interface UserFormState {
       <div class="stat-ribbon bg-white border border-slate-200 rounded-3 p-3 mb-3 shadow-xs">
         <div class="row g-2 align-items-center text-center text-sm-start">
           <div class="col-6 col-md-3 border-end-sm">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-slate-100 text-dark rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-slate-100 text-dark rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-people"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Total Cuentas</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Total Cuentas</span
+                >
                 <span class="fs-5 fw-bold mono-font text-dark">{{ users().length }}</span>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3 border-end-sm">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-blue-50 text-primary rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-blue-50 text-primary rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-key"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Accesos Clientes</span>
-                <span class="fs-5 fw-bold mono-font text-primary">{{ clientAccounts().length }}</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Accesos Clientes</span
+                >
+                <span class="fs-5 fw-bold mono-font text-primary">{{
+                  clientAccounts().length
+                }}</span>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3 border-end-sm">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-emerald-50 text-success rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-emerald-50 text-success rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-shield-check"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Roles Configurados</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Roles Configurados</span
+                >
                 <span class="fs-5 fw-bold mono-font text-dark">{{ roleOrder.length }}</span>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start">
-              <div class="stat-icon bg-amber-50 text-warning rounded-2 d-flex align-items-center justify-content-center">
+            <div
+              class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+            >
+              <div
+                class="stat-icon bg-amber-50 text-warning rounded-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="bi bi-journal-text"></i>
               </div>
               <div>
-                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">Eventos Auditados</span>
+                <span class="fs-xxs text-muted text-uppercase fw-semibold d-block"
+                  >Eventos Auditados</span
+                >
                 <span class="fs-5 fw-bold mono-font text-dark">{{ auditLogs().length }}</span>
               </div>
             </div>
@@ -129,7 +167,6 @@ interface UserFormState {
       <!-- SECTION 1: USERS (Unified container with integrated filters & pagination) -->
       @if (activeSection() === 'users') {
         <div class="card-executive overflow-hidden">
-          
           <!-- Integrated Search Toolbar Header -->
           <div class="p-3 bg-slate-50 border-bottom border-slate-200">
             <div class="row g-2 align-items-center">
@@ -143,9 +180,14 @@ interface UserFormState {
                     class="form-control border-start-0"
                     placeholder="Buscar por nombre, correo o cargo..."
                     [ngModel]="searchQuery()"
-                    (ngModelChange)="searchQuery.set($event); userPage.set(1)">
+                    (ngModelChange)="searchQuery.set($event); userPage.set(1)"
+                  />
                   @if (searchQuery()) {
-                    <button class="btn btn-outline-secondary" type="button" (click)="searchQuery.set(''); userPage.set(1)">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="searchQuery.set(''); userPage.set(1)"
+                    >
                       <i class="bi bi-x"></i>
                     </button>
                   }
@@ -153,7 +195,11 @@ interface UserFormState {
               </div>
 
               <div class="col-6 col-md-4">
-                <select class="form-select form-select-sm" [ngModel]="filterRole()" (ngModelChange)="filterRole.set($event); userPage.set(1)">
+                <select
+                  class="form-select form-select-sm"
+                  [ngModel]="filterRole()"
+                  (ngModelChange)="filterRole.set($event); userPage.set(1)"
+                >
                   <option value="ALL">Todos los roles</option>
                   @for (r of roleOrder; track r) {
                     <option [value]="r">{{ getRoleLabel(r) }}</option>
@@ -185,14 +231,19 @@ interface UserFormState {
                   <tr>
                     <td>
                       <div class="d-flex align-items-center gap-2">
-                        <div class="user-avatar-sm bg-slate-900 text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div
+                          class="user-avatar-sm bg-slate-900 text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                        >
                           <i class="bi {{ u.avatarIcon }} fs-xs"></i>
                         </div>
                         <div>
                           <div class="fw-bold text-dark d-flex align-items-center gap-1">
                             <span>{{ u.nombre }}</span>
                             @if (u.id === currentUser().id) {
-                              <span class="badge bg-blue-50 text-blue-700 border border-blue-200 fs-xxs">Sesión actual</span>
+                              <span
+                                class="badge bg-blue-50 text-blue-700 border border-blue-200 fs-xxs"
+                                >Sesión actual</span
+                              >
                             }
                           </div>
                           <div class="text-muted fs-xxs">{{ u.cargo }}</div>
@@ -233,8 +284,13 @@ interface UserFormState {
                           role="switch"
                           [checked]="u.activo"
                           [disabled]="u.id === currentUser().id"
-                          (change)="toggleActive(u.id)">
-                        <label class="form-check-label fs-xxs" [class.text-success]="u.activo" [class.text-muted]="!u.activo">
+                          (change)="toggleActive(u.id)"
+                        />
+                        <label
+                          class="form-check-label fs-xxs"
+                          [class.text-success]="u.activo"
+                          [class.text-muted]="!u.activo"
+                        >
                           {{ u.activo ? 'Activo' : 'Inactivo' }}
                         </label>
                       </div>
@@ -246,7 +302,8 @@ interface UserFormState {
                           type="button"
                           class="btn btn-sm btn-outline-secondary py-1 px-2 fs-xs"
                           (click)="openEditModal(u)"
-                          title="Editar usuario y rol">
+                          title="Editar usuario y rol"
+                        >
                           <i class="bi bi-pencil-square"></i>
                         </button>
                         <button
@@ -254,7 +311,8 @@ interface UserFormState {
                           class="btn btn-sm btn-outline-danger py-1 px-2 fs-xs"
                           [disabled]="u.id === currentUser().id"
                           (click)="confirmDeleteUser(u)"
-                          title="Eliminar usuario">
+                          title="Eliminar usuario"
+                        >
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -273,18 +331,47 @@ interface UserFormState {
 
           <!-- Functional Pagination Footer -->
           @if (filteredUsers().length > 0) {
-            <div class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs">
+            <div
+              class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs"
+            >
               <div class="d-flex align-items-center gap-2 text-muted">
                 <span>
-                  Mostrando <strong>{{ userStartIndex() }}</strong>–<strong>{{ userEndIndex() }}</strong> de <strong>{{ filteredUsers().length }}</strong>
+                  Mostrando <strong>{{ userStartIndex() }}</strong>–<strong>{{
+                    userEndIndex()
+                  }}</strong>
+                  de <strong>{{ filteredUsers().length }}</strong>
                 </span>
                 <span class="d-none d-sm-inline">&bull;</span>
                 <div class="d-flex align-items-center gap-1 d-none d-sm-flex">
                   <span class="text-muted fs-xxs">Filas:</span>
                   <div class="btn-group btn-group-sm pagination-size-group">
-                    <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="userPageSize() === 5" [class.btn-outline-secondary]="userPageSize() !== 5" (click)="userPageSize.set(5); userPage.set(1)">5</button>
-                    <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="userPageSize() === 10" [class.btn-outline-secondary]="userPageSize() !== 10" (click)="userPageSize.set(10); userPage.set(1)">10</button>
-                    <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="userPageSize() === 20" [class.btn-outline-secondary]="userPageSize() !== 20" (click)="userPageSize.set(20); userPage.set(1)">20</button>
+                    <button
+                      type="button"
+                      class="btn btn-xs py-0 px-2 fs-xxs"
+                      [class.btn-dark]="userPageSize() === 5"
+                      [class.btn-outline-secondary]="userPageSize() !== 5"
+                      (click)="userPageSize.set(5); userPage.set(1)"
+                    >
+                      5
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-xs py-0 px-2 fs-xxs"
+                      [class.btn-dark]="userPageSize() === 10"
+                      [class.btn-outline-secondary]="userPageSize() !== 10"
+                      (click)="userPageSize.set(10); userPage.set(1)"
+                    >
+                      10
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-xs py-0 px-2 fs-xxs"
+                      [class.btn-dark]="userPageSize() === 20"
+                      [class.btn-outline-secondary]="userPageSize() !== 20"
+                      (click)="userPageSize.set(20); userPage.set(1)"
+                    >
+                      20
+                    </button>
                   </div>
                 </div>
               </div>
@@ -294,7 +381,8 @@ interface UserFormState {
                   type="button"
                   class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                   [disabled]="userPage() === 1"
-                  (click)="userPage.set(userPage() - 1)">
+                  (click)="userPage.set(userPage() - 1)"
+                >
                   <i class="bi bi-chevron-left"></i>
                 </button>
                 @for (p of userPageNumbers(); track p) {
@@ -303,7 +391,8 @@ interface UserFormState {
                     class="btn btn-sm py-0 px-2 fs-xs"
                     [class.btn-dark]="userPage() === p"
                     [class.btn-outline-secondary]="userPage() !== p"
-                    (click)="userPage.set(p)">
+                    (click)="userPage.set(p)"
+                  >
                     {{ p }}
                   </button>
                 }
@@ -311,7 +400,8 @@ interface UserFormState {
                   type="button"
                   class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                   [disabled]="userPage() === totalUserPages()"
-                  (click)="userPage.set(userPage() + 1)">
+                  (click)="userPage.set(userPage() + 1)"
+                >
                   <i class="bi bi-chevron-right"></i>
                 </button>
               </div>
@@ -325,7 +415,11 @@ interface UserFormState {
         <div class="card-executive p-3 mb-3">
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <h6 class="fw-bold mb-0 text-dark">Credenciales de Acceso a Portales de Clientes</h6>
-            <button type="button" class="btn btn-sm btn-brand-primary" (click)="openClientCredModal()">
+            <button
+              type="button"
+              class="btn btn-sm btn-brand-primary"
+              (click)="openClientCredModal()"
+            >
               <i class="bi bi-key-fill me-1"></i>Emitir Credencial
             </button>
           </div>
@@ -338,7 +432,9 @@ interface UserFormState {
                 <div>
                   <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-2">
-                      <div class="user-avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                      <div
+                        class="user-avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                      >
                         <i class="bi {{ cli.avatarIcon }}"></i>
                       </div>
                       <div>
@@ -346,7 +442,11 @@ interface UserFormState {
                         <div class="text-muted fs-xxs">{{ cli.clienteNombre }}</div>
                       </div>
                     </div>
-                    <span class="badge" [class.bg-success]="cli.activo" [class.bg-secondary]="!cli.activo">
+                    <span
+                      class="badge"
+                      [class.bg-success]="cli.activo"
+                      [class.bg-secondary]="!cli.activo"
+                    >
                       {{ cli.activo ? 'Habilitado' : 'Revocado' }}
                     </span>
                   </div>
@@ -363,29 +463,50 @@ interface UserFormState {
                       </div>
                       <div class="col-6">
                         <span class="text-muted fs-xxs d-block">Empresa</span>
-                        <span class="badge bg-white text-dark border border-slate-200 mono-font fs-xxs">{{ cli.clienteId }}</span>
+                        <span
+                          class="badge bg-white text-dark border border-slate-200 mono-font fs-xxs"
+                          >{{ cli.clienteId }}</span
+                        >
                       </div>
                       <div class="col-6">
                         <span class="text-muted fs-xxs d-block">Último Ingreso</span>
-                        <span class="mono-font fs-xxs text-dark">{{ cli.ultimoAcceso || 'Sin ingresos' }}</span>
+                        <span class="mono-font fs-xxs text-dark">{{
+                          cli.ultimoAcceso || 'Sin ingresos'
+                        }}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-slate-100">
+                <div
+                  class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-slate-100"
+                >
                   <span class="fs-xxs text-muted">
                     Emitido: {{ cli.credencialEmitidaEn || 'Registro inicial' }}
                   </span>
 
                   <div class="d-flex gap-1">
-                    <button type="button" class="btn btn-sm btn-outline-primary fs-xxs py-1 px-2" (click)="copyClientInvite(cli)">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary fs-xxs py-1 px-2"
+                      (click)="copyClientInvite(cli)"
+                    >
                       <i class="bi bi-clipboard me-1"></i>Copiar
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-warning fs-xxs py-1 px-2" (click)="rotateClientPassword(cli)">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-warning fs-xxs py-1 px-2"
+                      (click)="rotateClientPassword(cli)"
+                    >
                       <i class="bi bi-arrow-repeat me-1"></i>Rotar
                     </button>
-                    <button type="button" class="btn btn-sm fs-xxs py-1 px-2" [class.btn-outline-danger]="cli.activo" [class.btn-outline-success]="!cli.activo" (click)="toggleActive(cli.id)">
+                    <button
+                      type="button"
+                      class="btn btn-sm fs-xxs py-1 px-2"
+                      [class.btn-outline-danger]="cli.activo"
+                      [class.btn-outline-success]="!cli.activo"
+                      (click)="toggleActive(cli.id)"
+                    >
                       {{ cli.activo ? 'Revocar' : 'Reactivar' }}
                     </button>
                   </div>
@@ -399,7 +520,9 @@ interface UserFormState {
       <!-- SECTION 3: ROLES & SCREEN ACCESS MATRIX -->
       @if (activeSection() === 'roles') {
         <div class="card-executive overflow-hidden mb-3">
-          <div class="p-3 bg-slate-50 border-bottom border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div
+            class="p-3 bg-slate-50 border-bottom border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2"
+          >
             <div>
               <strong class="text-dark fs-xs text-uppercase letter-spacing-wide">
                 Matriz de Permisos por Rol
@@ -432,14 +555,17 @@ interface UserFormState {
 
                     @for (scr of screens; track scr.id) {
                       <td class="text-center">
-                        <div class="form-check form-switch d-inline-flex justify-content-center mb-0">
+                        <div
+                          class="form-check form-switch d-inline-flex justify-content-center mb-0"
+                        >
                           <input
                             class="form-check-input"
                             type="checkbox"
                             role="switch"
                             [checked]="hasAccess(r, scr.id)"
                             [disabled]="r === 'admin' && scr.id === 'admin'"
-                            (change)="onToggleScreen(r, scr.id)">
+                            (change)="onToggleScreen(r, scr.id)"
+                          />
                         </div>
                       </td>
                     }
@@ -481,7 +607,9 @@ interface UserFormState {
                   <div class="fs-xxs text-muted mb-1 fw-semibold">Pantallas habilitadas:</div>
                   <div class="d-flex flex-wrap gap-1">
                     @for (scr of getAllowedScreens(r); track scr) {
-                      <span class="badge bg-slate-100 text-slate-700 border border-slate-200 fs-xxs">
+                      <span
+                        class="badge bg-slate-100 text-slate-700 border border-slate-200 fs-xxs"
+                      >
                         {{ getScreenLabel(scr) }}
                       </span>
                     } @empty {
@@ -498,7 +626,6 @@ interface UserFormState {
       <!-- SECTION 4: SYSTEM AUDIT LOG (Integrated container with filters & pagination) -->
       @if (activeSection() === 'audit') {
         <div class="card-executive overflow-hidden">
-          
           <!-- Integrated Search Toolbar Header -->
           <div class="p-3 bg-slate-50 border-bottom border-slate-200">
             <div class="row g-2 align-items-center">
@@ -512,9 +639,14 @@ interface UserFormState {
                     class="form-control border-start-0"
                     placeholder="Buscar por referencia, usuario o detalle..."
                     [ngModel]="auditSearch()"
-                    (ngModelChange)="auditSearch.set($event); auditPage.set(1)">
+                    (ngModelChange)="auditSearch.set($event); auditPage.set(1)"
+                  />
                   @if (auditSearch()) {
-                    <button class="btn btn-outline-secondary" type="button" (click)="auditSearch.set(''); auditPage.set(1)">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="auditSearch.set(''); auditPage.set(1)"
+                    >
                       <i class="bi bi-x"></i>
                     </button>
                   }
@@ -522,7 +654,11 @@ interface UserFormState {
               </div>
 
               <div class="col-6 col-md-4">
-                <select class="form-select form-select-sm" [ngModel]="auditCategoryFilter()" (ngModelChange)="auditCategoryFilter.set($event); auditPage.set(1)">
+                <select
+                  class="form-select form-select-sm"
+                  [ngModel]="auditCategoryFilter()"
+                  (ngModelChange)="auditCategoryFilter.set($event); auditPage.set(1)"
+                >
                   <option value="ALL">Todas las categorías</option>
                   <option value="OPERACION_HITOS">Cambios de Hitos</option>
                   <option value="PRICING_QR">Cotizaciones QR</option>
@@ -536,7 +672,11 @@ interface UserFormState {
               </div>
 
               <div class="col-6 col-md-3 text-end">
-                <button type="button" class="btn btn-sm btn-outline-success w-100" (click)="exportAudit()">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-success w-100"
+                  (click)="exportAudit()"
+                >
                   <i class="bi bi-file-earmark-excel me-1"></i>Exportar Excel
                 </button>
               </div>
@@ -565,12 +705,17 @@ interface UserFormState {
                       <div class="mono-font text-muted fs-xxs">{{ log.email }} ({{ log.rol }})</div>
                     </td>
                     <td>
-                      <span class="badge border fs-xxs" [ngClass]="getAuditBadgeClass(log.categoria)">
+                      <span
+                        class="badge border fs-xxs"
+                        [ngClass]="getAuditBadgeClass(log.categoria)"
+                      >
                         {{ log.categoria }}
                       </span>
                     </td>
                     <td>
-                      <span class="badge bg-slate-100 text-dark border border-slate-200 mono-font fs-xxs">
+                      <span
+                        class="badge bg-slate-100 text-dark border border-slate-200 mono-font fs-xxs"
+                      >
                         {{ log.entidad }}
                       </span>
                     </td>
@@ -590,18 +735,47 @@ interface UserFormState {
 
           <!-- Functional Audit Pagination Footer -->
           @if (filteredAuditLogs().length > 0) {
-            <div class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs">
+            <div
+              class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs"
+            >
               <div class="d-flex align-items-center gap-2 text-muted">
                 <span>
-                  Mostrando <strong>{{ auditStartIndex() }}</strong>–<strong>{{ auditEndIndex() }}</strong> de <strong>{{ filteredAuditLogs().length }}</strong> eventos
+                  Mostrando <strong>{{ auditStartIndex() }}</strong>–<strong>{{
+                    auditEndIndex()
+                  }}</strong>
+                  de <strong>{{ filteredAuditLogs().length }}</strong> eventos
                 </span>
                 <span class="d-none d-sm-inline">&bull;</span>
                 <div class="d-flex align-items-center gap-1 d-none d-sm-flex">
                   <span class="text-muted fs-xxs">Filas:</span>
                   <div class="btn-group btn-group-sm pagination-size-group">
-                    <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="auditPageSize() === 5" [class.btn-outline-secondary]="auditPageSize() !== 5" (click)="auditPageSize.set(5); auditPage.set(1)">5</button>
-                    <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="auditPageSize() === 10" [class.btn-outline-secondary]="auditPageSize() !== 10" (click)="auditPageSize.set(10); auditPage.set(1)">10</button>
-                    <button type="button" class="btn btn-xs py-0 px-2 fs-xxs" [class.btn-dark]="auditPageSize() === 25" [class.btn-outline-secondary]="auditPageSize() !== 25" (click)="auditPageSize.set(25); auditPage.set(1)">25</button>
+                    <button
+                      type="button"
+                      class="btn btn-xs py-0 px-2 fs-xxs"
+                      [class.btn-dark]="auditPageSize() === 5"
+                      [class.btn-outline-secondary]="auditPageSize() !== 5"
+                      (click)="auditPageSize.set(5); auditPage.set(1)"
+                    >
+                      5
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-xs py-0 px-2 fs-xxs"
+                      [class.btn-dark]="auditPageSize() === 10"
+                      [class.btn-outline-secondary]="auditPageSize() !== 10"
+                      (click)="auditPageSize.set(10); auditPage.set(1)"
+                    >
+                      10
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-xs py-0 px-2 fs-xxs"
+                      [class.btn-dark]="auditPageSize() === 25"
+                      [class.btn-outline-secondary]="auditPageSize() !== 25"
+                      (click)="auditPageSize.set(25); auditPage.set(1)"
+                    >
+                      25
+                    </button>
                   </div>
                 </div>
               </div>
@@ -611,7 +785,8 @@ interface UserFormState {
                   type="button"
                   class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                   [disabled]="auditPage() === 1"
-                  (click)="auditPage.set(auditPage() - 1)">
+                  (click)="auditPage.set(auditPage() - 1)"
+                >
                   <i class="bi bi-chevron-left"></i>
                 </button>
                 @for (p of auditPageNumbers(); track p) {
@@ -620,7 +795,8 @@ interface UserFormState {
                     class="btn btn-sm py-0 px-2 fs-xs"
                     [class.btn-dark]="auditPage() === p"
                     [class.btn-outline-secondary]="auditPage() !== p"
-                    (click)="auditPage.set(p)">
+                    (click)="auditPage.set(p)"
+                  >
                     {{ p }}
                   </button>
                 }
@@ -628,7 +804,8 @@ interface UserFormState {
                   type="button"
                   class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
                   [disabled]="auditPage() === totalAuditPages()"
-                  (click)="auditPage.set(auditPage() + 1)">
+                  (click)="auditPage.set(auditPage() + 1)"
+                >
                   <i class="bi bi-chevron-right"></i>
                 </button>
               </div>
@@ -639,7 +816,11 @@ interface UserFormState {
 
       <!-- CREATE / EDIT USER MODAL -->
       @if (showUserModal) {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+        <div
+          class="modal fade show d-block"
+          tabindex="-1"
+          style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+        >
           <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               <div class="modal-header bg-slate-900 text-white border-0 py-3">
@@ -649,7 +830,11 @@ interface UserFormState {
                     {{ isEditMode ? 'Editar Usuario: ' + form.nombre : 'Crear Nuevo Usuario' }}
                   </h6>
                 </div>
-                <button type="button" class="btn-close btn-close-white" (click)="closeUserModal()"></button>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  (click)="closeUserModal()"
+                ></button>
               </div>
 
               <form (ngSubmit)="submitUserForm()">
@@ -660,19 +845,47 @@ interface UserFormState {
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Nombre Completo</label>
-                      <input type="text" class="form-control" name="nombre" [(ngModel)]="form.nombre" required placeholder="Ej. Ing. Carlos Pérez">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="nombre"
+                        [(ngModel)]="form.nombre"
+                        required
+                        placeholder="Ej. Ing. Carlos Pérez"
+                      />
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Correo de Acceso</label>
-                      <input type="email" class="form-control mono-font" name="email" [(ngModel)]="form.email" required placeholder="carlos@arlogs.com">
+                      <input
+                        type="email"
+                        class="form-control mono-font"
+                        name="email"
+                        [(ngModel)]="form.email"
+                        required
+                        placeholder="carlos@arlogs.com"
+                      />
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Contraseña</label>
-                      <input type="text" class="form-control mono-font" name="password" [(ngModel)]="form.password" required placeholder="••••••••">
+                      <input
+                        type="text"
+                        class="form-control mono-font"
+                        name="password"
+                        [(ngModel)]="form.password"
+                        required
+                        placeholder="••••••••"
+                      />
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Cargo Operativo</label>
-                      <input type="text" class="form-control" name="cargo" [(ngModel)]="form.cargo" required placeholder="Ej. Coordinador de Operaciones">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="cargo"
+                        [(ngModel)]="form.cargo"
+                        required
+                        placeholder="Ej. Coordinador de Operaciones"
+                      />
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label fs-xs fw-semibold">Rol Asignado</label>
@@ -685,17 +898,28 @@ interface UserFormState {
 
                     @if (form.role === 'cliente_a' || form.role === 'cliente_b') {
                       <div class="col-12 col-md-6">
-                        <label class="form-label fs-xs fw-semibold">Empresa Cliente Vinculada</label>
+                        <label class="form-label fs-xs fw-semibold"
+                          >Empresa Cliente Vinculada</label
+                        >
                         <select class="form-select" name="clienteId" [(ngModel)]="form.clienteId">
                           <option value="CLI-001">Industrias Andinas DEMO S.A. (CLI-001)</option>
-                          <option value="CLI-002">Comercial Pacífico DEMO Cía. Ltda. (CLI-002)</option>
+                          <option value="CLI-002">
+                            Comercial Pacífico DEMO Cía. Ltda. (CLI-002)
+                          </option>
                         </select>
                       </div>
                     }
 
                     <div class="col-12">
                       <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="userActiveSwitch" name="activo" [(ngModel)]="form.activo">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="userActiveSwitch"
+                          name="activo"
+                          [(ngModel)]="form.activo"
+                        />
                         <label class="form-check-label fs-xs fw-semibold" for="userActiveSwitch">
                           Cuenta activa para iniciar sesión
                         </label>
@@ -705,7 +929,13 @@ interface UserFormState {
                 </div>
 
                 <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
-                  <button type="button" class="btn btn-sm btn-light border" (click)="closeUserModal()">Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    (click)="closeUserModal()"
+                  >
+                    Cancelar
+                  </button>
                   <button type="submit" class="btn btn-sm btn-brand-primary">
                     <i class="bi bi-check-lg"></i>
                     <span>{{ isEditMode ? 'Guardar Cambios' : 'Crear Usuario' }}</span>
@@ -719,15 +949,25 @@ interface UserFormState {
 
       <!-- ISSUE CLIENT CREDENTIAL MODAL -->
       @if (showClientCredModal) {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+        <div
+          class="modal fade show d-block"
+          tabindex="-1"
+          style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+        >
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               <div class="modal-header bg-slate-900 text-white border-0 py-3">
                 <div class="d-flex align-items-center gap-2">
                   <i class="bi bi-key-fill text-info"></i>
-                  <h6 class="modal-title mb-0 fw-bold font-heading">Emitir Credenciales de Portal Cliente</h6>
+                  <h6 class="modal-title mb-0 fw-bold font-heading">
+                    Emitir Credenciales de Portal Cliente
+                  </h6>
                 </div>
-                <button type="button" class="btn-close btn-close-white" (click)="showClientCredModal = false"></button>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  (click)="showClientCredModal = false"
+                ></button>
               </div>
 
               <form (ngSubmit)="submitClientCredential()">
@@ -738,27 +978,59 @@ interface UserFormState {
                   <div class="d-flex flex-column gap-3">
                     <div>
                       <label class="form-label fs-xs fw-semibold">Empresa Cliente</label>
-                      <select class="form-select" name="credClientId" [(ngModel)]="clientCredForm.clienteId">
+                      <select
+                        class="form-select"
+                        name="credClientId"
+                        [(ngModel)]="clientCredForm.clienteId"
+                      >
                         <option value="CLI-001">Industrias Andinas DEMO S.A. (CLI-001)</option>
-                        <option value="CLI-002">Comercial Pacífico DEMO Cía. Ltda. (CLI-002)</option>
+                        <option value="CLI-002">
+                          Comercial Pacífico DEMO Cía. Ltda. (CLI-002)
+                        </option>
                       </select>
                     </div>
                     <div>
                       <label class="form-label fs-xs fw-semibold">Nombre del Contacto</label>
-                      <input type="text" class="form-control" name="credNombre" [(ngModel)]="clientCredForm.nombre" required placeholder="Ej. Ing. Valeria Ponce">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="credNombre"
+                        [(ngModel)]="clientCredForm.nombre"
+                        required
+                        placeholder="Ej. Ing. Valeria Ponce"
+                      />
                     </div>
                     <div>
                       <label class="form-label fs-xs fw-semibold">Correo de Acceso</label>
-                      <input type="email" class="form-control mono-font" name="credEmail" [(ngModel)]="clientCredForm.email" required placeholder="vponce@cliente.com">
+                      <input
+                        type="email"
+                        class="form-control mono-font"
+                        name="credEmail"
+                        [(ngModel)]="clientCredForm.email"
+                        required
+                        placeholder="vponce@cliente.com"
+                      />
                     </div>
                     <div>
                       <label class="form-label fs-xs fw-semibold">Cargo</label>
-                      <input type="text" class="form-control" name="credCargo" [(ngModel)]="clientCredForm.cargo" placeholder="Ej. Analista de Comercio Exterior">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="credCargo"
+                        [(ngModel)]="clientCredForm.cargo"
+                        placeholder="Ej. Analista de Comercio Exterior"
+                      />
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
-                  <button type="button" class="btn btn-sm btn-light border" (click)="showClientCredModal = false">Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    (click)="showClientCredModal = false"
+                  >
+                    Cancelar
+                  </button>
                   <button type="submit" class="btn btn-sm btn-brand-primary">
                     <i class="bi bi-check-lg me-1"></i>Generar Credencial
                   </button>
@@ -771,49 +1043,104 @@ interface UserFormState {
 
       <!-- DELETE CONFIRMATION MODAL -->
       @if (userPendingDelete()) {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+        <div
+          class="modal fade show d-block"
+          tabindex="-1"
+          style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+        >
           <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               <div class="modal-body p-4 text-center">
-                <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle mb-3" style="width: 48px; height: 48px;">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle mb-3"
+                  style="width: 48px; height: 48px;"
+                >
                   <i class="bi bi-trash fs-4"></i>
                 </div>
                 <h6 class="fw-bold text-dark mb-1">Eliminar Usuario</h6>
                 <p class="text-muted fs-xs mb-3">
-                  ¿Confirmas eliminar la cuenta de <strong>{{ userPendingDelete()?.nombre }}</strong>? Esta acción no se puede deshacer.
+                  ¿Confirmas eliminar la cuenta de
+                  <strong>{{ userPendingDelete()?.nombre }}</strong>? Esta acción no se puede
+                  deshacer.
                 </p>
                 <div class="d-flex gap-2 justify-content-center">
-                  <button type="button" class="btn btn-sm btn-light border px-3" (click)="userPendingDelete.set(null)">Cancelar</button>
-                  <button type="button" class="btn btn-sm btn-danger px-3" (click)="executeDelete()">Eliminar</button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border px-3"
+                    (click)="userPendingDelete.set(null)"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger px-3"
+                    (click)="executeDelete()"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       }
-
     </div>
   `,
-  styles: [`
-    .user-avatar-sm { width: 32px; height: 32px; }
-    .stat-icon { width: 32px; height: 32px; font-size: 1rem; }
-    .bg-slate-50 { background-color: #F8FAFC !important; }
-    .bg-slate-100 { background-color: #F1F5F9 !important; }
-    .bg-slate-900 { background-color: #0F172A !important; }
-    .text-slate-700 { color: #334155 !important; }
-    .border-slate-100 { border-color: #F1F5F9 !important; }
-    .border-slate-200 { border-color: #E2E8F0 !important; }
-    .bg-blue-50 { background-color: #EFF6FF !important; }
-    .text-blue-700 { color: #1D4ED8 !important; }
-    .border-blue-200 { border-color: #BFDBFE !important; }
-    .bg-emerald-50 { background-color: #ECFDF5 !important; }
-    .bg-amber-50 { background-color: #FFFBEB !important; }
-    .letter-spacing-wide { letter-spacing: 0.05em; }
+  styles: [
+    `
+      .user-avatar-sm {
+        width: 32px;
+        height: 32px;
+      }
+      .stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
+      .bg-slate-50 {
+        background-color: #f8fafc !important;
+      }
+      .bg-slate-100 {
+        background-color: #f1f5f9 !important;
+      }
+      .bg-slate-900 {
+        background-color: #0f172a !important;
+      }
+      .text-slate-700 {
+        color: #334155 !important;
+      }
+      .border-slate-100 {
+        border-color: #f1f5f9 !important;
+      }
+      .border-slate-200 {
+        border-color: #e2e8f0 !important;
+      }
+      .bg-blue-50 {
+        background-color: #eff6ff !important;
+      }
+      .text-blue-700 {
+        color: #1d4ed8 !important;
+      }
+      .border-blue-200 {
+        border-color: #bfdbfe !important;
+      }
+      .bg-emerald-50 {
+        background-color: #ecfdf5 !important;
+      }
+      .bg-amber-50 {
+        background-color: #fffbeb !important;
+      }
+      .letter-spacing-wide {
+        letter-spacing: 0.05em;
+      }
 
-    @media (min-width: 576px) {
-      .border-end-sm { border-right: 1px solid #E2E8F0; }
-    }
-  `]
+      @media (min-width: 576px) {
+        .border-end-sm {
+          border-right: 1px solid #e2e8f0;
+        }
+      }
+    `,
+  ],
 })
 export class AdminComponent {
   private authService = inject(AuthService);
@@ -833,7 +1160,7 @@ export class AdminComponent {
     'contabilidad',
     'bodegas',
     'cliente_a',
-    'cliente_b'
+    'cliente_b',
   ];
 
   activeSection = signal<'users' | 'clients' | 'roles' | 'audit'>('users');
@@ -868,15 +1195,15 @@ export class AdminComponent {
     clienteId: 'CLI-001',
     nombre: '',
     email: '',
-    cargo: ''
+    cargo: '',
   };
 
-  readonly activeUsersCount = computed(() => this.users().filter(u => u.activo).length);
+  readonly activeUsersCount = computed(() => this.users().filter((u) => u.activo).length);
 
   readonly filteredUsers = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
     const role = this.filterRole();
-    return this.users().filter(u => {
+    return this.users().filter((u) => {
       if (role !== 'ALL' && u.role !== role) return false;
       if (!q) return true;
       return (
@@ -888,7 +1215,7 @@ export class AdminComponent {
   });
 
   readonly totalUserPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredUsers().length / this.userPageSize()))
+    Math.max(1, Math.ceil(this.filteredUsers().length / this.userPageSize())),
   );
 
   readonly paginatedUsers = computed(() => {
@@ -898,11 +1225,11 @@ export class AdminComponent {
   });
 
   readonly userStartIndex = computed(() =>
-    this.filteredUsers().length === 0 ? 0 : (this.userPage() - 1) * this.userPageSize() + 1
+    this.filteredUsers().length === 0 ? 0 : (this.userPage() - 1) * this.userPageSize() + 1,
   );
 
   readonly userEndIndex = computed(() =>
-    Math.min(this.userPage() * this.userPageSize(), this.filteredUsers().length)
+    Math.min(this.userPage() * this.userPageSize(), this.filteredUsers().length),
   );
 
   readonly userPageNumbers = computed(() => {
@@ -913,7 +1240,7 @@ export class AdminComponent {
   readonly filteredAuditLogs = computed(() => {
     const q = this.auditSearch().trim().toLowerCase();
     const cat = this.auditCategoryFilter();
-    return this.auditLogs().filter(l => {
+    return this.auditLogs().filter((l) => {
       if (cat !== 'ALL' && l.categoria !== cat) return false;
       if (!q) return true;
       return (
@@ -926,7 +1253,7 @@ export class AdminComponent {
   });
 
   readonly totalAuditPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredAuditLogs().length / this.auditPageSize()))
+    Math.max(1, Math.ceil(this.filteredAuditLogs().length / this.auditPageSize())),
   );
 
   readonly paginatedAuditLogs = computed(() => {
@@ -936,11 +1263,11 @@ export class AdminComponent {
   });
 
   readonly auditStartIndex = computed(() =>
-    this.filteredAuditLogs().length === 0 ? 0 : (this.auditPage() - 1) * this.auditPageSize() + 1
+    this.filteredAuditLogs().length === 0 ? 0 : (this.auditPage() - 1) * this.auditPageSize() + 1,
   );
 
   readonly auditEndIndex = computed(() =>
-    Math.min(this.auditPage() * this.auditPageSize(), this.filteredAuditLogs().length)
+    Math.min(this.auditPage() * this.auditPageSize(), this.filteredAuditLogs().length),
   );
 
   readonly auditPageNumbers = computed(() => {
@@ -956,7 +1283,7 @@ export class AdminComponent {
       cargo: '',
       role: 'operaciones',
       activo: true,
-      clienteId: 'CLI-001'
+      clienteId: 'CLI-001',
     };
   }
 
@@ -969,7 +1296,7 @@ export class AdminComponent {
   }
 
   getScreenLabel(screen: ScreenId): string {
-    return this.screens.find(s => s.id === screen)?.label ?? screen;
+    return this.screens.find((s) => s.id === screen)?.label ?? screen;
   }
 
   getAllowedScreens(role: UserRole): ScreenId[] {
@@ -981,7 +1308,7 @@ export class AdminComponent {
   }
 
   countUsersInRole(role: UserRole): number {
-    return this.users().filter(u => u.role === role).length;
+    return this.users().filter((u) => u.role === role).length;
   }
 
   getRoleBadgeClass(role: UserRole): string {
@@ -1035,15 +1362,18 @@ export class AdminComponent {
     this.authService.toggleRoleScreenAccess(role, screen);
     this.toastService.info(
       'Permiso actualizado',
-      `${this.getRoleLabel(role)} &rarr; ${this.getScreenLabel(screen)}: ${!current ? 'Permitido' : 'Revocado'}`
+      `${this.getRoleLabel(role)} &rarr; ${this.getScreenLabel(screen)}: ${!current ? 'Permitido' : 'Revocado'}`,
     );
   }
 
   toggleActive(userId: string) {
-    const target = this.users().find(u => u.id === userId);
+    const target = this.users().find((u) => u.id === userId);
     if (!target) return;
     if (target.id === this.currentUser().id) {
-      this.toastService.warning('Acción no permitida', 'No puedes suspender tu propia cuenta activa.');
+      this.toastService.warning(
+        'Acción no permitida',
+        'No puedes suspender tu propia cuenta activa.',
+      );
       return;
     }
     const res = this.authService.toggleUserActive(userId);
@@ -1051,7 +1381,7 @@ export class AdminComponent {
       const nextState = !target.activo;
       this.toastService.info(
         nextState ? 'Cuenta activada' : 'Cuenta suspendida',
-        `El usuario ${target.nombre} ahora está ${nextState ? 'Activo' : 'Suspendido'}.`
+        `El usuario ${target.nombre} ahora está ${nextState ? 'Activo' : 'Suspendido'}.`,
       );
     }
   }
@@ -1073,7 +1403,7 @@ export class AdminComponent {
       cargo: user.cargo,
       role: user.role,
       activo: user.activo,
-      clienteId: user.clienteId ?? 'CLI-001'
+      clienteId: user.clienteId ?? 'CLI-001',
     };
     this.modalError.set(null);
     this.showUserModal = true;
@@ -1098,13 +1428,16 @@ export class AdminComponent {
         cargo: this.form.cargo,
         role: this.form.role,
         activo: this.form.activo,
-        clienteId: this.form.clienteId
+        clienteId: this.form.clienteId,
       });
       if (!res.ok) {
         this.modalError.set(res.error || 'Error al actualizar');
         return;
       }
-      this.toastService.success('Usuario actualizado', `${this.form.nombre} guardado exitosamente.`);
+      this.toastService.success(
+        'Usuario actualizado',
+        `${this.form.nombre} guardado exitosamente.`,
+      );
     } else {
       const res = this.authService.createUser({
         nombre: this.form.nombre,
@@ -1113,7 +1446,7 @@ export class AdminComponent {
         cargo: this.form.cargo,
         role: this.form.role,
         activo: this.form.activo,
-        clienteId: this.form.clienteId
+        clienteId: this.form.clienteId,
       });
       if (!res.ok) {
         this.modalError.set(res.error || 'Error al crear');
@@ -1127,7 +1460,10 @@ export class AdminComponent {
 
   confirmDeleteUser(user: RoleUser) {
     if (user.id === this.currentUser().id) {
-      this.toastService.warning('Acción denegada', 'No puedes eliminar la cuenta en sesión actual.');
+      this.toastService.warning(
+        'Acción denegada',
+        'No puedes eliminar la cuenta en sesión actual.',
+      );
       return;
     }
     this.userPendingDelete.set(user);
@@ -1150,7 +1486,7 @@ export class AdminComponent {
       clienteId: 'CLI-001',
       nombre: '',
       email: '',
-      cargo: ''
+      cargo: '',
     };
     this.modalError.set(null);
     this.showClientCredModal = true;
@@ -1165,20 +1501,26 @@ export class AdminComponent {
       clienteId: this.clientCredForm.clienteId,
       nombre: this.clientCredForm.nombre,
       email: this.clientCredForm.email,
-      cargo: this.clientCredForm.cargo
+      cargo: this.clientCredForm.cargo,
     });
     if (!res.ok) {
       this.modalError.set(res.error || 'Error al emitir credencial.');
       return;
     }
     this.showClientCredModal = false;
-    this.toastService.success('Credencial emitida', `Acceso creado para ${this.clientCredForm.nombre}.`);
+    this.toastService.success(
+      'Credencial emitida',
+      `Acceso creado para ${this.clientCredForm.nombre}.`,
+    );
   }
 
   copyClientInvite(cli: RoleUser) {
     const text = `ARLOGS Portal Cliente\nUsuario: ${cli.email}\nContraseña: ${cli.password}\nEmpresa: ${cli.clienteNombre}`;
     navigator.clipboard?.writeText(text);
-    this.toastService.info('Copiado al portapapeles', `Datos de acceso de ${cli.nombre} listos para enviar.`);
+    this.toastService.info(
+      'Copiado al portapapeles',
+      `Datos de acceso de ${cli.nombre} listos para enviar.`,
+    );
   }
 
   rotateClientPassword(cli: RoleUser) {
@@ -1193,9 +1535,10 @@ export class AdminComponent {
   exportAudit() {
     const lines = [
       'ID,Timestamp,Usuario,Email,Rol,Categoria,Entidad,Accion,Detalle',
-      ...this.filteredAuditLogs().map(l =>
-        `"${l.id}","${l.timestamp}","${l.usuario}","${l.email}","${l.rol}","${l.categoria}","${l.entidad}","${l.accion}","${l.detalle.replace(/"/g, '""')}"`
-      )
+      ...this.filteredAuditLogs().map(
+        (l) =>
+          `"${l.id}","${l.timestamp}","${l.usuario}","${l.email}","${l.rol}","${l.categoria}","${l.entidad}","${l.accion}","${l.detalle.replace(/"/g, '""')}"`,
+      ),
     ];
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -1204,6 +1547,9 @@ export class AdminComponent {
     a.download = `arlogs_auditoria_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    this.toastService.success('Exportación completa', 'Bitácora de auditoría descargada en formato CSV.');
+    this.toastService.success(
+      'Exportación completa',
+      'Bitácora de auditoría descargada en formato CSV.',
+    );
   }
 }

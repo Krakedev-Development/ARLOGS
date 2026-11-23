@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { AuditCategory, AuditEntry, UserRole } from '../models/shipment.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuditService {
   readonly logs = signal<AuditEntry[]>([
@@ -15,7 +15,7 @@ export class AuditService {
       categoria: 'OPERACION_HITOS',
       entidad: 'A905-2026',
       accion: 'Actualización de Hito',
-      detalle: 'H3 Carga lista: vacío -> 2026-11-08'
+      detalle: 'H3 Carga lista: vacío -> 2026-11-08',
     },
     {
       id: 'AUD-1004',
@@ -26,7 +26,7 @@ export class AuditService {
       categoria: 'SESION',
       entidad: 'CLI-001',
       accion: 'Ingreso al Portal',
-      detalle: 'Sesión iniciada con aislamiento estricto para Industrias Andinas DEMO S.A.'
+      detalle: 'Sesión iniciada con aislamiento estricto para Industrias Andinas DEMO S.A.',
     },
     {
       id: 'AUD-1003',
@@ -37,7 +37,7 @@ export class AuditService {
       categoria: 'GERENCIA_SLA',
       entidad: 'SLA_UMBRAL',
       accion: 'Verificación de Umbral',
-      detalle: 'Parámetro de alerta verificado en 15 días abiertos'
+      detalle: 'Parámetro de alerta verificado en 15 días abiertos',
     },
     {
       id: 'AUD-1002',
@@ -48,7 +48,7 @@ export class AuditService {
       categoria: 'PRICING_QR',
       entidad: 'QR-022-26',
       accion: 'Creación de Cotización',
-      detalle: 'Cliente: Industrias Andinas DEMO S.A. | AEREO | OC-1008, OC-1009'
+      detalle: 'Cliente: Industrias Andinas DEMO S.A. | AEREO | OC-1008, OC-1009',
     },
     {
       id: 'AUD-1001',
@@ -59,8 +59,8 @@ export class AuditService {
       categoria: 'CREDENCIAL_CLIENTE',
       entidad: 'pacifico@arlogs.com',
       accion: 'Emisión de Credenciales',
-      detalle: 'Acceso de portal emitido para Comercial Pacífico DEMO Cía. Ltda. (CLI-002)'
-    }
+      detalle: 'Acceso de portal emitido para Comercial Pacífico DEMO Cía. Ltda. (CLI-002)',
+    },
   ]);
 
   record(entry: {
@@ -79,23 +79,23 @@ export class AuditService {
     const newEntry: AuditEntry = {
       id: `AUD-${1006 + this.logs().length}`,
       timestamp: ts,
-      ...entry
+      ...entry,
     };
 
-    this.logs.update(list => [newEntry, ...list]);
+    this.logs.update((list) => [newEntry, ...list]);
   }
 
   async exportAuditExcel(entries: AuditEntry[]): Promise<void> {
-    const rows = entries.map(e => ({
+    const rows = entries.map((e) => ({
       'ID Evento': e.id,
       'Fecha y Hora': e.timestamp,
-      'Usuario': e.usuario,
-      'Correo': e.email,
-      'Rol': e.rol,
-      'Categoría': e.categoria,
+      Usuario: e.usuario,
+      Correo: e.email,
+      Rol: e.rol,
+      Categoría: e.categoria,
       'Entidad / Ref': e.entidad,
-      'Acción': e.accion,
-      'Detalle del Cambio': e.detalle
+      Acción: e.accion,
+      'Detalle del Cambio': e.detalle,
     }));
     const XLSX = await import('xlsx');
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -104,4 +104,3 @@ export class AuditService {
     XLSX.writeFile(wb, `ARLOGS_Auditoria_${new Date().toISOString().split('T')[0]}.xlsx`);
   }
 }
-

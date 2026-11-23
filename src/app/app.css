@@ -19,8 +19,15 @@
   }
 }
 
-.fs-xs { font-size: 0.75rem; }
-.fs-xxs { font-size: 0.68rem; }
-.mono-font { font-family: var(--font-mono); }
-.border-slate-200 { border-color: #E2E8F0 !important; }
-
+.fs-xs {
+  font-size: 0.75rem;
+}
+.fs-xxs {
+  font-size: 0.68rem;
+}
+.mono-font {
+  font-family: var(--font-mono);
+}
+.border-slate-200 {
+  border-color: #e2e8f0 !important;
+}
