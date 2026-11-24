@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { AuditService } from '../../services/audit.service';
+import { ShipmentService } from '../../services/shipment.service';
 import { ToastService } from '../../services/toast.service';
 import { AuditCategory, RoleUser, ScreenId, UserRole } from '../../models/shipment.model';
 import { PaginationBarComponent } from '../../presentation/ui/molecules/pagination-bar/pagination-bar.component';
@@ -55,8 +56,10 @@ const AUDIT_BADGE_MAP: Record<AuditCategory, string> = {
 export class AdminComponent {
   private readonly authService = inject(AuthService);
   private readonly auditService = inject(AuditService);
+  private readonly shipmentService = inject(ShipmentService);
   private readonly toastService = inject(ToastService);
 
+  readonly clients = this.shipmentService.clients;
   readonly users = this.authService.registeredUsers;
   readonly clientAccounts = this.authService.clientUsers;
   readonly auditLogs = this.auditService.logs;
@@ -82,7 +85,7 @@ export class AdminComponent {
   showClientCredModal = false;
   isEditMode = false;
   form: UserFormState = this.emptyForm();
-  clientCredForm: { clienteId: 'CLI-001' | 'CLI-002'; nombre: string; email: string; cargo: string } = { clienteId: 'CLI-001', nombre: '', email: '', cargo: '' };
+  clientCredForm: { clienteId: string; nombre: string; email: string; cargo: string } = { clienteId: '', nombre: '', email: '', cargo: '' };
 
   readonly kpiItems = computed<readonly KpiStatCardItem[]>(() => [
     { label: 'Total Cuentas', value: this.users().length, icon: 'bi-people', iconBgClass: 'bg-slate-100 text-dark', valueColorClass: 'text-dark' },
@@ -116,7 +119,8 @@ export class AdminComponent {
   });
 
   emptyForm(): UserFormState {
-    return { nombre: '', email: '', password: '', cargo: '', role: 'operaciones', activo: true, clienteId: 'CLI-001' };
+    const firstClient = this.clients()[0];
+    return { nombre: '', email: '', password: '', cargo: '', role: 'operaciones', activo: true, clienteId: firstClient?.id ?? '' };
   }
 
   getRoleLabel(role: UserRole): string {
@@ -179,7 +183,8 @@ export class AdminComponent {
 
   openEditModal(user: RoleUser): void {
     this.isEditMode = true;
-    this.form = { id: user.id, nombre: user.nombre, email: user.email, password: user.password, cargo: user.cargo, role: user.role, activo: user.activo, clienteId: user.clienteId ?? 'CLI-001' };
+    const firstClient = this.clients()[0];
+    this.form = { id: user.id, nombre: user.nombre, email: user.email, password: user.password, cargo: user.cargo, role: user.role, activo: user.activo, clienteId: user.clienteId ?? firstClient?.id ?? '' };
     this.modalError.set(null);
     this.showUserModal = true;
   }
@@ -221,7 +226,8 @@ export class AdminComponent {
   }
 
   openClientCredModal(): void {
-    this.clientCredForm = { clienteId: 'CLI-001', nombre: '', email: '', cargo: '' };
+    const firstClient = this.clients()[0];
+    this.clientCredForm = { clienteId: firstClient?.id ?? '', nombre: '', email: '', cargo: '' };
     this.modalError.set(null);
     this.showClientCredModal = true;
   }

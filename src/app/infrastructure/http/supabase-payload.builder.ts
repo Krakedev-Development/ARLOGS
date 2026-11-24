@@ -14,7 +14,7 @@ export class SupabasePayloadBuilder {
     return {
       apq_id: q.id,
       apq_sequence_number: seq,
-      apq_quote_year: 2026,
+      apq_quote_year: new Date().getFullYear(),
       apq_client_id: q.clienteId,
       apq_service_type: q.servicio,
       apq_service_prefix: q.serviceCode,
@@ -26,9 +26,9 @@ export class SupabasePayloadBuilder {
       apq_customs_by_arlogs: q.aduanaPorArlogs,
       apq_quoted_date: q.fechaCotizacion,
       apq_status: q.estado,
-      apq_quoted_sale_amount: q.valorVentaCotizado ?? 2850,
-      apq_estimated_cost_amount: q.costoEstimadoCotizado ?? 2100,
-      apq_payment_term_days: q.plazoPagoDias ?? 30,
+      apq_quoted_sale_amount: q.valorVentaCotizado ?? 0,
+      apq_estimated_cost_amount: q.costoEstimadoCotizado ?? 0,
+      apq_payment_term_days: q.plazoPagoDias ?? 0,
     };
   }
 
@@ -64,13 +64,13 @@ export class SupabasePayloadBuilder {
       aos_container_number: job.contenedor,
       aos_origin_weight_kg: job.pesoOrigen,
       aos_received_weight_kg: job.pesoRecibido,
-      aos_payment_responsible: job.responsablePago ?? 'ARLOGS',
+      aos_payment_responsible: job.responsablePago ?? null,
       aos_customs_regime: job.regimenAduana ?? null,
       aos_customs_district: job.distritoAduana ?? null,
       aos_customs_channel: job.aforoAduana ?? null,
-      aos_quoted_sale_amount: job.valorVentaCotizado ?? 2850,
-      aos_estimated_cost_amount: job.costoEstimadoCotizado ?? 2100,
-      aos_payment_term_days: job.plazoPagoDias ?? 30,
+      aos_quoted_sale_amount: job.valorVentaCotizado ?? 0,
+      aos_estimated_cost_amount: job.costoEstimadoCotizado ?? 0,
+      aos_payment_term_days: job.plazoPagoDias ?? 0,
       aos_collection_status: job.estadoCobro ?? 'PENDIENTE_FACTURAR',
     };
   }

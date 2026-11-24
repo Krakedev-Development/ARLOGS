@@ -5,7 +5,6 @@ export interface NetworkEnvironmentConfig {
   readonly frontendPort: number;
   readonly apiPrefix: string;
   readonly timeoutMs: number;
-  readonly slaEvaluationDateIso: string;
   readonly defaultSlaThresholdDays: number;
   readonly supabaseUrl: string;
   readonly supabasePublishableKey: string;
@@ -18,7 +17,6 @@ export const NETWORK_CONFIG: NetworkEnvironmentConfig = {
   frontendPort: 4200,
   apiPrefix: '/api/v1',
   timeoutMs: 15000,
-  slaEvaluationDateIso: '2026-11-11',
   defaultSlaThresholdDays: 15,
   supabaseUrl: 'https://ladujqbzvigqlgaumsae.supabase.co',
   supabasePublishableKey: 'sb_publishable_OfpaLtNqAc6rUIVh8dR3AQ_D-M2ytAW',

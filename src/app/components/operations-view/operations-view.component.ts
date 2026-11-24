@@ -29,6 +29,7 @@ export class OperationsViewComponent {
   private readonly toastService = inject(ToastService);
 
   readonly jobs = this.shipmentService.authorizedJobs;
+  readonly clients = this.shipmentService.clients;
 
   searchQuery = signal<string>('');
   selectedModality = signal<string>('ALL');
@@ -92,9 +93,10 @@ export class OperationsViewComponent {
   });
 
   private emptyNewJobForm() {
+    const firstClient = this.clients()[0];
     return {
-      clienteId: 'CLI-001',
-      cliente: 'Industrias Andinas S.A.',
+      clienteId: firstClient?.id ?? '',
+      cliente: firstClient?.nombre ?? '',
       servicio: 'AEREO' as ServiceType,
       serviceCode: 'A' as ServicePrefix,
       aduanaPorArlogs: 'SI' as 'SI' | 'NO' | 'N/A',
@@ -102,9 +104,9 @@ export class OperationsViewComponent {
       paisOrigen: '',
       puertoEmbarque: '',
       incoterm: 'FOB',
-      ordenesCompraStr: 'OC-6001',
+      ordenesCompraStr: '',
       guiaMaster: '',
-      pesoOrigen: 250,
+      pesoOrigen: 0,
     };
   }
 
@@ -128,8 +130,7 @@ export class OperationsViewComponent {
   }
 
   onNewClientChange(clienteId: string): void {
-    this.newJobForm.cliente =
-      clienteId === 'CLI-001' ? 'Industrias Andinas S.A.' : 'Comercial Pacífico Cía. Ltda.';
+    this.newJobForm.cliente = this.shipmentService.getClientName(clienteId);
   }
 
   onNewServiceChange(serv: ServiceType): void {

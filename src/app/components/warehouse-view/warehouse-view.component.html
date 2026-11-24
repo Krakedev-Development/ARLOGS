@@ -201,8 +201,9 @@
             <div class="col-12 col-md-6">
               <label class="form-label fs-xs fw-semibold">Empresa Cliente</label>
               <select class="form-select" [(ngModel)]="receiptForm.clienteId" name="clienteId">
-                <option value="CLI-001">Industrias Andinas S.A. (CLI-001)</option>
-                <option value="CLI-002">Comercial Pacífico Cía. Ltda. (CLI-002)</option>
+                @for (c of clients(); track c.id) {
+                  <option [value]="c.id">{{ c.nombre }} ({{ c.id }})</option>
+                }
               </select>
             </div>
 

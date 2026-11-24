@@ -17,14 +17,14 @@ export class WarehouseKardexManager {
     },
     todayIso: string,
   ): { item: WarehouseItem; nextSeq: number } {
-    const bodegaNombre =
-      input.bodegaId === 'BODEGA_1' ? 'Bodega Norte (GYE)' : 'Bodega Sur (Puerto Marítimo)';
+    const existingWarehouseItem = existingItems.find((i) => i.bodegaId === input.bodegaId);
+    const bodegaNombre = existingWarehouseItem?.bodegaNombre || input.bodegaId;
     const maxItemNum = existingItems.reduce((max, i) => {
-      const m = /^KAR-(\d+)$/i.exec(i.id);
+      const m = /(\d+)$/i.exec(i.id);
       return m ? Math.max(max, Number(m[1])) : max;
-    }, 104);
+    }, 0);
     const nextSeq = maxItemNum + 1;
-    const id = `KAR-${nextSeq}`;
+    const id = `WHS-${nextSeq}`;
 
     const item: WarehouseItem = {
       id,
@@ -32,15 +32,15 @@ export class WarehouseKardexManager {
       bodegaNombre,
       clienteId: input.clienteId,
       cliente: input.cliente,
-      refArlogs: input.refArlogs.trim().toUpperCase() || 'DIRECTO-BOD',
+      refArlogs: input.refArlogs.trim().toUpperCase(),
       ordenCompra: input.ordenCompra.trim().toUpperCase(),
       descripcion: input.descripcion.trim(),
       cantidadInicial: Number(input.cantidad),
       cantidadDisponible: Number(input.cantidad),
-      unidad: input.unidad.trim() || 'Bultos',
+      unidad: input.unidad.trim(),
       pesoKg: Number(input.pesoKg) || 0,
       fechaIngreso: todayIso,
-      ubicacionRack: input.ubicacionRack.trim().toUpperCase() || 'RACK-01',
+      ubicacionRack: input.ubicacionRack.trim().toUpperCase(),
       estado: 'EN_BODEGA',
     };
 
@@ -55,9 +55,9 @@ export class WarehouseKardexManager {
     const pad = (n: number) => n.toString().padStart(2, '0');
     const fecha = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
     const maxMov = existingMovements.reduce((max, x) => {
-      const match = /^MOV-(\d+)$/i.exec(x.id);
+      const match = /(\d+)$/i.exec(x.id);
       return match ? Math.max(max, Number(match[1])) : max;
-    }, 304);
+    }, 0);
     return { id: `MOV-${maxMov + 1}`, fecha, ...m };
   }
 

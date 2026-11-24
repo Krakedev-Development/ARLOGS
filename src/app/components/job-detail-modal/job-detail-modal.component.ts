@@ -37,7 +37,6 @@ type MilestoneFieldKey =
 export class JobDetailModalComponent implements OnChanges {
   @Input() job: ShipmentJob | null = null;
   @Input() isReadOnly = false;
-  // eslint-disable-next-line @angular-eslint/no-output-native
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<{ refArlogs: string; changes: Partial<ShipmentJob> }>();
 
@@ -77,10 +76,10 @@ export class JobDetailModalComponent implements OnChanges {
       h10_informeSalida: this.job.h10_informeSalida,
       pesoOrigen: this.job.pesoOrigen,
       pesoRecibido: this.job.pesoRecibido,
-      responsablePago: this.job.responsablePago || 'CLIENTE',
-      aforoAduana: this.job.aforoAduana || 'Documental',
-      regimenAduana: this.job.regimenAduana || 'Régimen 10 (Consumo)',
-      distritoAduana: this.job.distritoAduana || 'Guayaquil Marítimo',
+      responsablePago: this.job.responsablePago ?? '',
+      aforoAduana: this.job.aforoAduana ?? '',
+      regimenAduana: this.job.regimenAduana ?? '',
+      distritoAduana: this.job.distritoAduana ?? '',
     };
     this.recalculatePreview();
   }

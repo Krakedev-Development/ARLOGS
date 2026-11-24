@@ -1,4 +1,4 @@
-import { MilestoneDefinition } from '../../models/shipment.model';
+import { MILESTONE_DEFINITIONS, MilestoneDefinition } from '../../models/shipment.model';
 
 export type StageDependencyOwner =
   | 'Shipper (proveedor del cliente)'

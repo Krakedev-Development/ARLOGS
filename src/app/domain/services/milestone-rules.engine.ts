@@ -74,7 +74,7 @@ export class MilestoneRulesEngine {
   static calculateJobMetrics(
     job: ShipmentJob,
     thresholdDays: number,
-    referenceDate: Date = new Date(`${NETWORK_CONFIG.slaEvaluationDateIso}T00:00:00`),
+    referenceDate: Date = new Date(),
   ): ShipmentJob {
     const s = job.servicio;
     const aduana = job.aduanaPorArlogs;

@@ -31,6 +31,7 @@ export class BillingViewComponent {
   private readonly toastService = inject(ToastService);
 
   readonly jobs = this.shipmentService.authorizedJobs;
+  readonly clients = this.shipmentService.clients;
 
   searchQuery = signal<string>('');
   filterStatus = signal<string>('ALL');

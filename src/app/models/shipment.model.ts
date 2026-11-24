@@ -19,6 +19,11 @@ export type ScreenId =
   | 'admin';
 export type JobStatus = 'ABIERTO' | 'REVISAR' | 'CERRADO' | 'N/A';
 
+export interface ClientRecord {
+  id: string;
+  nombre: string;
+}
+
 export interface Quotation {
   id: string;
   clienteId: string;

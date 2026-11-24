@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import {
+  ClientRecord,
   ShipmentJob,
   Quotation,
   RoleUser,
@@ -26,7 +27,8 @@ export class ShipmentService {
   private readonly spreadsheetExporter = inject(XlsxSpreadsheetExporterAdapter);
   private readonly remoteSync = inject(ArlogsRemoteSyncAdapter);
 
-  readonly referenceDate = new Date(`${NETWORK_CONFIG.slaEvaluationDateIso}T00:00:00`);
+  readonly referenceDate = new Date();
+  readonly clients = signal<ClientRecord[]>([]);
   readonly jobs = signal<ShipmentJob[]>([]);
   readonly quotations = signal<Quotation[]>([]);
   readonly warehouseItems = signal<WarehouseItem[]>([]);
@@ -39,8 +41,7 @@ export class ShipmentService {
     const user = this.currentUser();
     const all = this.jobs();
     if (user.role === 'cliente_a' || user.role === 'cliente_b') {
-      const targetClientId = user.clienteId || (user.role === 'cliente_a' ? 'CLI-001' : 'CLI-002');
-      return all.filter((j) => j.clienteId === targetClientId);
+      return all.filter((j) => j.clienteId === user.clienteId);
     }
     return all;
   });
@@ -52,13 +53,15 @@ export class ShipmentService {
   async hydrateFromDatabase(): Promise<void> {
     this.isLoadingData.set(true);
     try {
-      const [threshold, jobs, quotes, items, movements] = await Promise.all([
+      const [clients, threshold, jobs, quotes, items, movements] = await Promise.all([
+        this.remoteSync.fetchClients(),
         this.remoteSync.fetchSlaThreshold(),
         this.remoteSync.fetchShipments(),
         this.remoteSync.fetchQuotations(),
         this.remoteSync.fetchWarehouseItems(),
         this.remoteSync.fetchWarehouseMovements(),
       ]);
+      this.clients.set(clients);
       this.alertThresholdDays.set(threshold);
       this.jobs.set(jobs.map((j) => this.calculateJobMetrics(j, threshold)));
       this.quotations.set(quotes);
@@ -67,6 +70,10 @@ export class ShipmentService {
     } finally {
       this.isLoadingData.set(false);
     }
+  }
+
+  getClientName(clientId: string): string {
+    return this.clients().find((c) => c.id === clientId)?.nombre ?? clientId;
   }
 
   setCurrentUser(user: RoleUser): void {
@@ -120,8 +127,7 @@ export class ShipmentService {
     const job = this.jobs().find((j) => j.refArlogs.toLowerCase() === refArlogs.toLowerCase());
     if (!job) return null;
     if (user.role === 'cliente_a' || user.role === 'cliente_b') {
-      const targetClientId = user.clienteId || (user.role === 'cliente_a' ? 'CLI-001' : 'CLI-002');
-      if (job.clienteId !== targetClientId) {
+      if (job.clienteId !== user.clienteId) {
         this.audit(
           'SEGURIDAD_ROLES',
           refArlogs,
@@ -175,9 +181,10 @@ export class ShipmentService {
     const maxSeq = this.quotations().reduce((max, q) => {
       const m = /^QR-(\d+)-\d+$/i.exec(q.id);
       return m ? Math.max(max, Number(m[1])) : max;
-    }, 23);
+    }, 0);
     const nextSeq = maxSeq + 1;
-    const qrId = `QR-${nextSeq.toString().padStart(3, '0')}-26`;
+    const yearShort = String(new Date().getFullYear()).slice(-2);
+    const qrId = `QR-${nextSeq.toString().padStart(3, '0')}-${yearShort}`;
     const newQuote: Quotation = { ...data, id: qrId, estado: 'PENDIENTE' };
     this.quotations.update((list) => [newQuote, ...list]);
     void this.remoteSync.pushCreateQuotation(newQuote, nextSeq);
@@ -376,12 +383,12 @@ export class ShipmentService {
       bodegaNombre: item.bodegaNombre,
       tipo: 'INGRESO',
       cantidad: item.cantidadInicial,
-      guiaRemision: `ING-${input.bodegaId === 'BODEGA_1' ? 'B1' : 'B2'}-${nextSeq}`,
+      guiaRemision: `ING-${nextSeq}`,
       ordenCompra: item.ordenCompra,
       cliente: item.cliente,
       descripcion: item.descripcion,
       responsable: user.nombre,
-      observacion: input.observacion?.trim() || 'Conteo físico e ingreso a Kardex',
+      observacion: input.observacion?.trim() || '',
     });
     this.warehouseMovements.update((list) => [movement, ...list]);
     void this.remoteSync.pushWarehouseReceipt(item, movement);
@@ -419,11 +426,11 @@ export class ShipmentService {
         i.id !== input.itemId
           ? i
           : (updatedItem = {
-            ...i,
-            cantidadDisponible: i.cantidadDisponible - qty,
-            estado: i.cantidadDisponible - qty === 0 ? 'DESPACHADO' : 'PARCIAL',
-            ultimaGuiaRemision: remision,
-          }),
+              ...i,
+              cantidadDisponible: i.cantidadDisponible - qty,
+              estado: i.cantidadDisponible - qty === 0 ? 'DESPACHADO' : 'PARCIAL',
+              ultimaGuiaRemision: remision,
+            }),
       ),
     );
     const movement = WarehouseKardexManager.buildMovementRecord(this.warehouseMovements(), {
@@ -435,9 +442,9 @@ export class ShipmentService {
       ordenCompra: existing.ordenCompra,
       cliente: existing.cliente,
       descripcion: existing.descripcion,
-      transporteInland: input.transporteInland.trim() || 'Inland Local',
+      transporteInland: input.transporteInland.trim(),
       responsable: user.nombre,
-      observacion: input.observacion?.trim() || 'Despacho con Guía de Remisión',
+      observacion: input.observacion?.trim() || '',
     });
     this.warehouseMovements.update((list) => [movement, ...list]);
     void this.remoteSync.pushWarehouseDispatch(updatedItem, movement);

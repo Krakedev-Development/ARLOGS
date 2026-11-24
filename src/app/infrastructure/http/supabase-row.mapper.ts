@@ -23,7 +23,7 @@ export class SupabaseRowMapper {
     return {
       refArlogs: String(s['aos_ref'] ?? ''),
       qrCode: String(s['aos_quotation_id'] ?? ''),
-      clienteId: String(s['aos_client_id'] ?? 'CLI-001'),
+      clienteId: String(s['aos_client_id'] ?? ''),
       cliente: clientName,
       servicio: String(s['aos_service_type'] ?? 'AEREO') as ServiceType,
       serviceCode: String(s['aos_service_prefix'] ?? 'A') as ServicePrefix,
@@ -33,9 +33,9 @@ export class SupabaseRowMapper {
       puertoEmbarque: String(s['aos_loading_port'] ?? ''),
       incoterm: String(s['aos_incoterm'] ?? 'FOB'),
       ordenesCompra: pos,
-      guiaMaster: String(s['aos_master_waybill_bl'] ?? 'Pendiente'),
-      hawbHbl: String(s['aos_house_awb_hbl'] ?? 'Pendiente'),
-      contenedor: String(s['aos_container_number'] ?? 'N/A'),
+      guiaMaster: String(s['aos_master_waybill_bl'] ?? ''),
+      hawbHbl: String(s['aos_house_awb_hbl'] ?? ''),
+      contenedor: String(s['aos_container_number'] ?? ''),
       pesoOrigen: s['aos_origin_weight_kg'] !== null ? Number(s['aos_origin_weight_kg']) : null,
       pesoRecibido:
         s['aos_received_weight_kg'] !== null ? Number(s['aos_received_weight_kg']) : null,
@@ -46,10 +46,10 @@ export class SupabaseRowMapper {
       distritoAduana: s['aos_customs_district'] ? String(s['aos_customs_district']) : undefined,
       aforoAduana: s['aos_customs_channel'] ? String(s['aos_customs_channel']) : undefined,
       valorVentaCotizado:
-        s['aos_quoted_sale_amount'] !== null ? Number(s['aos_quoted_sale_amount']) : 2850,
+        s['aos_quoted_sale_amount'] !== null ? Number(s['aos_quoted_sale_amount']) : 0,
       costoEstimadoCotizado:
-        s['aos_estimated_cost_amount'] !== null ? Number(s['aos_estimated_cost_amount']) : 2100,
-      plazoPagoDias: s['aos_payment_term_days'] !== null ? Number(s['aos_payment_term_days']) : 30,
+        s['aos_estimated_cost_amount'] !== null ? Number(s['aos_estimated_cost_amount']) : 0,
+      plazoPagoDias: s['aos_payment_term_days'] !== null ? Number(s['aos_payment_term_days']) : 0,
       facturaNumero: s['aos_invoice_number'] ? String(s['aos_invoice_number']) : undefined,
       valorFacturadoReal:
         s['aos_actual_billed_amount'] !== null ? Number(s['aos_actual_billed_amount']) : undefined,
@@ -81,7 +81,7 @@ export class SupabaseRowMapper {
   static toQuotation(q: Record<string, unknown>, clientName: string): Quotation {
     return {
       id: String(q['apq_id'] ?? ''),
-      clienteId: String(q['apq_client_id'] ?? 'CLI-001'),
+      clienteId: String(q['apq_client_id'] ?? ''),
       cliente: clientName,
       servicio: String(q['apq_service_type'] ?? 'AEREO') as ServiceType,
       serviceCode: String(q['apq_service_prefix'] ?? 'A') as ServicePrefix,
@@ -93,12 +93,12 @@ export class SupabaseRowMapper {
         ? q['apq_purchase_orders'].map(String)
         : [],
       aduanaPorArlogs: String(q['apq_customs_by_arlogs'] ?? 'SI') as 'SI' | 'NO' | 'N/A',
-      fechaCotizacion: String(q['apq_quoted_date'] ?? '2026-11-11'),
+      fechaCotizacion: String(q['apq_quoted_date'] ?? ''),
       estado: String(q['apq_status'] ?? 'PENDIENTE') as 'PENDIENTE' | 'APROBADA',
       refArlogsGenerada: q['apq_generated_ref'] ? String(q['apq_generated_ref']) : undefined,
-      valorVentaCotizado: Number(q['apq_quoted_sale_amount'] ?? 2850),
-      costoEstimadoCotizado: Number(q['apq_estimated_cost_amount'] ?? 2100),
-      plazoPagoDias: Number(q['apq_payment_term_days'] ?? 30),
+      valorVentaCotizado: Number(q['apq_quoted_sale_amount'] ?? 0),
+      costoEstimadoCotizado: Number(q['apq_estimated_cost_amount'] ?? 0),
+      plazoPagoDias: Number(q['apq_payment_term_days'] ?? 0),
     };
   }
 
@@ -107,14 +107,14 @@ export class SupabaseRowMapper {
       id: String(i['awi_id'] ?? ''),
       bodegaId: String(i['awi_warehouse_code'] ?? 'BODEGA_1') as WarehouseId,
       bodegaNombre: String(i['awi_warehouse_name'] ?? ''),
-      clienteId: String(i['awi_client_id'] ?? 'CLI-001'),
+      clienteId: String(i['awi_client_id'] ?? ''),
       cliente: clientName,
       refArlogs: String(i['awi_shipment_ref'] ?? ''),
       ordenCompra: String(i['awi_po_code'] ?? ''),
       descripcion: String(i['awi_cargo_description'] ?? ''),
       cantidadInicial: Number(i['awi_initial_qty'] ?? 0),
       cantidadDisponible: Number(i['awi_available_qty'] ?? 0),
-      unidad: String(i['awi_unit_of_measure'] ?? 'Pallets'),
+      unidad: String(i['awi_unit_of_measure'] ?? ''),
       pesoKg: Number(i['awi_weight_kg'] ?? 0),
       fechaIngreso: String(i['awi_receipt_date'] ?? ''),
       ubicacionRack: String(i['awi_rack_location'] ?? ''),

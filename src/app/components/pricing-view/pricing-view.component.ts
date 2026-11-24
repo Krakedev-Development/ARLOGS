@@ -20,6 +20,7 @@ export class PricingViewComponent {
   private readonly toastService = inject(ToastService);
 
   readonly quotations = this.shipmentService.quotations;
+  readonly clients = this.shipmentService.clients;
 
   searchQuery = signal<string>('');
   filterStatus = signal<string>('ALL');
@@ -74,20 +75,21 @@ export class PricingViewComponent {
   });
 
   private emptyForm() {
+    const firstClient = this.clients()[0];
     return {
-      clienteId: 'CLI-001',
-      cliente: 'Industrias Andinas S.A.',
+      clienteId: firstClient?.id ?? '',
+      cliente: firstClient?.nombre ?? '',
       servicio: 'AEREO' as ServiceType,
       serviceCode: 'A' as ServicePrefix,
       shipper: '',
       paisOrigen: '',
       puertoEmbarque: '',
       incoterm: 'FOB',
-      ordenesCompraStr: 'OC-1005',
+      ordenesCompraStr: '',
       aduanaPorArlogs: 'SI' as 'SI' | 'NO' | 'N/A',
-      valorVentaCotizado: 2400,
-      costoEstimadoCotizado: 1850,
-      plazoPagoDias: 15,
+      valorVentaCotizado: 0,
+      costoEstimadoCotizado: 0,
+      plazoPagoDias: 0,
     };
   }
 
@@ -118,16 +120,15 @@ export class PricingViewComponent {
       incoterm: q.incoterm,
       ordenesCompraStr: q.ordenesCompra.join(', '),
       aduanaPorArlogs: q.aduanaPorArlogs,
-      valorVentaCotizado: q.valorVentaCotizado ?? 2200,
-      costoEstimadoCotizado: q.costoEstimadoCotizado ?? 1750,
-      plazoPagoDias: q.plazoPagoDias ?? 15,
+      valorVentaCotizado: q.valorVentaCotizado ?? 0,
+      costoEstimadoCotizado: q.costoEstimadoCotizado ?? 0,
+      plazoPagoDias: q.plazoPagoDias ?? 0,
     };
     this.showQuoteModal = true;
   }
 
   onClientSelect(clienteId: string): void {
-    this.quoteForm.cliente =
-      clienteId === 'CLI-001' ? 'Industrias Andinas S.A.' : 'Comercial Pacífico Cía. Ltda.';
+    this.quoteForm.cliente = this.shipmentService.getClientName(clienteId);
   }
 
   onServiceSelect(serv: ServiceType): void {

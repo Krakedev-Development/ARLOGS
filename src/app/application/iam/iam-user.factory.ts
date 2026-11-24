@@ -12,7 +12,8 @@ export class IamUserFactory {
         .slice(0, 4)
         .toUpperCase() || 'ARLG';
     const rand = Math.floor(1000 + Math.random() * 9000);
-    return `${clean}-${rand}*26`;
+    const yearShort = String(new Date().getFullYear()).slice(-2);
+    return `${clean}-${rand}*${yearShort}`;
   }
 
   static formatNow(): string {
@@ -24,6 +25,7 @@ export class IamUserFactory {
   static getDefaultMetaForRole(
     role: UserRole,
     explicitClientId?: string,
+    explicitClientName?: string,
   ): { avatarIcon: string; clienteId?: string; clienteNombre?: string } {
     switch (role) {
       case 'admin':
@@ -38,28 +40,13 @@ export class IamUserFactory {
         return { avatarIcon: 'bi-receipt-cutoff' };
       case 'bodegas':
         return { avatarIcon: 'bi-building-fill-gear' };
-      case 'cliente_a': {
-        const cid = explicitClientId || 'CLI-001';
+      case 'cliente_a':
+      case 'cliente_b':
         return {
           avatarIcon: 'bi-building-fill',
-          clienteId: cid,
-          clienteNombre:
-            cid === 'CLI-002'
-              ? 'Comercial Pacífico Cía. Ltda.'
-              : 'Industrias Andinas S.A.',
+          clienteId: explicitClientId,
+          clienteNombre: explicitClientName,
         };
-      }
-      case 'cliente_b': {
-        const cid = explicitClientId || 'CLI-002';
-        return {
-          avatarIcon: 'bi-box-seam-fill',
-          clienteId: cid,
-          clienteNombre:
-            cid === 'CLI-001'
-              ? 'Industrias Andinas S.A.'
-              : 'Comercial Pacífico Cía. Ltda.',
-        };
-      }
     }
   }
 
@@ -68,21 +55,19 @@ export class IamUserFactory {
       nombre: string;
       email: string;
       cargo: string;
-      clienteId: 'CLI-001' | 'CLI-002';
+      clienteId: string;
+      clienteNombre?: string;
     },
     actorName: string,
   ): { user: RoleUser; clienteNombre: string } {
     const cleanEmail = input.email.trim().toLowerCase();
     const generatedPassword = this.generateTempPassword(input.clienteId);
-    const role: UserRole = input.clienteId === 'CLI-001' ? 'cliente_a' : 'cliente_b';
-    const clienteNombre =
-      input.clienteId === 'CLI-001'
-        ? 'Industrias Andinas S.A.'
-        : 'Comercial Pacífico Cía. Ltda.';
+    const role: UserRole = 'cliente_a';
+    const clienteNombre = input.clienteNombre || input.clienteId;
     const nowTs = this.formatNow();
 
     const user: RoleUser = {
-      id: `user-cli-${Date.now()}`,
+      id: `USR-${Date.now().toString().slice(-6)}`,
       role,
       nombre: input.nombre.trim(),
       email: cleanEmail,
@@ -91,7 +76,7 @@ export class IamUserFactory {
       cargo: input.cargo.trim() || `Portal Cliente - ${clienteNombre}`,
       clienteId: input.clienteId,
       clienteNombre,
-      avatarIcon: input.clienteId === 'CLI-001' ? 'bi-building-fill' : 'bi-box-seam-fill',
+      avatarIcon: 'bi-building-fill',
       descripcion: ROLE_DEFINITIONS[role].summary,
       credencialEmitidaEn: nowTs,
       credencialEmitidaPor: actorName,
@@ -109,13 +94,18 @@ export class IamUserFactory {
       role: UserRole;
       activo: boolean;
       clienteId?: string;
+      clienteNombre?: string;
     },
     actorName: string,
   ): RoleUser {
     const cleanEmail = input.email.trim().toLowerCase();
-    const roleMeta = this.getDefaultMetaForRole(input.role, input.clienteId);
+    const roleMeta = this.getDefaultMetaForRole(
+      input.role,
+      input.clienteId,
+      input.clienteNombre,
+    );
     return {
-      id: `user-${Date.now()}`,
+      id: `USR-${Date.now().toString().slice(-6)}`,
       role: input.role,
       nombre: input.nombre.trim(),
       email: cleanEmail,

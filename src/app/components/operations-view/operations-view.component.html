@@ -76,8 +76,9 @@
             (ngModelChange)="selectedClient.set($event); opsPage.set(1)"
           >
             <option value="ALL">Cliente: Todos</option>
-            <option value="CLI-001">Industrias Andinas</option>
-            <option value="CLI-002">Comercial Pacífico</option>
+            @for (c of clients(); track c.id) {
+              <option [value]="c.id">{{ c.nombre }}</option>
+            }
           </select>
         </div>
 
@@ -298,8 +299,9 @@
                 name="clienteId"
                 (ngModelChange)="onNewClientChange($event)"
               >
-                <option value="CLI-001">Industrias Andinas S.A. (CLI-001)</option>
-                <option value="CLI-002">Comercial Pacífico Cía. Ltda. (CLI-002)</option>
+                @for (c of clients(); track c.id) {
+                  <option [value]="c.id">{{ c.nombre }} ({{ c.id }})</option>
+                }
               </select>
             </div>
 

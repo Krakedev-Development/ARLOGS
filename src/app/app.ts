@@ -43,7 +43,6 @@ export class App {
   activeTab = signal<ScreenId>('gerencia');
 
   constructor() {
-    // Keep activeTab always valid when role permissions change dynamically
     effect(() => {
       const allowed = this.allowedScreens();
       const current = this.activeTab();

@@ -32,6 +32,7 @@ export class WarehouseViewComponent {
 
   readonly items = this.shipmentService.warehouseItems;
   readonly movements = this.shipmentService.warehouseMovements;
+  readonly clients = this.shipmentService.clients;
 
   searchQuery = signal<string>('');
   filterWarehouse = signal<WarehouseId | 'ALL'>('ALL');
@@ -55,14 +56,14 @@ export class WarehouseViewComponent {
     ubicacionRack: string;
   } = {
     bodegaId: 'BODEGA_1',
-    clienteId: 'CLI-001',
+    clienteId: '',
     refArlogs: '',
     ordenCompra: '',
     descripcion: '',
-    cantidad: 10,
+    cantidad: 0,
     unidad: 'Cajas',
-    pesoKg: 100,
-    ubicacionRack: 'RACK-A01',
+    pesoKg: 0,
+    ubicacionRack: '',
   };
 
   dispatchForm = {
@@ -159,16 +160,17 @@ export class WarehouseViewComponent {
   }
 
   openReceiptModal(): void {
+    const firstClient = this.clients()[0];
     this.receiptForm = {
       bodegaId: 'BODEGA_1',
-      clienteId: 'CLI-001',
-      refArlogs: 'I902-2026',
+      clienteId: firstClient?.id ?? '',
+      refArlogs: '',
       ordenCompra: '',
       descripcion: '',
-      cantidad: 12,
+      cantidad: 1,
       unidad: 'Cajas',
-      pesoKg: 180,
-      ubicacionRack: 'RACK-A06',
+      pesoKg: 0,
+      ubicacionRack: '',
     };
     this.showReceiptModal = true;
   }
@@ -178,16 +180,13 @@ export class WarehouseViewComponent {
       this.toastService.error('Incorrecto', 'Complete Orden de Compra y descripción del producto.');
       return;
     }
-    const cliente =
-      this.receiptForm.clienteId === 'CLI-001'
-        ? 'Industrias Andinas S.A.'
-        : 'Comercial Pacífico Cía. Ltda.';
+    const cliente = this.shipmentService.getClientName(this.receiptForm.clienteId);
     try {
       const created = this.shipmentService.registerWarehouseReceipt({
         bodegaId: this.receiptForm.bodegaId,
         clienteId: this.receiptForm.clienteId,
         cliente,
-        refArlogs: this.receiptForm.refArlogs || 'DIRECTO-BOD',
+        refArlogs: this.receiptForm.refArlogs || '',
         ordenCompra: this.receiptForm.ordenCompra,
         descripcion: this.receiptForm.descripcion,
         cantidad: this.receiptForm.cantidad,
@@ -208,12 +207,12 @@ export class WarehouseViewComponent {
 
   openDispatchModal(item: WarehouseItem): void {
     this.dispatchTarget.set(item);
-    const nextGuia = 120 + this.movements().length + 1;
+    const nextGuia = this.movements().length + 1;
     this.dispatchForm = {
-      guiaRemision: `GR-001-${nextGuia.toString().padStart(4, '0')}`,
+      guiaRemision: `GR-${nextGuia.toString().padStart(4, '0')}`,
       cantidadSalida: item.cantidadDisponible,
-      transporteInland: 'Camión Hino / Placa GBD-4512',
-      observacion: 'Despacho autorizado a planta cliente',
+      transporteInland: '',
+      observacion: '',
     };
   }
 

@@ -154,12 +154,16 @@ export class AuthService {
     return { ok: true };
   }
 
-  issueClientCredentials(input: { nombre: string; email: string; cargo: string; clienteId: 'CLI-001' | 'CLI-002' }): { ok: boolean; error?: string; user?: RoleUser } {
+  issueClientCredentials(input: { nombre: string; email: string; cargo: string; clienteId: string }): { ok: boolean; error?: string; user?: RoleUser } {
     const cleanEmail = input.email.trim().toLowerCase();
     if (!input.nombre.trim() || !cleanEmail) return { ok: false, error: 'Nombre del contacto y correo corporativo son obligatorios.' };
     if (this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail)) return { ok: false, error: `Ya existe una credencial para el correo ${cleanEmail}.` };
 
-    const { user, clienteNombre } = IamUserFactory.buildClientCredentialUser(input, this.currentUser().nombre);
+    const resolvedName = this.shipmentService.getClientName(input.clienteId);
+    const { user, clienteNombre } = IamUserFactory.buildClientCredentialUser(
+      { ...input, clienteNombre: resolvedName },
+      this.currentUser().nombre,
+    );
     this.registeredUsers.update((list) => [user, ...list]);
     void this.remoteSync.pushCreateUser(user);
     this.recordAudit('CREDENCIAL_CLIENTE', cleanEmail, 'Emisión de Credencial Cliente', `Acceso emitido para ${clienteNombre} (${input.clienteId}) | Contacto: ${user.nombre}`);
@@ -186,7 +190,13 @@ export class AuthService {
     if (!input.nombre.trim() || !cleanEmail || !input.password.trim()) return { ok: false, error: 'Nombre, correo y contraseña son obligatorios.' };
     if (this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail)) return { ok: false, error: `Ya existe un usuario registrado con el correo ${cleanEmail}.` };
 
-    const newUser = IamUserFactory.buildNewUser(input, this.currentUser().nombre);
+    const resolvedClientName = input.clienteId
+      ? this.shipmentService.getClientName(input.clienteId)
+      : undefined;
+    const newUser = IamUserFactory.buildNewUser(
+      { ...input, clienteNombre: resolvedClientName },
+      this.currentUser().nombre,
+    );
     this.registeredUsers.update((list) => [newUser, ...list]);
     void this.remoteSync.pushCreateUser(newUser);
     this.recordAudit(newUser.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES', cleanEmail, 'Creación de Usuario', `Usuario ${newUser.nombre} creado con rol ${ROLE_DEFINITIONS[input.role].label}`);
@@ -200,7 +210,14 @@ export class AuthService {
     if (id === this.currentUser().id && !changes.activo) return { ok: false, error: 'No puedes desactivar tu propia sesión activa.' };
 
     const previous = this.registeredUsers().find((u) => u.id === id);
-    const roleMeta = IamUserFactory.getDefaultMetaForRole(changes.role, changes.clienteId);
+    const resolvedClientName = changes.clienteId
+      ? this.shipmentService.getClientName(changes.clienteId)
+      : undefined;
+    const roleMeta = IamUserFactory.getDefaultMetaForRole(
+      changes.role,
+      changes.clienteId,
+      resolvedClientName,
+    );
     let updatedRef: RoleUser | null = null;
 
     this.registeredUsers.update((list) =>

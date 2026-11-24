@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { API_ENDPOINTS, NETWORK_CONFIG } from '../../core/config/api-endpoints.config';
 import {
   AuditEntry,
+  ClientRecord,
   Quotation,
   RoleUser,
   ScreenId,
@@ -40,21 +41,22 @@ export class ArlogsRemoteSyncAdapter {
     return { headers };
   }
 
+  async fetchClients(): Promise<ClientRecord[]> {
+    const rows = await firstValueFrom(
+      this.http.get<Record<string, unknown>[]>(
+        this.sbUrl('arl_core_client?select=*&order=acc_id.asc'),
+        this.sbHeaders(),
+      ),
+    );
+    return rows.map((r) => ({
+      id: String(r['acc_id']),
+      nombre: String(r['acc_company_name']),
+    }));
+  }
+
   async fetchClientMap(): Promise<Map<string, string>> {
-    try {
-      const rows = await firstValueFrom(
-        this.http.get<Record<string, unknown>[]>(
-          this.sbUrl('arl_core_client?select=*'),
-          this.sbHeaders(),
-        ),
-      );
-      return new Map(rows.map((r) => [String(r['acc_id']), String(r['acc_company_name'])]));
-    } catch {
-      return new Map([
-        ['CLI-001', 'Industrias Andinas S.A.'],
-        ['CLI-002', 'Comercial Pacífico Cía. Ltda.'],
-      ]);
-    }
+    const clients = await this.fetchClients();
+    return new Map(clients.map((c) => [c.id, c.nombre]));
   }
 
   async fetchUsersAndRbac(): Promise<{
@@ -90,7 +92,7 @@ export class ArlogsRemoteSyncAdapter {
       this.isBackendConnected.set(true);
       if (Array.isArray(jobs) && jobs.length > 0) return jobs;
     } catch {
-      // Direct Supabase PostgreSQL fallback
+      this.isBackendConnected.set(false);
     }
 
     const clientMap = await this.fetchClientMap();
@@ -187,19 +189,15 @@ export class ArlogsRemoteSyncAdapter {
   }
 
   async fetchSlaThreshold(): Promise<number> {
-    try {
-      const rows = await firstValueFrom(
-        this.http.get<Record<string, unknown>[]>(
-          this.sbUrl('arl_core_parameter?acp_key=eq.SLA_OPEN_THRESHOLD_DAYS&select=*'),
-          this.sbHeaders(),
-        ),
-      );
-      return rows.length > 0
-        ? Number(rows[0]['acp_value'])
-        : NETWORK_CONFIG.defaultSlaThresholdDays;
-    } catch {
-      return NETWORK_CONFIG.defaultSlaThresholdDays;
-    }
+    const rows = await firstValueFrom(
+      this.http.get<Record<string, unknown>[]>(
+        this.sbUrl('arl_core_parameter?acp_key=eq.SLA_OPEN_THRESHOLD_DAYS&select=*'),
+        this.sbHeaders(),
+      ),
+    );
+    return rows.length > 0
+      ? Number(rows[0]['acp_value'])
+      : NETWORK_CONFIG.defaultSlaThresholdDays;
   }
 
   async pushSlaThreshold(thresholdDays: number): Promise<void> {
@@ -401,7 +399,7 @@ export class ArlogsRemoteSyncAdapter {
       await firstValueFrom(obs);
       this.isBackendConnected.set(true);
     } catch {
-      // Keep UI reactive even during network blips
+      this.isBackendConnected.set(false);
     }
   }
 }
