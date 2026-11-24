@@ -35,7 +35,7 @@
               name="email"
               [(ngModel)]="email"
               class="input-field"
-              placeholder="admin@arlogs.com"
+              placeholder="usuario@arlogs.com"
               autocomplete="username"
               [disabled]="isAuthenticating()"
               required
@@ -86,27 +86,6 @@
           <i class="bi bi-arrow-right"></i>
         </button>
       </form>
-
-      <div class="profiles-section">
-        <div class="profiles-header d-flex align-items-center justify-content-between">
-          <span class="profiles-title">Acceso rápido por perfil</span>
-          <span class="profiles-count">8 roles disponibles</span>
-        </div>
-
-        <div class="profiles-tag-cloud d-flex flex-wrap gap-2">
-          @for (profile of quickProfiles; track profile.role) {
-            <button
-              type="button"
-              class="role-tag-btn"
-              [disabled]="isAuthenticating()"
-              (click)="quickSignIn(profile.role)"
-            >
-              <span class="role-status-dot" [ngClass]="profile.badgeBg"></span>
-              <span class="role-name">{{ profile.label }}</span>
-            </button>
-          }
-        </div>
-      </div>
     </div>
   </section>
 

@@ -180,8 +180,8 @@ export class WarehouseViewComponent {
     }
     const cliente =
       this.receiptForm.clienteId === 'CLI-001'
-        ? 'Industrias Andinas DEMO S.A.'
-        : 'Comercial Pacífico DEMO Cía. Ltda.';
+        ? 'Industrias Andinas S.A.'
+        : 'Comercial Pacífico Cía. Ltda.';
     try {
       const created = this.shipmentService.registerWarehouseReceipt({
         bodegaId: this.receiptForm.bodegaId,

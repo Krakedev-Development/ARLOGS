@@ -45,8 +45,8 @@ export class IamUserFactory {
           clienteId: cid,
           clienteNombre:
             cid === 'CLI-002'
-              ? 'Comercial Pacífico DEMO Cía. Ltda.'
-              : 'Industrias Andinas DEMO S.A.',
+              ? 'Comercial Pacífico Cía. Ltda.'
+              : 'Industrias Andinas S.A.',
         };
       }
       case 'cliente_b': {
@@ -56,8 +56,8 @@ export class IamUserFactory {
           clienteId: cid,
           clienteNombre:
             cid === 'CLI-001'
-              ? 'Industrias Andinas DEMO S.A.'
-              : 'Comercial Pacífico DEMO Cía. Ltda.',
+              ? 'Industrias Andinas S.A.'
+              : 'Comercial Pacífico Cía. Ltda.',
         };
       }
     }
@@ -77,8 +77,8 @@ export class IamUserFactory {
     const role: UserRole = input.clienteId === 'CLI-001' ? 'cliente_a' : 'cliente_b';
     const clienteNombre =
       input.clienteId === 'CLI-001'
-        ? 'Industrias Andinas DEMO S.A.'
-        : 'Comercial Pacífico DEMO Cía. Ltda.';
+        ? 'Industrias Andinas S.A.'
+        : 'Comercial Pacífico Cía. Ltda.';
     const nowTs = this.formatNow();
 
     const user: RoleUser = {

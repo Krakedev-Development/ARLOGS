@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { ShipmentService } from '../../services/shipment.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { ScreenId, UserRole } from '../../models/shipment.model';
+import { ScreenId } from '../../models/shipment.model';
 
 @Component({
   selector: 'app-header',
@@ -34,7 +34,6 @@ export class HeaderComponent {
   userMenuOpen = signal(false);
 
   readonly currentUser = this.shipmentService.currentUser;
-  readonly activeUsers = computed(() => this.authService.registeredUsers().filter((u) => u.activo));
 
   readonly visibleTabs = computed(() => {
     const allowed = this.authService.allowedScreensForCurrentUser();
@@ -78,37 +77,16 @@ export class HeaderComponent {
     this.menuOpen.set(false);
   }
 
-  switchToUser(userId: string): void {
-    const user = this.authService.registeredUsers().find((u) => u.id === userId);
-    if (!user) return;
-    this.shipmentService.setCurrentUser(user);
-    const defaultTab = this.authService.getDefaultScreen(user.role);
-    this.tabChange.emit(defaultTab);
-    this.userMenuOpen.set(false);
-    this.menuOpen.set(false);
-    this.toastService.info(
-      'Actualizado — Perfil activo',
-      `Operando como ${user.nombre} (${user.role}).`,
-    );
-  }
-
-  switchRole(role: UserRole): void {
-    const defaultTab = this.authService.switchActiveRole(role);
-    this.tabChange.emit(defaultTab);
-    this.userMenuOpen.set(false);
-    this.toastService.info('Actualizado — Rol activo', `Permisos cambiados a vista ${role}.`);
-  }
-
   exportExcel(): void {
     const jobs = this.shipmentService.authorizedJobs();
     if (!jobs.length) {
       this.toastService.warning(
         'Sin datos para exportar',
-        'No hay embarques autorizados en tu perfil actual.',
+        'No hay embarques autorizados en tu cuenta actual.',
       );
       return;
     }
-    this.shipmentService.exportToExcel(jobs);
+    void this.shipmentService.exportToExcel(jobs);
     this.menuOpen.set(false);
     this.toastService.success(
       'Correcto — Excel generado',

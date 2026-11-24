@@ -103,18 +103,6 @@ export class AuthService {
     return res;
   }
 
-  quickDemoLogin(role: UserRole): LoginResult {
-    const user = this.registeredUsers().find((u) => u.role === role && u.activo) ?? this.registeredUsers().find((u) => u.role === role);
-    if (!user) return { ok: false, error: 'Cargando usuarios desde la base de datos...' };
-    return this.authenticateCredentials(user.email, user.password);
-  }
-
-  switchActiveRole(role: UserRole): ScreenId {
-    const user = this.registeredUsers().find((u) => u.role === role && u.activo) ?? this.registeredUsers().find((u) => u.role === role);
-    if (user) this.shipmentService.setCurrentUser(user);
-    return this.getDefaultScreen(role);
-  }
-
   logout(): void {
     const actor = this.currentUser();
     this.recordAudit('SESION', actor.email, 'Cierre de Sesión', 'Sesión finalizada manualmente por el usuario', actor);

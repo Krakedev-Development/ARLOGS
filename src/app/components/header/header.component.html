@@ -68,30 +68,14 @@
               class="dropdown-menu dropdown-menu-end show shadow-lg border border-slate-200 p-2 fs-xs user-dropdown-menu"
               (click)="$event.stopPropagation()"
             >
-              <li class="dropdown-header text-uppercase fs-xxs fw-bold text-muted px-2 py-1">
-                Cambiar Perfil / Rol Activo
+              <li class="px-2 py-2 border-bottom border-slate-100">
+                <div class="fw-bold text-dark">{{ currentUser().nombre }}</div>
+                <div class="text-muted fs-xxs">{{ currentUser().email }}</div>
+                <div class="badge bg-slate-100 text-slate-700 border border-slate-200 mt-1">
+                  {{ currentUser().cargo }}
+                </div>
               </li>
-              @for (user of activeUsers(); track user.id) {
-                <li>
-                  <button
-                    type="button"
-                    class="dropdown-item rounded-2 d-flex align-items-start gap-2 p-2 mb-1"
-                    [class.bg-slate-100]="currentUser().id === user.id"
-                    [class.fw-bold]="currentUser().id === user.id"
-                    (click)="switchToUser(user.id)"
-                  >
-                    <i class="bi {{ user.avatarIcon }} mt-1 text-primary"></i>
-                    <div class="overflow-hidden">
-                      <div class="text-dark text-truncate">{{ user.nombre }}</div>
-                      <div class="text-muted fs-xxs fw-normal text-truncate">
-                        {{ user.cargo }}
-                      </div>
-                    </div>
-                  </button>
-                </li>
-              }
-              <li><hr class="dropdown-divider my-1" /></li>
-              <li>
+              <li class="mt-1">
                 <button
                   type="button"
                   class="dropdown-item rounded-2 d-flex align-items-center gap-2 p-2 text-danger fw-semibold"

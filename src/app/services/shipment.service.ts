@@ -26,7 +26,7 @@ export class ShipmentService {
   private readonly spreadsheetExporter = inject(XlsxSpreadsheetExporterAdapter);
   private readonly remoteSync = inject(ArlogsRemoteSyncAdapter);
 
-  readonly referenceDate = new Date(`${NETWORK_CONFIG.simulatedReferenceDateIso}T00:00:00`);
+  readonly referenceDate = new Date(`${NETWORK_CONFIG.slaEvaluationDateIso}T00:00:00`);
   readonly jobs = signal<ShipmentJob[]>([]);
   readonly quotations = signal<Quotation[]>([]);
   readonly warehouseItems = signal<WarehouseItem[]>([]);
