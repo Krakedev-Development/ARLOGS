@@ -1,0 +1,428 @@
+<div class="executive-dashboard py-2">
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-xl-8">
+      <div class="card-executive p-3 h-100 d-flex flex-column justify-content-between">
+        <div
+          class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 border-bottom pb-2"
+        >
+          <h6 class="fw-bold mb-0 text-dark">Distribución Operativa por Modalidad</h6>
+          <span class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font fs-xxs">
+            {{ stats().total }} embarques registrados
+          </span>
+        </div>
+
+        <div class="row g-2 my-auto">
+          @for (item of modalitySummary(); track item.label) {
+            <div class="col-6 col-sm-4">
+              <div class="p-2 px-3 rounded-3 bg-slate-50 border border-slate-200 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <span class="fs-xs fw-semibold text-dark d-flex align-items-center gap-1">
+                    <i class="bi {{ item.icon }} text-primary"></i>{{ item.label }}
+                  </span>
+                  <span class="badge bg-white text-dark border border-slate-200 mono-font fs-xs">{{
+                    item.count
+                  }}</span>
+                </div>
+                <div class="progress mb-1" style="height: 4px">
+                  <div
+                    class="progress-bar"
+                    [ngClass]="item.barClass"
+                    [style.width.%]="item.pct"
+                  ></div>
+                </div>
+                <div class="fs-xxs text-muted d-flex justify-content-between">
+                  <span>Participación</span>
+                  <span class="mono-font fw-semibold">{{ item.pct }}%</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div
+          class="pt-2 mt-3 border-top border-slate-100 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xxs text-muted"
+        >
+          <span>Hub Principal: Guayaquil (GYE) &bull; Cobertura Global</span>
+          <span class="mono-font fw-semibold text-dark"
+            >Ciclo promedio: {{ averages().cicloTotal }} días</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card-executive p-3 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="fs-xs fw-semibold text-muted text-uppercase letter-spacing-wide">
+              Parámetro de Control SLA
+            </span>
+            <span
+              class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font fs-xxs"
+            >
+              Gerencia
+            </span>
+          </div>
+
+          <h6 class="fw-bold mb-1 text-dark">Tolerancia de Días Abiertos</h6>
+
+          <div class="bg-slate-50 p-3 rounded-3 border border-slate-200 my-2">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="fs-xs text-muted">Límite de alerta:</span>
+              <span
+                class="badge bg-amber-100 text-amber-800 border border-amber-300 fs-6 mono-font px-2 py-1"
+              >
+                {{ currentThreshold() }} días
+              </span>
+            </div>
+            <input
+              type="range"
+              class="form-range"
+              min="5"
+              max="40"
+              step="1"
+              [ngModel]="currentThreshold()"
+              (ngModelChange)="onThresholdChange($event)"
+            />
+            <div class="d-flex justify-content-between text-muted fs-xxs mt-1">
+              <span>5d</span>
+              <span class="fw-semibold text-dark">15d (Base)</span>
+              <span>40d</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-top border-slate-100">
+          <div class="d-flex align-items-center justify-content-between gap-1">
+            <span class="fs-xxs text-muted fw-semibold">Presets:</span>
+            <div class="btn-group btn-group-sm">
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm py-0 px-2 fs-xxs"
+                (click)="onThresholdChange(10)"
+              >
+                10d
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm py-0 px-2 fs-xxs fw-bold"
+                (click)="onThresholdChange(15)"
+              >
+                15d
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm py-0 px-2 fs-xxs"
+                (click)="onThresholdChange(20)"
+              >
+                20d
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm py-0 px-2 fs-xxs"
+                (click)="onThresholdChange(30)"
+              >
+                30d
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-kpi-stat-ribbon [items]="kpiItems()"></app-kpi-stat-ribbon>
+
+  <!-- Promedios por Tramo (Requerimiento Sección 06 del PDF) -->
+  <div class="card-executive p-3 mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-2 border-bottom pb-2">
+      <h6 class="fw-bold mb-0 text-dark">Promedios en Días Calendario por Tramo (H1–H10)</h6>
+      <span class="badge bg-slate-100 text-dark border fs-xxs">Excluye N/A</span>
+    </div>
+    <div class="row g-2 text-center">
+      <div class="col-6 col-sm-4 col-lg-2">
+        <div class="p-2 rounded-3 bg-slate-50 border border-slate-200 h-100">
+          <div class="fs-xxs text-muted">Resp. Shipper (2−1)</div>
+          <div class="fs-6 fw-bold mono-font text-dark">{{ averages().respShipper }} d</div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 col-lg-2">
+        <div class="p-2 rounded-3 bg-slate-50 border border-slate-200 h-100">
+          <div class="fs-xxs text-muted">Alistamiento (3−1)</div>
+          <div class="fs-6 fw-bold mono-font text-dark">{{ averages().alistamiento }} d</div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 col-lg-2">
+        <div class="p-2 rounded-3 bg-slate-50 border border-slate-200 h-100">
+          <div class="fs-xxs text-muted">Coord. Origen (4−1)</div>
+          <div class="fs-6 fw-bold mono-font text-primary">
+            {{ averages().coordinacionOrigen }} d
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 col-lg-2">
+        <div class="p-2 rounded-3 bg-slate-50 border border-slate-200 h-100">
+          <div class="fs-xxs text-muted">Tránsito (5−4)</div>
+          <div class="fs-6 fw-bold mono-font text-primary">{{ averages().transito }} d</div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 col-lg-2">
+        <div class="p-2 rounded-3 bg-slate-50 border border-slate-200 h-100">
+          <div class="fs-xxs text-muted">Días Aduana (9−7)</div>
+          <div class="fs-6 fw-bold mono-font text-amber-700">{{ averages().aduana }} d</div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 col-lg-2">
+        <div class="p-2 rounded-3 bg-emerald-50 border border-emerald-200 h-100">
+          <div class="fs-xxs text-emerald-800 fw-semibold">Ciclo Total (10−1)</div>
+          <div class="fs-6 fw-bold mono-font text-success">{{ averages().cicloTotal }} d</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-lg-5">
+      <div class="card-executive p-3 h-100 d-flex flex-column justify-content-between">
+        <div class="d-flex align-items-center justify-content-between mb-2 border-bottom pb-2">
+          <h6 class="fw-bold mb-0 text-dark">Rentabilidad &amp; Facturación</h6>
+          <span class="badge bg-slate-100 text-dark border fs-xxs">Consolidado</span>
+        </div>
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="p-2 px-3 rounded-3 bg-slate-50 border border-slate-200">
+              <div class="fs-xxs text-muted text-uppercase fw-semibold">Cotizado Total</div>
+              <div class="fs-5 fw-bold text-dark mono-font">
+                ${{ commercialStats().cotizado | number: '1.0-0' }}
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 px-3 rounded-3 bg-emerald-50 border border-emerald-200">
+              <div class="fs-xxs text-emerald-800 text-uppercase fw-semibold">Facturado Real</div>
+              <div class="fs-5 fw-bold text-success mono-font">
+                ${{ commercialStats().facturado | number: '1.0-0' }}
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 px-3 rounded-3 bg-blue-50 border border-blue-200">
+              <div class="fs-xxs text-blue-800 text-uppercase fw-semibold">Profit Real</div>
+              <div class="fs-5 fw-bold text-primary mono-font">
+                ${{ commercialStats().profitReal | number: '1.0-0' }}
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 px-3 rounded-3 bg-amber-50 border border-amber-200">
+              <div class="fs-xxs text-amber-800 text-uppercase fw-semibold">Pend. Facturar</div>
+              <div class="fs-5 fw-bold text-amber-700 mono-font">
+                {{ commercialStats().pendientes }} emb.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="card-executive p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2 border-bottom pb-2">
+          <h6 class="fw-bold mb-0 text-dark">Comparativa de Tiempos por Proveedor (Shipper)</h6>
+          <i class="bi bi-bar-chart-steps text-primary"></i>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm table-arlogs align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Proveedor (Shipper)</th>
+                <th>Ruta / Mod.</th>
+                <th class="text-end">Emb.</th>
+                <th class="text-end">Resp. H2−H1</th>
+                <th class="text-end">Origen H4−H1</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sp of shipperComparison(); track sp.shipper) {
+                <tr>
+                  <td class="fw-semibold text-dark fs-xs">{{ sp.shipper }}</td>
+                  <td class="fs-xxs text-muted">{{ sp.origen }}</td>
+                  <td class="text-end mono-font fs-xs">{{ sp.count }}</td>
+                  <td class="text-end mono-font fs-xs">{{ sp.avgResp }} d</td>
+                  <td
+                    class="text-end mono-font fw-bold fs-xs"
+                    [class.text-danger]="sp.avgOrigen >= 10"
+                    [class.text-success]="sp.avgOrigen > 0 && sp.avgOrigen < 7"
+                  >
+                    {{ sp.avgOrigen > 0 ? sp.avgOrigen + ' d' : 'N/A' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (delayedJobs().length > 0) {
+    <div class="card-executive overflow-hidden border-amber-300 mb-3">
+      <div
+        class="p-3 bg-amber-50 border-bottom border-amber-200 d-flex align-items-center justify-content-between flex-wrap gap-2"
+      >
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill text-amber-600 fs-5"></i>
+          <strong class="text-dark fs-xs"
+            >Embarques que Requieren Atención ({{ delayedJobs().length }})</strong
+          >
+        </div>
+        <app-status-pill status="REVISAR"></app-status-pill>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-arlogs align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Referencia</th>
+              <th>Cliente</th>
+              <th>Modalidad</th>
+              <th>Shipper</th>
+              <th>H1 Asignación</th>
+              <th>Días Abiertos</th>
+              <th>Estado</th>
+              <th class="text-end">Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (job of delayedJobs(); track job.refArlogs) {
+              <tr class="row-alert">
+                <td>
+                  <strong class="text-primary mono-font">{{ job.refArlogs }}</strong>
+                </td>
+                <td class="fw-medium text-dark">{{ job.cliente }}</td>
+                <td>
+                  <span
+                    class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font"
+                    >{{ job.servicio }}</span
+                  >
+                </td>
+                <td class="text-truncate" style="max-width: 200px">{{ job.shipper }}</td>
+                <td class="mono-font">{{ job.h1_asignacion }}</td>
+                <td>
+                  <span class="badge bg-amber-100 text-amber-800 mono-font fw-bold">
+                    {{ job.diasAbiertos }} días
+                  </span>
+                </td>
+                <td>
+                  <app-status-pill [status]="job.estado"></app-status-pill>
+                </td>
+                <td class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary py-1 px-2 fs-xs"
+                    (click)="openDrilldown(job)"
+                  >
+                    <i class="bi bi-eye me-1"></i>Ver Ficha
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <div class="card-executive overflow-hidden">
+    <div
+      class="p-3 bg-slate-50 border-bottom border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-journal-check text-primary fs-5"></i>
+        <strong class="text-dark fs-xs">Auditoría y Control de Cambios</strong>
+      </div>
+      <div
+        class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap w-100 w-md-auto justify-content-end"
+      >
+        <div
+          class="input-group input-group-sm flex-grow-1 flex-sm-grow-0"
+          style="min-width: 180px; max-width: 240px"
+        >
+          <span class="input-group-text bg-white border-end-0 text-muted"
+            ><i class="bi bi-search"></i
+          ></span>
+          <input
+            type="text"
+            class="form-control border-start-0 fs-xxs"
+            placeholder="Filtrar auditoría..."
+            [ngModel]="auditSearch()"
+            (ngModelChange)="auditSearch.set($event); auditPage.set(1)"
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-success py-1 px-2 fs-xxs text-nowrap"
+          (click)="exportAudit()"
+        >
+          <i class="bi bi-file-earmark-excel me-1"></i>Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-arlogs align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Fecha / Hora</th>
+            <th>Usuario</th>
+            <th>Referencia</th>
+            <th>Acción</th>
+            <th>Detalle del Cambio</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of paginatedAudit(); track log.id) {
+            <tr>
+              <td class="mono-font fs-xxs text-muted text-nowrap">{{ log.timestamp }}</td>
+              <td>
+                <span class="fw-semibold text-dark fs-xs">{{ log.usuario }}</span>
+                <span class="text-muted fs-xxs ms-1">({{ log.rol }})</span>
+              </td>
+              <td>
+                <span class="badge bg-slate-100 text-dark border border-slate-200 mono-font fs-xxs">{{
+                  log.entidad
+                }}</span>
+              </td>
+              <td class="fs-xs fw-medium text-dark">{{ log.accion }}</td>
+              <td class="fs-xs text-muted">{{ log.detalle }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">
+                No se encontraron registros de auditoría.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination-bar
+      [currentPage]="auditPage()"
+      [pageSize]="auditPageSize()"
+      [totalItems]="filteredAudit().length"
+      itemLabel="eventos"
+      [pageSizeOptions]="[]"
+      (pageChange)="auditPage.set($event)"
+      (pageSizeChange)="auditPageSize.set($event)"
+    ></app-pagination-bar>
+  </div>
+
+  @if (selectedDrilldownJob()) {
+    <app-job-detail-modal
+      [job]="selectedDrilldownJob()"
+      (close)="selectedDrilldownJob.set(null)"
+      (save)="onDrilldownSave($event)"
+    ></app-job-detail-modal>
+  }
+</div>

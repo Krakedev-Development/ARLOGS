@@ -1,0 +1,125 @@
+.text-amber {
+  color: #f5b041;
+}
+
+.btn-hamburger {
+  width: 38px;
+  height: 38px;
+  background-color: #f8fafc;
+  border-color: #cbd5e1 !important;
+  color: #0f172a;
+  font-size: 1.25rem;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+.btn-hamburger:hover {
+  background-color: #e2e8f0;
+  color: #1d4ed8;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+}
+@media (max-width: 575.98px) {
+  .btn-hamburger {
+    width: 34px;
+    height: 34px;
+    font-size: 1.15rem;
+  }
+  .brand-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+.brand-icon-sm {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+.brand-title {
+  letter-spacing: -0.03em;
+}
+
+.active-screen-chip {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.user-avatar-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: min(295px, calc(100vw - 1.5rem));
+  max-width: calc(100vw - 1.5rem);
+  z-index: 1050;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1080;
+  animation: fadeInBackdrop 0.18s ease-out;
+}
+
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(310px, 86vw);
+  background: #ffffff;
+  z-index: 1090;
+  border-right: 1px solid #e2e8f0;
+  animation: slideInDrawer 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-nav-item {
+  color: #334155;
+  background: transparent;
+  border: 1px solid transparent;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.drawer-nav-item:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+.drawer-nav-item.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+@keyframes fadeInBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideInDrawer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

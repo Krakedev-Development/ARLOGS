@@ -1,0 +1,439 @@
+<div class="operations-view py-2">
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h5 class="fw-bold mb-0 text-dark font-heading">Control Operativo de Embarques (H1–H10)</h5>
+
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-success" (click)="exportExcel()">
+        <i class="bi bi-file-earmark-excel me-1"></i>Excel ({{ filteredJobs().length }})
+      </button>
+      <button type="button" class="btn btn-sm btn-brand-primary" (click)="openNewShipmentModal()">
+        <i class="bi bi-plus-lg me-1"></i>Nuevo Embarque
+      </button>
+    </div>
+  </div>
+
+  <div class="card-executive overflow-hidden mb-3">
+    <div class="p-3 bg-slate-50 border-bottom border-slate-200">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white text-muted border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Buscar Ref, QR, OC, Guía, Contenedor..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event); opsPage.set(1)"
+            />
+            @if (searchQuery()) {
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="searchQuery.set(''); opsPage.set(1)"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="selectedModality()"
+            (ngModelChange)="selectedModality.set($event); opsPage.set(1)"
+          >
+            <option value="ALL">Modalidad: Todas</option>
+            <option value="AEREO">Aéreo (A)</option>
+            <option value="FCL">FCL Contenedor (F)</option>
+            <option value="LCL">LCL Consolidado (L)</option>
+            <option value="CUSTOMS">Customs (C)</option>
+            <option value="COURIER">Courier (AC)</option>
+            <option value="INLAND">Inland (I)</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="selectedStatus()"
+            (ngModelChange)="selectedStatus.set($event); opsPage.set(1)"
+          >
+            <option value="ALL">Estado: Todos</option>
+            <option value="ABIERTO">Abierto (En plazo)</option>
+            <option value="REVISAR">Revisar (Demorado)</option>
+            <option value="CERRADO">Cerrado (Completado)</option>
+            <option value="N/A">N/A (Inland)</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="selectedClient()"
+            (ngModelChange)="selectedClient.set($event); opsPage.set(1)"
+          >
+            <option value="ALL">Cliente: Todos</option>
+            <option value="CLI-001">Industrias Andinas</option>
+            <option value="CLI-002">Comercial Pacífico</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2 d-flex align-items-center gap-1">
+          <select
+            class="form-select form-select-sm flex-grow-1"
+            [ngModel]="selectedCustoms()"
+            (ngModelChange)="selectedCustoms.set($event); opsPage.set(1)"
+          >
+            <option value="ALL">Aduana: Todas</option>
+            <option value="SI">Aduana: SÍ</option>
+            <option value="NO">Solo Flete: NO</option>
+          </select>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary px-2"
+            (click)="resetFilters()"
+            title="Restablecer filtros"
+          >
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="d-flex align-items-center gap-1 mt-2 pt-2 border-top border-slate-100 fs-xs flex-wrap"
+      >
+        <span class="text-muted fw-semibold me-1">Filtro rápido:</span>
+        <button
+          type="button"
+          class="btn btn-sm py-0 px-2 rounded-2 fs-xxs"
+          [class.btn-dark]="selectedStatus() === 'ALL'"
+          [class.btn-light]="selectedStatus() !== 'ALL'"
+          (click)="selectedStatus.set('ALL'); opsPage.set(1)"
+        >
+          Todos ({{ jobs().length }})
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm py-0 px-2 rounded-2 fs-xxs"
+          [class.btn-primary]="selectedStatus() === 'ABIERTO'"
+          [class.btn-light]="selectedStatus() !== 'ABIERTO'"
+          (click)="selectedStatus.set('ABIERTO'); opsPage.set(1)"
+        >
+          Abiertos ({{ countByStatus('ABIERTO') }})
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm py-0 px-2 rounded-2 fs-xxs"
+          [class.btn-warning]="selectedStatus() === 'REVISAR'"
+          [class.btn-light]="selectedStatus() !== 'REVISAR'"
+          (click)="selectedStatus.set('REVISAR'); opsPage.set(1)"
+        >
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>Revisar ({{
+            countByStatus('REVISAR')
+          }})
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm py-0 px-2 rounded-2 fs-xxs"
+          [class.btn-success]="selectedStatus() === 'CERRADO'"
+          [class.btn-light]="selectedStatus() !== 'CERRADO'"
+          (click)="selectedStatus.set('CERRADO'); opsPage.set(1)"
+        >
+          Cerrados ({{ countByStatus('CERRADO') }})
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-arlogs align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Referencia</th>
+            <th>Cliente</th>
+            <th>Modalidad</th>
+            <th>Aduana</th>
+            <th>Shipper</th>
+            <th>Órdenes de Compra</th>
+            <th>Guía / BL</th>
+            <th>Contenedor</th>
+            <th>H1 Asignación</th>
+            <th>Días Abiertos</th>
+            <th>Tránsito</th>
+            <th>Ciclo Total</th>
+            <th>Estado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (job of paginatedJobs(); track job.refArlogs) {
+            <tr [class.row-alert]="job.estado === 'REVISAR'">
+              <td>
+                <strong class="text-primary mono-font">{{ job.refArlogs }}</strong>
+                <div class="fs-xxs text-muted mono-font">{{ job.qrCode }}</div>
+              </td>
+              <td>
+                <div
+                  class="fw-semibold text-dark text-truncate"
+                  style="max-width: 150px"
+                  [title]="job.cliente"
+                >
+                  {{ job.cliente }}
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font">{{
+                  job.servicio
+                }}</span>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.bg-blue-50]="job.aduanaPorArlogs === 'SI'"
+                  [class.text-blue-700]="job.aduanaPorArlogs === 'SI'"
+                  [class.bg-slate-50]="job.aduanaPorArlogs !== 'SI'"
+                  [class.text-slate-500]="job.aduanaPorArlogs !== 'SI'"
+                >
+                  {{ job.aduanaPorArlogs }}
+                </span>
+              </td>
+              <td>
+                <div class="text-truncate" style="max-width: 140px" [title]="job.shipper">
+                  {{ job.shipper }}
+                </div>
+              </td>
+              <td>
+                <span class="mono-font badge bg-slate-50 text-dark border border-slate-200">{{
+                  job.ordenesCompra.join(', ')
+                }}</span>
+              </td>
+              <td>
+                <span class="mono-font fs-xs">{{ job.guiaMaster || '—' }}</span>
+              </td>
+              <td>
+                <span class="mono-font fs-xs">{{ job.contenedor || '—' }}</span>
+              </td>
+              <td class="mono-font fs-xs">{{ job.h1_asignacion }}</td>
+              <td>
+                <span class="mono-font fw-bold" [class.text-danger]="job.estado === 'REVISAR'">
+                  {{ job.diasAbiertos }} d
+                </span>
+              </td>
+              <td>
+                <span class="mono-font fw-bold" [class.text-primary]="job.diasTransito !== 'N/A'">
+                  {{ job.diasTransito !== 'N/A' ? job.diasTransito + ' d' : 'N/A' }}
+                </span>
+              </td>
+              <td>
+                @if (job.diasCicloTotal !== 'N/A') {
+                  <span class="mono-font fw-bold text-success">{{ job.diasCicloTotal }} d</span>
+                } @else if (job.diasGestionSinAduana !== 'N/A') {
+                  <span class="mono-font fw-bold text-info" title="Gestión sin aduana (H6 - H1)"
+                    >{{ job.diasGestionSinAduana }} d</span
+                  >
+                } @else {
+                  <span class="mono-font text-muted">N/A</span>
+                }
+              </td>
+              <td>
+                <app-status-pill [status]="job.estado"></app-status-pill>
+              </td>
+              <td class="text-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary py-1 px-2 fs-xs"
+                  (click)="openDetail(job)"
+                  title="Gestionar hitos H1-H10"
+                >
+                  <i class="bi bi-pencil-square me-1"></i>Hitos
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="14" class="text-center py-4 text-muted">
+                No se encontraron embarques con los filtros aplicados.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination-bar
+      [currentPage]="opsPage()"
+      [pageSize]="opsPageSize()"
+      [totalItems]="filteredJobs().length"
+      itemLabel="embarques"
+      [pageSizeOptions]="[5, 8, 15]"
+      (pageChange)="opsPage.set($event)"
+      (pageSizeChange)="opsPageSize.set($event)"
+    ></app-pagination-bar>
+  </div>
+
+  @if (selectedJob()) {
+    <app-job-detail-modal
+      [job]="selectedJob()"
+      (close)="closeDetail()"
+      (save)="onJobSaved($event)"
+    ></app-job-detail-modal>
+  }
+
+  @if (showCreateModal) {
+    <app-modal-shell
+      title="Crear Nuevo Embarque Operativo"
+      icon="bi-plus-circle-fill"
+      (closed)="showCreateModal = false"
+    >
+      <form (ngSubmit)="submitNewShipment()">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Cliente</label>
+              <select
+                class="form-select"
+                [(ngModel)]="newJobForm.clienteId"
+                name="clienteId"
+                (ngModelChange)="onNewClientChange($event)"
+              >
+                <option value="CLI-001">Industrias Andinas S.A. (CLI-001)</option>
+                <option value="CLI-002">Comercial Pacífico Cía. Ltda. (CLI-002)</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Modalidad de Servicio</label>
+              <select
+                class="form-select"
+                [(ngModel)]="newJobForm.servicio"
+                name="servicio"
+                (ngModelChange)="onNewServiceChange($event)"
+              >
+                <option value="AEREO">Aéreo (A)</option>
+                <option value="FCL">FCL Contenedor (F)</option>
+                <option value="LCL">LCL Consolidado (L)</option>
+                <option value="CUSTOMS">Customs (C)</option>
+                <option value="COURIER">Courier (AC)</option>
+                <option value="INLAND">Inland Transporte (I)</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Proveedor (Shipper)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="newJobForm.shipper"
+                name="shipper"
+                placeholder="Ej. Ningbo Pioneer Industrial"
+                required
+              />
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label fs-xs fw-semibold">País Origen</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="newJobForm.paisOrigen"
+                name="paisOrigen"
+                placeholder="Ej. China"
+                required
+              />
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label fs-xs fw-semibold">Puerto / Aeropuerto</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="newJobForm.puertoEmbarque"
+                name="puertoEmbarque"
+                placeholder="Ej. Ningbo (CNNGB)"
+                required
+              />
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Incoterm</label>
+              <select class="form-select" [(ngModel)]="newJobForm.incoterm" name="incoterm">
+                <option value="FOB">FOB</option>
+                <option value="EXW">EXW</option>
+                <option value="FCA">FCA</option>
+                <option value="CIF">CIF</option>
+                <option value="CFR">CFR</option>
+                <option value="DAP">DAP</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Aduana por ARLOGS</label>
+              <select
+                class="form-select"
+                [(ngModel)]="newJobForm.aduanaPorArlogs"
+                name="aduanaPorArlogs"
+                [disabled]="newJobForm.servicio === 'INLAND'"
+              >
+                <option value="SI">SÍ</option>
+                <option value="NO">NO</option>
+                <option value="N/A">N/A</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Peso Origen (kg)</label>
+              <input
+                type="number"
+                class="form-control mono-font"
+                [(ngModel)]="newJobForm.pesoOrigen"
+                name="pesoOrigen"
+                min="1"
+                step="1"
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold"
+                >Órdenes de Compra (separadas por coma)</label
+              >
+              <input
+                type="text"
+                class="form-control mono-font"
+                [(ngModel)]="newJobForm.ordenesCompraStr"
+                name="ordenesCompraStr"
+                placeholder="OC-6001, OC-6002"
+                required
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Guía Máster / BL</label>
+              <input
+                type="text"
+                class="form-control mono-font"
+                [(ngModel)]="newJobForm.guiaMaster"
+                name="guiaMaster"
+                placeholder="Ej. MSK-9841207"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
+          <button
+            type="button"
+            class="btn btn-sm btn-light border"
+            (click)="showCreateModal = false"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-sm btn-brand-primary">
+            <i class="bi bi-check-lg me-1"></i>Crear Embarque
+          </button>
+        </div>
+      </form>
+    </app-modal-shell>
+  }
+</div>

@@ -1,6 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import {
-  DEMO_USERS,
   ROLE_DEFINITIONS,
   RoleDefinition,
   RoleUser,
@@ -10,6 +9,8 @@ import {
 } from '../models/shipment.model';
 import { ShipmentService } from './shipment.service';
 import { AuditService } from './audit.service';
+import { IamUserFactory } from '../application/iam/iam-user.factory';
+import { ArlogsRemoteSyncAdapter } from '../infrastructure/http/arlogs-remote-sync.adapter';
 
 export interface LoginResult {
   ok: boolean;
@@ -22,14 +23,14 @@ export interface LoginResult {
   providedIn: 'root',
 })
 export class AuthService {
-  private shipmentService = inject(ShipmentService);
-  private auditService = inject(AuditService);
+  private readonly shipmentService = inject(ShipmentService);
+  private readonly auditService = inject(AuditService);
+  private readonly remoteSync = inject(ArlogsRemoteSyncAdapter);
 
   readonly isLoggedIn = signal<boolean>(false);
-  readonly registeredUsers = signal<RoleUser[]>(DEMO_USERS.map((u) => ({ ...u })));
+  readonly registeredUsers = signal<RoleUser[]>([]);
   readonly currentUser = this.shipmentService.currentUser;
 
-  // Editable screen permissions per role
   readonly roleScreenMatrix = signal<Record<UserRole, ScreenId[]>>({
     admin: [...ROLE_DEFINITIONS.admin.defaultScreens],
     gerencia: [...ROLE_DEFINITIONS.gerencia.defaultScreens],
@@ -53,63 +54,43 @@ export class AuthService {
     this.registeredUsers().filter((u) => u.role === 'cliente_a' || u.role === 'cliente_b'),
   );
 
-  // Validates credentials and prepares session without unmounting Login until 3D animation completes
+  constructor() {
+    void this.hydrateIamFromDatabase();
+  }
+
+  async hydrateIamFromDatabase(): Promise<void> {
+    const { users, matrix } = await this.remoteSync.fetchUsersAndRbac();
+    if (users.length > 0) {
+      this.registeredUsers.set(users);
+      this.shipmentService.setCurrentUser(users[0]);
+    }
+    if (Object.keys(matrix).length > 0) {
+      this.roleScreenMatrix.update((prev) => ({ ...prev, ...matrix }));
+    }
+  }
+
   authenticateCredentials(email: string, password: string): LoginResult {
     const normalizedEmail = email.trim().toLowerCase();
     const user = this.registeredUsers().find((u) => u.email.toLowerCase() === normalizedEmail);
 
     if (!user || user.password !== password) {
-      this.auditService.record({
-        usuario: user?.nombre ?? 'Desconocido',
-        email: normalizedEmail || 'vacío',
-        rol: user?.role ?? 'cliente_a',
-        categoria: 'SESION',
-        entidad: normalizedEmail || 'LOGIN',
-        accion: 'Intento Fallido de Ingreso',
-        detalle: 'Contraseña incorrecta o correo no registrado',
-      });
+      this.recordAudit('SESION', normalizedEmail || 'LOGIN', 'Intento Fallido de Ingreso', 'Contraseña incorrecta o correo no registrado', user);
       return { ok: false, error: 'Credenciales incorrectas. Verifica tu correo y contraseña.' };
     }
-
     if (!user.activo) {
-      this.auditService.record({
-        usuario: user.nombre,
-        email: user.email,
-        rol: user.role,
-        categoria: 'SESION',
-        entidad: user.email,
-        accion: 'Acceso Bloqueado (Cuenta Suspendida)',
-        detalle: 'Intento de inicio de sesión con cuenta desactivada',
-      });
+      this.recordAudit('SESION', user.email, 'Acceso Bloqueado (Cuenta Suspendida)', 'Intento de inicio de sesión con cuenta desactivada', user);
       return { ok: false, error: 'Esta cuenta está desactivada. Contacta al Administrador.' };
     }
-
-    const allowed = this.getAllowedScreens(user.role);
-    if (allowed.length === 0) {
+    if (this.getAllowedScreens(user.role).length === 0) {
       return { ok: false, error: 'Este rol no tiene pantallas asignadas actualmente.' };
     }
 
-    const nowTs = this.formatNow();
-    const updatedUser: RoleUser = { ...user, ultimoAcceso: nowTs };
+    const updatedUser: RoleUser = { ...user, ultimoAcceso: IamUserFactory.formatNow() };
     this.registeredUsers.update((list) => list.map((u) => (u.id === user.id ? updatedUser : u)));
-
     this.shipmentService.setCurrentUser(updatedUser);
+    this.recordAudit('SESION', updatedUser.clienteId ?? updatedUser.email, 'Inicio de Sesión Exitoso', `Acceso concedido como ${ROLE_DEFINITIONS[updatedUser.role].label}`, updatedUser);
 
-    this.auditService.record({
-      usuario: updatedUser.nombre,
-      email: updatedUser.email,
-      rol: updatedUser.role,
-      categoria: 'SESION',
-      entidad: updatedUser.clienteId ?? updatedUser.email,
-      accion: 'Inicio de Sesión Exitoso',
-      detalle: `Acceso concedido como ${ROLE_DEFINITIONS[updatedUser.role].label}`,
-    });
-
-    return {
-      ok: true,
-      user: updatedUser,
-      defaultScreen: this.getDefaultScreen(updatedUser.role),
-    };
+    return { ok: true, user: updatedUser, defaultScreen: this.getDefaultScreen(updatedUser.role) };
   }
 
   commitSession(): void {
@@ -118,51 +99,30 @@ export class AuthService {
 
   login(email: string, password: string): LoginResult {
     const res = this.authenticateCredentials(email, password);
-    if (res.ok) {
-      this.commitSession();
-    }
+    if (res.ok) this.commitSession();
     return res;
   }
 
   quickDemoLogin(role: UserRole): LoginResult {
-    const user =
-      this.registeredUsers().find((u) => u.role === role && u.activo) ??
-      this.registeredUsers().find((u) => u.role === role);
-    if (!user) {
-      return { ok: false, error: 'No existe un usuario activo para ese rol.' };
-    }
+    const user = this.registeredUsers().find((u) => u.role === role && u.activo) ?? this.registeredUsers().find((u) => u.role === role);
+    if (!user) return { ok: false, error: 'Cargando usuarios desde la base de datos...' };
     return this.authenticateCredentials(user.email, user.password);
   }
 
   switchActiveRole(role: UserRole): ScreenId {
-    const user =
-      this.registeredUsers().find((u) => u.role === role && u.activo) ??
-      this.registeredUsers().find((u) => u.role === role);
-    if (user) {
-      this.shipmentService.setCurrentUser(user);
-    } else {
-      this.shipmentService.setUserRole(role);
-    }
+    const user = this.registeredUsers().find((u) => u.role === role && u.activo) ?? this.registeredUsers().find((u) => u.role === role);
+    if (user) this.shipmentService.setCurrentUser(user);
     return this.getDefaultScreen(role);
   }
 
   logout(): void {
     const actor = this.currentUser();
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: 'SESION',
-      entidad: actor.email,
-      accion: 'Cierre de Sesión',
-      detalle: 'Sesión finalizada manualmente por el usuario',
-    });
+    this.recordAudit('SESION', actor.email, 'Cierre de Sesión', 'Sesión finalizada manualmente por el usuario', actor);
     this.isLoggedIn.set(false);
   }
 
   hasScreenAccess(role: UserRole, screen: ScreenId): boolean {
-    const allowed = this.roleScreenMatrix()[role] ?? [];
-    return allowed.includes(screen);
+    return (this.roleScreenMatrix()[role] ?? []).includes(screen);
   }
 
   getAllowedScreens(role: UserRole): ScreenId[] {
@@ -172,15 +132,18 @@ export class AuthService {
   getDefaultScreen(role: UserRole): ScreenId {
     const allowed = this.getAllowedScreens(role);
     if (allowed.length === 0) return 'cliente';
-    if (role === 'admin' && allowed.includes('admin')) return 'admin';
-    if (role === 'gerencia' && allowed.includes('gerencia')) return 'gerencia';
-    if (role === 'operaciones' && allowed.includes('operaciones')) return 'operaciones';
-    if (role === 'pricing' && allowed.includes('pricing')) return 'pricing';
-    if (role === 'contabilidad' && allowed.includes('facturacion')) return 'facturacion';
-    if (role === 'bodegas' && allowed.includes('bodegas')) return 'bodegas';
-    if ((role === 'cliente_a' || role === 'cliente_b') && allowed.includes('cliente'))
-      return 'cliente';
-    return allowed[0];
+    const roleScreenMap: Record<UserRole, ScreenId> = {
+      admin: 'admin',
+      gerencia: 'gerencia',
+      operaciones: 'operaciones',
+      pricing: 'pricing',
+      contabilidad: 'facturacion',
+      bodegas: 'bodegas',
+      cliente_a: 'cliente',
+      cliente_b: 'cliente',
+    };
+    const preferred = roleScreenMap[role];
+    return allowed.includes(preferred) ? preferred : allowed[0];
   }
 
   getRoleDefinition(role: UserRole): RoleDefinition {
@@ -189,218 +152,73 @@ export class AuthService {
 
   toggleRoleScreenAccess(role: UserRole, screen: ScreenId): { ok: boolean; error?: string } {
     if (role === 'admin' && screen === 'admin') {
-      return {
-        ok: false,
-        error: 'El rol Administrador debe conservar acceso al módulo de Administración.',
-      };
+      return { ok: false, error: 'El rol Administrador debe conservar acceso al módulo de Administración.' };
     }
-
     let enabled = false;
     this.roleScreenMatrix.update((matrix) => {
       const current = matrix[role] ?? [];
       const exists = current.includes(screen);
       enabled = !exists;
-      const next = exists ? current.filter((s) => s !== screen) : [...current, screen];
-      return { ...matrix, [role]: next };
+      return { ...matrix, [role]: exists ? current.filter((s) => s !== screen) : [...current, screen] };
     });
-
-    const actor = this.currentUser();
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: 'SEGURIDAD_ROLES',
-      entidad: `${role} -> ${screen}`,
-      accion: 'Actualización Matriz RBAC',
-      detalle: `Pantalla '${screen}' ${enabled ? 'HABILITADA' : 'REVOCADA'} para rol ${ROLE_DEFINITIONS[role].label}`,
-    });
-
+    void this.remoteSync.pushRbacToggle(role, screen, enabled);
+    this.recordAudit('SEGURIDAD_ROLES', `${role} -> ${screen}`, 'Actualización Matriz RBAC', `Pantalla '${screen}' ${enabled ? 'HABILITADA' : 'REVOCADA'} para rol ${ROLE_DEFINITIONS[role].label}`);
     return { ok: true };
   }
 
-  // Client Credential Issuance & Password Rotation
-  issueClientCredentials(input: {
-    nombre: string;
-    email: string;
-    cargo: string;
-    clienteId: 'CLI-001' | 'CLI-002';
-  }): { ok: boolean; error?: string; user?: RoleUser } {
+  issueClientCredentials(input: { nombre: string; email: string; cargo: string; clienteId: 'CLI-001' | 'CLI-002' }): { ok: boolean; error?: string; user?: RoleUser } {
     const cleanEmail = input.email.trim().toLowerCase();
-    if (!input.nombre.trim() || !cleanEmail) {
-      return { ok: false, error: 'Nombre del contacto y correo corporativo son obligatorios.' };
-    }
-    if (this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail)) {
-      return { ok: false, error: `Ya existe una credencial para el correo ${cleanEmail}.` };
-    }
+    if (!input.nombre.trim() || !cleanEmail) return { ok: false, error: 'Nombre del contacto y correo corporativo son obligatorios.' };
+    if (this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail)) return { ok: false, error: `Ya existe una credencial para el correo ${cleanEmail}.` };
 
-    const generatedPassword = this.generateTempPassword(input.clienteId);
-    const role: UserRole = input.clienteId === 'CLI-001' ? 'cliente_a' : 'cliente_b';
-    const clienteNombre =
-      input.clienteId === 'CLI-001'
-        ? 'Industrias Andinas DEMO S.A.'
-        : 'Comercial Pacífico DEMO Cía. Ltda.';
-    const actor = this.currentUser();
-    const nowTs = this.formatNow();
-
-    const newClientUser: RoleUser = {
-      id: `user-cli-${Date.now()}`,
-      role,
-      nombre: input.nombre.trim(),
-      email: cleanEmail,
-      password: generatedPassword,
-      activo: true,
-      cargo: input.cargo.trim() || `Portal Cliente - ${clienteNombre}`,
-      clienteId: input.clienteId,
-      clienteNombre,
-      avatarIcon: input.clienteId === 'CLI-001' ? 'bi-building-fill' : 'bi-box-seam-fill',
-      descripcion: ROLE_DEFINITIONS[role].summary,
-      credencialEmitidaEn: nowTs,
-      credencialEmitidaPor: actor.nombre,
-    };
-
-    this.registeredUsers.update((list) => [newClientUser, ...list]);
-
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: 'CREDENCIAL_CLIENTE',
-      entidad: cleanEmail,
-      accion: 'Emisión de Credencial Cliente',
-      detalle: `Acceso emitido para ${clienteNombre} (${input.clienteId}) | Contacto: ${newClientUser.nombre}`,
-    });
-
-    return { ok: true, user: newClientUser };
+    const { user, clienteNombre } = IamUserFactory.buildClientCredentialUser(input, this.currentUser().nombre);
+    this.registeredUsers.update((list) => [user, ...list]);
+    void this.remoteSync.pushCreateUser(user);
+    this.recordAudit('CREDENCIAL_CLIENTE', cleanEmail, 'Emisión de Credencial Cliente', `Acceso emitido para ${clienteNombre} (${input.clienteId}) | Contacto: ${user.nombre}`);
+    return { ok: true, user };
   }
 
   regenerateClientPassword(userId: string): { ok: boolean; error?: string; newPassword?: string } {
     const target = this.registeredUsers().find((u) => u.id === userId);
     if (!target) return { ok: false, error: 'Cuenta de cliente no encontrada.' };
-
-    const newPassword = this.generateTempPassword(target.clienteId || 'CLI');
+    const newPassword = IamUserFactory.generateTempPassword(target.clienteId || 'CLI');
     const actor = this.currentUser();
-    const nowTs = this.formatNow();
+    const nowTs = IamUserFactory.formatNow();
 
     this.registeredUsers.update((list) =>
-      list.map((u) =>
-        u.id === userId
-          ? {
-              ...u,
-              password: newPassword,
-              credencialEmitidaEn: nowTs,
-              credencialEmitidaPor: actor.nombre,
-            }
-          : u,
-      ),
+      list.map((u) => (u.id === userId ? { ...u, password: newPassword, credencialEmitidaEn: nowTs, credencialEmitidaPor: actor.nombre } : u)),
     );
-
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: 'CREDENCIAL_CLIENTE',
-      entidad: target.email,
-      accion: 'Rotación de Clave Cliente',
-      detalle: `Nueva clave temporal generada para ${target.clienteNombre || target.nombre}`,
-    });
-
+    void this.remoteSync.pushUpdateUser(userId, { password: newPassword });
+    this.recordAudit('CREDENCIAL_CLIENTE', target.email, 'Rotación de Clave Cliente', `Nueva clave temporal generada para ${target.clienteNombre || target.nombre}`);
     return { ok: true, newPassword };
   }
 
-  // User CRUD operations
-  createUser(input: {
-    nombre: string;
-    email: string;
-    password: string;
-    cargo: string;
-    role: UserRole;
-    activo: boolean;
-    clienteId?: string;
-  }): { ok: boolean; error?: string; user?: RoleUser } {
+  createUser(input: { nombre: string; email: string; password: string; cargo: string; role: UserRole; activo: boolean; clienteId?: string }): { ok: boolean; error?: string; user?: RoleUser } {
     const cleanEmail = input.email.trim().toLowerCase();
-    if (!input.nombre.trim() || !cleanEmail || !input.password.trim()) {
-      return { ok: false, error: 'Nombre, correo y contraseña son obligatorios.' };
-    }
+    if (!input.nombre.trim() || !cleanEmail || !input.password.trim()) return { ok: false, error: 'Nombre, correo y contraseña son obligatorios.' };
+    if (this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail)) return { ok: false, error: `Ya existe un usuario registrado con el correo ${cleanEmail}.` };
 
-    const exists = this.registeredUsers().some((u) => u.email.toLowerCase() === cleanEmail);
-    if (exists) {
-      return { ok: false, error: `Ya existe un usuario registrado con el correo ${cleanEmail}.` };
-    }
-
-    const roleMeta = this.getDefaultMetaForRole(input.role, input.clienteId);
-    const actor = this.currentUser();
-    const newUser: RoleUser = {
-      id: `user-${Date.now()}`,
-      role: input.role,
-      nombre: input.nombre.trim(),
-      email: cleanEmail,
-      password: input.password,
-      activo: input.activo,
-      cargo: input.cargo.trim() || ROLE_DEFINITIONS[input.role].label,
-      avatarIcon: roleMeta.avatarIcon,
-      descripcion: ROLE_DEFINITIONS[input.role].summary,
-      ...(roleMeta.clienteId
-        ? {
-            clienteId: roleMeta.clienteId,
-            clienteNombre: roleMeta.clienteNombre,
-            credencialEmitidaEn: this.formatNow(),
-            credencialEmitidaPor: actor.nombre,
-          }
-        : {}),
-    };
-
+    const newUser = IamUserFactory.buildNewUser(input, this.currentUser().nombre);
     this.registeredUsers.update((list) => [newUser, ...list]);
-
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: roleMeta.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES',
-      entidad: cleanEmail,
-      accion: 'Creación de Usuario',
-      detalle: `Usuario ${newUser.nombre} creado con rol ${ROLE_DEFINITIONS[input.role].label}`,
-    });
-
+    void this.remoteSync.pushCreateUser(newUser);
+    this.recordAudit(newUser.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES', cleanEmail, 'Creación de Usuario', `Usuario ${newUser.nombre} creado con rol ${ROLE_DEFINITIONS[input.role].label}`);
     return { ok: true, user: newUser };
   }
 
-  updateUser(
-    id: string,
-    changes: {
-      nombre: string;
-      email: string;
-      password: string;
-      cargo: string;
-      role: UserRole;
-      activo: boolean;
-      clienteId?: string;
-    },
-  ): { ok: boolean; error?: string } {
+  updateUser(id: string, changes: { nombre: string; email: string; password: string; cargo: string; role: UserRole; activo: boolean; clienteId?: string }): { ok: boolean; error?: string } {
     const cleanEmail = changes.email.trim().toLowerCase();
-    if (!changes.nombre.trim() || !cleanEmail || !changes.password.trim()) {
-      return { ok: false, error: 'Nombre, correo y contraseña son obligatorios.' };
-    }
-
-    const duplicate = this.registeredUsers().some(
-      (u) => u.id !== id && u.email.toLowerCase() === cleanEmail,
-    );
-    if (duplicate) {
-      return { ok: false, error: `El correo ${cleanEmail} ya pertenece a otro usuario.` };
-    }
-
-    const currentActiveId = this.currentUser().id;
-    if (id === currentActiveId && !changes.activo) {
-      return { ok: false, error: 'No puedes desactivar tu propia sesión activa.' };
-    }
+    if (!changes.nombre.trim() || !cleanEmail || !changes.password.trim()) return { ok: false, error: 'Nombre, correo y contraseña son obligatorios.' };
+    if (this.registeredUsers().some((u) => u.id !== id && u.email.toLowerCase() === cleanEmail)) return { ok: false, error: `El correo ${cleanEmail} ya pertenece a otro usuario.` };
+    if (id === this.currentUser().id && !changes.activo) return { ok: false, error: 'No puedes desactivar tu propia sesión activa.' };
 
     const previous = this.registeredUsers().find((u) => u.id === id);
-    const roleMeta = this.getDefaultMetaForRole(changes.role, changes.clienteId);
+    const roleMeta = IamUserFactory.getDefaultMetaForRole(changes.role, changes.clienteId);
     let updatedRef: RoleUser | null = null;
 
     this.registeredUsers.update((list) =>
       list.map((u) => {
         if (u.id !== id) return u;
-        const merged: RoleUser = {
+        updatedRef = {
           ...u,
           nombre: changes.nombre.trim(),
           email: cleanEmail,
@@ -413,140 +231,51 @@ export class AuthService {
           clienteId: roleMeta.clienteId,
           clienteNombre: roleMeta.clienteNombre,
         };
-        updatedRef = merged;
-        return merged;
+        return updatedRef;
       }),
     );
 
-    if (updatedRef && id === currentActiveId) {
-      this.shipmentService.setCurrentUser(updatedRef);
-    }
-
-    const actor = this.currentUser();
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: 'SEGURIDAD_ROLES',
-      entidad: cleanEmail,
-      accion: 'Edición de Usuario / Rol',
-      detalle: `Rol: ${previous?.role ?? '?'} -> ${changes.role} | Estado: ${changes.activo ? 'Activo' : 'Suspendido'}`,
-    });
-
+    if (updatedRef && id === this.currentUser().id) this.shipmentService.setCurrentUser(updatedRef);
+    void this.remoteSync.pushUpdateUser(id, changes);
+    this.recordAudit('SEGURIDAD_ROLES', cleanEmail, 'Edición de Usuario / Rol', `Rol: ${previous?.role ?? '?'} -> ${changes.role} | Estado: ${changes.activo ? 'Activo' : 'Suspendido'}`);
     return { ok: true };
   }
 
   toggleUserActive(id: string): { ok: boolean; error?: string } {
     const target = this.registeredUsers().find((u) => u.id === id);
     if (!target) return { ok: false, error: 'Usuario no encontrado.' };
-    if (target.id === this.currentUser().id) {
-      return { ok: false, error: 'No puedes desactivar tu propia cuenta mientras está en uso.' };
-    }
+    if (target.id === this.currentUser().id) return { ok: false, error: 'No puedes desactivar tu propia cuenta mientras está en uso.' };
 
     const nextActive = !target.activo;
-    this.registeredUsers.update((list) =>
-      list.map((u) => (u.id === id ? { ...u, activo: nextActive } : u)),
-    );
-
-    const actor = this.currentUser();
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: target.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES',
-      entidad: target.email,
-      accion: nextActive ? 'Activación de Cuenta' : 'Suspensión de Cuenta',
-      detalle: `Estado actualizado a ${nextActive ? 'ACTIVO' : 'SUSPENDIDO'}`,
-    });
-
+    this.registeredUsers.update((list) => list.map((u) => (u.id === id ? { ...u, activo: nextActive } : u)));
+    void this.remoteSync.pushUpdateUser(id, { activo: nextActive });
+    this.recordAudit(target.clienteId ? 'CREDENCIAL_CLIENTE' : 'SEGURIDAD_ROLES', target.email, nextActive ? 'Activación de Cuenta' : 'Suspensión de Cuenta', `Estado actualizado a ${nextActive ? 'ACTIVO' : 'SUSPENDIDO'}`);
     return { ok: true };
   }
 
   deleteUser(id: string): { ok: boolean; error?: string } {
-    if (id === this.currentUser().id) {
-      return { ok: false, error: 'No puedes eliminar el usuario con sesión activa.' };
-    }
+    if (id === this.currentUser().id) return { ok: false, error: 'No puedes eliminar el usuario con sesión activa.' };
     const target = this.registeredUsers().find((u) => u.id === id);
     if (!target) return { ok: false, error: 'Usuario no encontrado.' };
-
-    if (target.role === 'admin') {
-      const adminCount = this.registeredUsers().filter((u) => u.role === 'admin').length;
-      if (adminCount <= 1) {
-        return { ok: false, error: 'Debe existir al menos un Administrador en el sistema.' };
-      }
+    if (target.role === 'admin' && this.registeredUsers().filter((u) => u.role === 'admin').length <= 1) {
+      return { ok: false, error: 'Debe existir al menos un Administrador en el sistema.' };
     }
-
     this.registeredUsers.update((list) => list.filter((u) => u.id !== id));
-
-    const actor = this.currentUser();
-    this.auditService.record({
-      usuario: actor.nombre,
-      email: actor.email,
-      rol: actor.role,
-      categoria: 'SEGURIDAD_ROLES',
-      entidad: target.email,
-      accion: 'Eliminación de Usuario',
-      detalle: `Cuenta ${target.nombre} (${ROLE_DEFINITIONS[target.role].label}) eliminada`,
-    });
-
+    void this.remoteSync.pushDeleteUser(id);
+    this.recordAudit('SEGURIDAD_ROLES', target.email, 'Eliminación de Usuario', `Cuenta ${target.nombre} (${ROLE_DEFINITIONS[target.role].label}) eliminada`);
     return { ok: true };
   }
 
-  private generateTempPassword(prefix: string): string {
-    const clean =
-      prefix
-        .replace(/[^A-Z0-9]/gi, '')
-        .slice(0, 4)
-        .toUpperCase() || 'ARLG';
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    return `${clean}-${rand}*26`;
-  }
-
-  private formatNow(): string {
-    const now = new Date();
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  }
-
-  private getDefaultMetaForRole(
-    role: UserRole,
-    explicitClientId?: string,
-  ): { avatarIcon: string; clienteId?: string; clienteNombre?: string } {
-    switch (role) {
-      case 'admin':
-        return { avatarIcon: 'bi-shield-lock-fill' };
-      case 'gerencia':
-        return { avatarIcon: 'bi-speedometer2' };
-      case 'operaciones':
-        return { avatarIcon: 'bi-gear-wide-connected' };
-      case 'pricing':
-        return { avatarIcon: 'bi-tag-fill' };
-      case 'contabilidad':
-        return { avatarIcon: 'bi-receipt-cutoff' };
-      case 'bodegas':
-        return { avatarIcon: 'bi-building-fill-gear' };
-      case 'cliente_a': {
-        const cid = explicitClientId || 'CLI-001';
-        return {
-          avatarIcon: 'bi-building-fill',
-          clienteId: cid,
-          clienteNombre:
-            cid === 'CLI-002'
-              ? 'Comercial Pacífico DEMO Cía. Ltda.'
-              : 'Industrias Andinas DEMO S.A.',
-        };
-      }
-      case 'cliente_b': {
-        const cid = explicitClientId || 'CLI-002';
-        return {
-          avatarIcon: 'bi-box-seam-fill',
-          clienteId: cid,
-          clienteNombre:
-            cid === 'CLI-001'
-              ? 'Industrias Andinas DEMO S.A.'
-              : 'Comercial Pacífico DEMO Cía. Ltda.',
-        };
-      }
-    }
+  private recordAudit(categoria: Parameters<AuditService['record']>[0]['categoria'], entidad: string, accion: string, detalle: string, explicitActor?: RoleUser): void {
+    const actor = explicitActor ?? this.currentUser();
+    this.auditService.record({
+      usuario: actor?.nombre ?? 'Desconocido',
+      email: actor?.email ?? 'vacío',
+      rol: actor?.role ?? 'cliente_a',
+      categoria,
+      entidad,
+      accion,
+      detalle,
+    });
   }
 }

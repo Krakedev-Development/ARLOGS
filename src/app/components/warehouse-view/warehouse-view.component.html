@@ -1,0 +1,402 @@
+<div class="warehouse-view py-2">
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h5 class="fw-bold mb-0 text-dark font-heading">Bodegas &amp; Control Kardex</h5>
+
+    <button
+      type="button"
+      class="btn btn-sm btn-brand-primary d-flex align-items-center gap-1"
+      (click)="openReceiptModal()"
+    >
+      <i class="bi bi-box-arrow-in-down"></i>
+      <span>Registrar Ingreso a Bodega</span>
+    </button>
+  </div>
+
+  <app-kpi-stat-ribbon [items]="kpiItems()"></app-kpi-stat-ribbon>
+
+  <div class="card-executive overflow-hidden mb-3">
+    <div class="p-3 bg-slate-50 border-bottom border-slate-200">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white text-muted border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Buscar por OC, Descripción, Rack o Guía..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event); whPage.set(1)"
+            />
+            @if (searchQuery()) {
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="searchQuery.set(''); whPage.set(1)"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="filterWarehouse()"
+            (ngModelChange)="filterWarehouse.set($event); whPage.set(1)"
+          >
+            <option value="ALL">Todas las bodegas (2)</option>
+            <option value="BODEGA_1">Bodega Norte (GYE)</option>
+            <option value="BODEGA_2">Bodega Sur (Puerto)</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="filterState()"
+            (ngModelChange)="filterState.set($event); whPage.set(1)"
+          >
+            <option value="ALL">Todos los estados</option>
+            <option value="EN_BODEGA">En Bodega (Completo)</option>
+            <option value="PARCIAL">Despacho Parcial</option>
+            <option value="DESPACHADO">Despachado (Saldo 0)</option>
+          </select>
+        </div>
+
+        <div
+          class="col-12 col-md-2 text-md-end d-flex align-items-center justify-content-between justify-content-md-end gap-2"
+        >
+          <span class="fs-xxs text-muted mono-font"
+            >Lotes: <strong>{{ filteredItems().length }}</strong></span
+          >
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary px-2"
+            (click)="resetFilters()"
+            title="Limpiar filtros"
+          >
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-arlogs align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID Kardex</th>
+            <th>Bodega &amp; Rack</th>
+            <th>Cliente / OC</th>
+            <th>Descripción de Carga</th>
+            <th class="text-end">Ingresado</th>
+            <th class="text-end">Disponible</th>
+            <th>Peso (kg)</th>
+            <th>Estado / Guía</th>
+            <th class="text-end">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of paginatedItems(); track item.id) {
+            <tr>
+              <td>
+                <span class="badge bg-slate-900 text-info mono-font fs-xs">{{ item.id }}</span>
+                <div class="fs-xxs text-muted mono-font">{{ item.fechaIngreso }}</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark fs-xs">{{ item.bodegaNombre }}</div>
+                <span class="badge bg-white text-dark border border-slate-200 mono-font fs-xxs">
+                  <i class="bi bi-geo-alt me-1 text-primary"></i>{{ item.ubicacionRack }}
+                </span>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark fs-xs text-truncate" style="max-width: 150px">
+                  {{ item.cliente }}
+                </div>
+                <span
+                  class="mono-font badge bg-slate-100 text-dark border border-slate-200 fs-xxs"
+                  >{{ item.ordenCompra }}</span
+                >
+              </td>
+              <td>
+                <div
+                  class="text-dark fs-xs text-truncate"
+                  style="max-width: 200px"
+                  [title]="item.descripcion"
+                >
+                  {{ item.descripcion }}
+                </div>
+              </td>
+              <td class="text-end mono-font fs-xs">{{ item.cantidadInicial }} {{ item.unidad }}</td>
+              <td
+                class="text-end mono-font fs-xs fw-bold"
+                [class.text-success]="item.cantidadDisponible > 0"
+                [class.text-muted]="item.cantidadDisponible === 0"
+              >
+                {{ item.cantidadDisponible }} {{ item.unidad }}
+              </td>
+              <td class="mono-font fs-xs">{{ item.pesoKg }} kg</td>
+              <td>
+                <app-status-pill [status]="item.estado"></app-status-pill>
+                @if (item.ultimaGuiaRemision) {
+                  <div class="mono-font fs-xxs text-muted mt-1">
+                    Guía: {{ item.ultimaGuiaRemision }}
+                  </div>
+                }
+              </td>
+              <td class="text-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary py-1 px-2 fs-xs"
+                  [disabled]="item.cantidadDisponible <= 0"
+                  (click)="openDispatchModal(item)"
+                  title="Emitir Guía de Remisión"
+                >
+                  <i class="bi bi-truck me-1"></i>Despacho
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">
+                No se encontraron registros de Kardex con los filtros aplicados.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination-bar
+      [currentPage]="whPage()"
+      [pageSize]="whPageSize()"
+      [totalItems]="filteredItems().length"
+      itemLabel="lotes"
+      [pageSizeOptions]="[5, 6, 12]"
+      (pageChange)="whPage.set($event)"
+      (pageSizeChange)="whPageSize.set($event)"
+    ></app-pagination-bar>
+  </div>
+
+  @if (showReceiptModal) {
+    <app-modal-shell
+      title="Registrar Ingreso a Bodega (Kardex Físico)"
+      icon="bi-box-arrow-in-down"
+      (closed)="showReceiptModal = false"
+    >
+      <form (ngSubmit)="submitReceipt()">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Bodega de Destino</label>
+              <select class="form-select" [(ngModel)]="receiptForm.bodegaId" name="bodegaId">
+                <option value="BODEGA_1">Bodega Norte (Av. Juan Tanca Marengo, GYE)</option>
+                <option value="BODEGA_2">Bodega Sur — Puerto Marítimo (GYE)</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Empresa Cliente</label>
+              <select class="form-select" [(ngModel)]="receiptForm.clienteId" name="clienteId">
+                <option value="CLI-001">Industrias Andinas S.A. (CLI-001)</option>
+                <option value="CLI-002">Comercial Pacífico Cía. Ltda. (CLI-002)</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Orden de Compra</label>
+              <input
+                type="text"
+                class="form-control mono-font"
+                [(ngModel)]="receiptForm.ordenCompra"
+                name="ordenCompra"
+                placeholder="OC-7001"
+                required
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label fs-xs fw-semibold">Referencia Embarque (Opcional)</label>
+              <input
+                type="text"
+                class="form-control mono-font"
+                [(ngModel)]="receiptForm.refArlogs"
+                name="refArlogs"
+                placeholder="I901-2026"
+              />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fs-xs fw-semibold">Descripción del Producto / Lote</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="receiptForm.descripcion"
+                name="descripcion"
+                placeholder="Ej. Filtros hidráulicos de alta presión"
+                required
+              />
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Cantidad Ingresada</label>
+              <input
+                type="number"
+                class="form-control mono-font"
+                [(ngModel)]="receiptForm.cantidad"
+                name="cantidad"
+                min="1"
+                required
+              />
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Unidad de Medida</label>
+              <select class="form-select" [(ngModel)]="receiptForm.unidad" name="unidad">
+                <option value="Cajas">Cajas</option>
+                <option value="Pallets">Pallets</option>
+                <option value="Bultos">Bultos</option>
+                <option value="Tambores">Tambores</option>
+                <option value="Piezas">Piezas</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Peso Total (kg)</label>
+              <input
+                type="number"
+                class="form-control mono-font"
+                [(ngModel)]="receiptForm.pesoKg"
+                name="pesoKg"
+                min="1"
+              />
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label fs-xs fw-semibold">Ubicación Rack / Pasillo</label>
+              <input
+                type="text"
+                class="form-control mono-font"
+                [(ngModel)]="receiptForm.ubicacionRack"
+                name="ubicacionRack"
+                placeholder="RACK-B02"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
+          <button
+            type="button"
+            class="btn btn-sm btn-light border"
+            (click)="showReceiptModal = false"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-sm btn-brand-primary">
+            <i class="bi bi-check-lg me-1"></i>Registrar Ingreso
+          </button>
+        </div>
+      </form>
+    </app-modal-shell>
+  }
+
+  @if (dispatchTarget()) {
+    <app-modal-shell
+      [title]="'Emitir Guía de Remisión — ' + (dispatchTarget()?.id || '')"
+      icon="bi-truck"
+      sizeClass=""
+      (closed)="dispatchTarget.set(null)"
+    >
+      <form (ngSubmit)="submitDispatch()">
+        <div class="modal-body p-4">
+          <div class="d-flex flex-column gap-3">
+            <div class="bg-slate-50 border border-slate-200 rounded-3 p-3 fs-xs">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Producto</span>
+                <strong class="text-dark">{{ dispatchTarget()?.descripcion }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Disponible en Rack</span>
+                <strong class="mono-font text-success"
+                  >{{ dispatchTarget()?.cantidadDisponible }}
+                  {{ dispatchTarget()?.unidad }}</strong
+                >
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Cliente</span>
+                <span class="text-dark">{{ dispatchTarget()?.cliente }}</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label fs-xs fw-semibold"
+                >Número de Guía de Remisión (SRI / ARLOGS)</label
+              >
+              <input
+                type="text"
+                class="form-control mono-font"
+                [(ngModel)]="dispatchForm.guiaRemision"
+                name="guiaRemision"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="form-label fs-xs fw-semibold"
+                >Cantidad a Despachar ({{ dispatchTarget()?.unidad }})</label
+              >
+              <input
+                type="number"
+                class="form-control mono-font fw-bold"
+                [(ngModel)]="dispatchForm.cantidadSalida"
+                name="cantidadSalida"
+                min="1"
+                [max]="dispatchTarget()?.cantidadDisponible ?? 1"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="form-label fs-xs fw-semibold">Transportista / Placa / Inland</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="dispatchForm.transporteInland"
+                name="transporteInland"
+                placeholder="Ej. Camión Hino GBD-4512"
+              />
+            </div>
+
+            <div>
+              <label class="form-label fs-xs fw-semibold">Observación</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="dispatchForm.observacion"
+                name="observacion"
+                placeholder="Entrega en planta matriz"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-slate-50 border-top border-slate-200 py-2 px-4">
+          <button
+            type="button"
+            class="btn btn-sm btn-light border"
+            (click)="dispatchTarget.set(null)"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-sm btn-brand-primary">
+            <i class="bi bi-check-lg me-1"></i>Generar Guía y Despachar
+          </button>
+        </div>
+      </form>
+    </app-modal-shell>
+  }
+</div>

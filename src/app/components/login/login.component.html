@@ -1,0 +1,129 @@
+<div class="login-viewport d-flex flex-column flex-lg-row">
+  <section class="auth-panel d-flex flex-column justify-content-center">
+    <div class="auth-content-wrap">
+      <header class="brand-header">
+        <div class="d-flex align-items-center gap-2">
+          <div class="brand-icon-box">
+            <i class="bi bi-box-seam-fill"></i>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="brand-title">ARLOGS</span>
+            <span class="brand-caption">Global Freight &amp; Forwarding</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="auth-heading-group">
+        <h1 class="auth-title">Iniciar Sesión</h1>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="auth-error-banner d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-circle-fill flex-shrink-0"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="corporate-email" class="form-label-custom">Correo corporativo</label>
+          <div class="input-wrapper">
+            <i class="bi bi-envelope input-leading-icon"></i>
+            <input
+              id="corporate-email"
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              class="input-field"
+              placeholder="admin@arlogs.com"
+              autocomplete="username"
+              [disabled]="isAuthenticating()"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label for="corporate-password" class="form-label-custom mb-0">Contraseña</label>
+            <span class="security-hint">Protegido por RBAC</span>
+          </div>
+          <div class="input-wrapper">
+            <i class="bi bi-shield-lock input-leading-icon"></i>
+            <input
+              id="corporate-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              name="password"
+              [(ngModel)]="password"
+              class="input-field"
+              placeholder="••••••••••••"
+              autocomplete="current-password"
+              [disabled]="isAuthenticating()"
+              required
+            />
+            <button
+              type="button"
+              class="input-trailing-action"
+              (click)="showPassword.set(!showPassword())"
+              tabindex="-1"
+              aria-label="Mostrar u ocultar contraseña"
+            >
+              <i
+                class="bi"
+                [class.bi-eye]="!showPassword()"
+                [class.bi-eye-slash]="showPassword()"
+              ></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn-auth-submit d-flex align-items-center justify-content-center gap-2"
+          [disabled]="isAuthenticating()"
+        >
+          <span>{{ isAuthenticating() ? 'Autenticando...' : 'Entrar a la Plataforma' }}</span>
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="profiles-section">
+        <div class="profiles-header d-flex align-items-center justify-content-between">
+          <span class="profiles-title">Acceso rápido por perfil</span>
+          <span class="profiles-count">8 roles disponibles</span>
+        </div>
+
+        <div class="profiles-tag-cloud d-flex flex-wrap gap-2">
+          @for (profile of quickProfiles; track profile.role) {
+            <button
+              type="button"
+              class="role-tag-btn"
+              [disabled]="isAuthenticating()"
+              (click)="quickSignIn(profile.role)"
+            >
+              <span class="role-status-dot" [ngClass]="profile.badgeBg"></span>
+              <span class="role-name">{{ profile.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="visual-panel position-relative d-flex flex-column justify-content-center">
+    <img
+      src="assets/logistics-hero.jpg"
+      alt="ARLOGS Vessel Logistics"
+      class="visual-bg-image"
+    />
+    <div class="visual-scrim"></div>
+    <div class="visual-typography-layout position-relative z-1">
+      <div class="type-eyebrow">SISTEMA INTEGRAL DE LOGÍSTICA MULTIMODAL</div>
+      <h2 class="type-display-primary">CONECTIVIDAD</h2>
+      <h2 class="type-display-primary text-gold">SIN FRONTERAS</h2>
+      <p class="type-display-serif">
+        Trazabilidad de alta precisión en cada milla marítima y aérea.
+      </p>
+    </div>
+  </section>
+</div>

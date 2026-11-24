@@ -1,0 +1,481 @@
+<div class="client-portal py-2">
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <div
+        class="client-avatar d-flex align-items-center justify-content-center text-primary bg-blue-50 rounded-2 flex-shrink-0"
+      >
+        <i class="bi bi-buildings fs-5"></i>
+      </div>
+      <div>
+        <h5 class="fw-bold mb-0 text-dark font-heading">
+          {{ currentUser().clienteNombre || 'Portal de Clientes' }}
+        </h5>
+        <span class="fs-xxs text-muted"
+          >Seguimiento de órdenes y estado de carga en tiempo real</span
+        >
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-success d-flex align-items-center gap-1"
+        (click)="exportExcel()"
+      >
+        <i class="bi bi-file-earmark-excel"></i>
+        <span>Exportar Excel</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bloque 1: Resumen General + Distribución Mensual -->
+  <app-kpi-stat-ribbon [items]="kpiItems()"></app-kpi-stat-ribbon>
+
+  <div class="card-executive overflow-hidden mb-3">
+    <div class="p-3 bg-slate-50 border-bottom border-slate-200">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white text-muted border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Buscar OC o Ref..."
+              [ngModel]="filterPO()"
+              (ngModelChange)="filterPO.set($event); clientPage.set(1)"
+            />
+            @if (filterPO()) {
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="filterPO.set(''); clientPage.set(1)"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="filterMonth()"
+            (ngModelChange)="filterMonth.set($event); clientPage.set(1)"
+          >
+            <option value="ALL">Mes: Todos</option>
+            <option value="06">Junio</option>
+            <option value="07">Julio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="filterShipper()"
+            (ngModelChange)="filterShipper.set($event); clientPage.set(1)"
+          >
+            <option value="ALL">Proveedor: Todos</option>
+            @for (sh of availableShippers(); track sh) {
+              <option [value]="sh">{{ sh }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="filterModality()"
+            (ngModelChange)="filterModality.set($event); clientPage.set(1)"
+          >
+            <option value="ALL">Modalidad: Todas</option>
+            <option value="AEREO">Aéreo</option>
+            <option value="FCL">FCL Marítimo</option>
+            <option value="LCL">LCL Consolidado</option>
+            <option value="CUSTOMS">Customs</option>
+            <option value="COURIER">Courier</option>
+            <option value="INLAND">Inland</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2 d-flex align-items-center gap-1">
+          <select
+            class="form-select form-select-sm flex-grow-1"
+            [ngModel]="filterIncoterm()"
+            (ngModelChange)="filterIncoterm.set($event); clientPage.set(1)"
+          >
+            <option value="ALL">Incoterm: Todos</option>
+            <option value="EXW">EXW</option>
+            <option value="FCA">FCA</option>
+            <option value="FOB">FOB</option>
+            <option value="CIF">CIF</option>
+            <option value="CFR">CFR</option>
+            <option value="DAP">DAP</option>
+          </select>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary px-2"
+            (click)="resetFilters()"
+            title="Restablecer filtros"
+          >
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque 6: Detalle de cada embarque -->
+    <div class="table-responsive">
+      <table class="table table-arlogs align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Referencia</th>
+            <th>Modalidad</th>
+            <th>Proveedor (Shipper)</th>
+            <th>Origen</th>
+            <th>Incoterm</th>
+            <th>Órdenes de Compra</th>
+            <th>Guía / BL</th>
+            <th>Asignación</th>
+            <th>Tránsito</th>
+            <th>Ciclo</th>
+            <th>Estado</th>
+            <th class="text-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (job of paginatedClientJobs(); track job.refArlogs) {
+            <tr>
+              <td>
+                <strong class="text-primary mono-font">{{ job.refArlogs }}</strong>
+              </td>
+              <td>
+                <span class="badge bg-slate-100 text-slate-700 border border-slate-200 mono-font">{{
+                  job.servicio
+                }}</span>
+              </td>
+              <td>
+                <div class="text-truncate" style="max-width: 150px" [title]="job.shipper">
+                  {{ job.shipper }}
+                </div>
+              </td>
+              <td>
+                <div
+                  class="text-truncate"
+                  style="max-width: 140px"
+                  [title]="job.puertoEmbarque + ', ' + job.paisOrigen"
+                >
+                  {{ job.puertoEmbarque }}, {{ job.paisOrigen }}
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-white text-dark border border-slate-200 mono-font">{{
+                  job.incoterm
+                }}</span>
+              </td>
+              <td>
+                <span class="mono-font badge bg-slate-50 text-dark border border-slate-200">{{
+                  job.ordenesCompra.join(', ')
+                }}</span>
+              </td>
+              <td>
+                <span class="mono-font fs-xs text-muted">{{ job.guiaMaster }}</span>
+              </td>
+              <td class="mono-font fs-xs">{{ job.h1_asignacion }}</td>
+              <td>
+                <span class="mono-font fw-bold" [class.text-primary]="job.diasTransito !== 'N/A'">
+                  {{ job.diasTransito !== 'N/A' ? job.diasTransito + ' d' : 'N/A' }}
+                </span>
+              </td>
+              <td>
+                @if (job.diasCicloTotal !== 'N/A') {
+                  <span class="mono-font fw-bold text-success">{{ job.diasCicloTotal }} d</span>
+                } @else if (job.diasGestionSinAduana !== 'N/A') {
+                  <span class="mono-font fw-bold text-info">{{ job.diasGestionSinAduana }} d</span>
+                } @else {
+                  <span class="mono-font text-muted">N/A</span>
+                }
+              </td>
+              <td>
+                <app-status-pill [status]="job.estado"></app-status-pill>
+              </td>
+              <td class="text-center">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-brand-primary py-1 px-2 fs-xs"
+                  (click)="viewJobDetail(job)"
+                >
+                  <i class="bi bi-geo-alt me-1"></i>Detalle
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="12" class="text-center py-4 text-muted">
+                No se encontraron embarques para los criterios seleccionados.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination-bar
+      [currentPage]="clientPage()"
+      [pageSize]="clientPageSize()"
+      [totalItems]="filteredClientJobs().length"
+      itemLabel="embarques"
+      [pageSizeOptions]="[5, 10, 20]"
+      (pageChange)="clientPage.set($event)"
+      (pageSizeChange)="clientPageSize.set($event)"
+    ></app-pagination-bar>
+  </div>
+
+  <!-- Bloques Analíticos Obligatorios de la Vista del Cliente (Sección 06 y Página 4-5 del PDF) -->
+  <div class="row g-3 mb-3">
+    <!-- Bloque: Tiempos de Despacho y De Quién Depende Cada Tramo -->
+    <div class="col-12 col-lg-6">
+      <div class="card-executive p-3 h-100">
+        <div
+          class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-slate-100"
+        >
+          <h6 class="fw-bold mb-0 text-dark fs-xs text-uppercase letter-spacing-wide">
+            Tiempos de Despacho &amp; Responsable por Tramo
+          </h6>
+          <span class="badge bg-slate-100 text-dark border fs-xxs">Promedios</span>
+        </div>
+        <div class="d-flex flex-column gap-2 fs-xs">
+          <div
+            class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-slate-50 border border-slate-200"
+          >
+            <div>
+              <strong class="text-dark">Respuesta del Shipper &amp; Alistamiento</strong>
+              <div class="fs-xxs text-muted">Depende de: Shipper (proveedor del cliente)</div>
+            </div>
+            <span class="mono-font fw-bold text-dark">
+              {{ dispatchAttribution().respShipper }} d / {{ dispatchAttribution().alistamiento }} d
+            </span>
+          </div>
+          <div
+            class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-slate-50 border border-slate-200"
+          >
+            <div>
+              <strong class="text-dark">Tránsito Internacional (H5 − H4)</strong>
+              <div class="fs-xxs text-muted">Depende de: Forwarder y línea (aerolínea/naviera)</div>
+            </div>
+            <span class="mono-font fw-bold text-primary"
+              >{{ dispatchAttribution().transito }} d</span
+            >
+          </div>
+          <div
+            class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-slate-50 border border-slate-200"
+          >
+            <div>
+              <strong class="text-dark">Arribo a Declaración (H7 − H5)</strong>
+              <div class="fs-xxs text-muted">Depende de: ARLOGS</div>
+            </div>
+            <span class="mono-font fw-bold text-success"
+              >{{ dispatchAttribution().arriboDecl }} d</span
+            >
+          </div>
+          <div
+            class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-slate-50 border border-slate-200"
+          >
+            <div>
+              <strong class="text-dark">Declaración a Pago (H8 − H7)</strong>
+              <div class="fs-xxs text-muted">
+                Depende de: Cliente o ARLOGS (según responsable del pago)
+              </div>
+            </div>
+            <span class="mono-font fw-bold text-dark">{{ dispatchAttribution().declPago }} d</span>
+          </div>
+          <div
+            class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-slate-50 border border-slate-200"
+          >
+            <div>
+              <strong class="text-dark">Pago a Informe de Salida (H10 − H8)</strong>
+              <div class="fs-xxs text-muted">Depende de: ARLOGS</div>
+            </div>
+            <span class="mono-font fw-bold text-success"
+              >{{ dispatchAttribution().pagoInforme }} d</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque: Ranking Shippers + Distribución por Mes -->
+    <div class="col-12 col-lg-6">
+      <div class="card-executive p-3 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div
+            class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-slate-100"
+          >
+            <h6 class="fw-bold mb-0 text-dark fs-xs text-uppercase letter-spacing-wide">
+              Ranking de Shippers (Proveedores)
+            </h6>
+            <span class="badge bg-slate-100 text-dark border border-slate-200 fs-xxs"
+              >Concentración Top 3: {{ shipperInsights().top3Pct }}%</span
+            >
+          </div>
+          <div class="d-flex flex-column gap-2 mb-3">
+            @for (
+              item of shipperInsights().ranking.slice(0, 3);
+              track item.shipper;
+              let idx = $index
+            ) {
+              <div>
+                <div class="d-flex justify-content-between align-items-center fs-xs mb-1">
+                  <span class="text-dark fw-medium text-truncate">
+                    <span class="mono-font text-muted me-1">#{{ idx + 1 }}</span
+                    >{{ item.shipper }}
+                  </span>
+                  <span class="mono-font fw-bold text-dark"
+                    >{{ item.count }} emb. ({{ item.pct }}%)</span
+                  >
+                </div>
+                <div class="progress" style="height: 4px">
+                  <div class="progress-bar bg-primary" [style.width.%]="item.pct"></div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="pt-2 border-top border-slate-100">
+          <span class="fs-xxs fw-bold text-uppercase text-muted d-block mb-2"
+            >Distribución de Embarques por Mes</span
+          >
+          <div class="d-flex flex-wrap gap-2">
+            @for (m of monthlyDistribution(); track m.monthCode) {
+              <div
+                class="px-2 py-1 rounded-2 bg-slate-50 border border-slate-200 fs-xxs d-flex align-items-center gap-2"
+              >
+                <span class="fw-semibold text-dark">{{ m.monthLabel }}</span>
+                <span class="badge bg-white text-primary border mono-font">{{ m.count }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloques: Órdenes de Compra (OC) y Agrupaciones de Aduana -->
+  <div class="row g-3">
+    <!-- Bloque: Órdenes de Compra -->
+    <div class="col-12 col-lg-6">
+      <div class="card-executive p-3 h-100">
+        <div
+          class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-slate-100 flex-wrap gap-1"
+        >
+          <h6 class="fw-bold mb-0 text-dark fs-xs text-uppercase letter-spacing-wide">
+            Órdenes de Compra (Relación Shipper – OC – Embarque)
+          </h6>
+          <div class="d-flex gap-1">
+            <span class="badge bg-blue-50 text-primary border fs-xxs">
+              {{ purchaseOrderSummary().distinctPoCount }} OC distintas
+            </span>
+            <span class="badge bg-amber-50 text-warning border fs-xxs">
+              {{ purchaseOrderSummary().multiPoShipmentsCount }} emb. multi-OC
+            </span>
+          </div>
+        </div>
+        <div class="table-responsive" style="max-height: 210px">
+          <table class="table table-sm table-arlogs align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Orden (OC)</th>
+                <th>Embarque</th>
+                <th>Shipper</th>
+                <th>Modalidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of purchaseOrderSummary().rows; track row.ordenCompra + row.refArlogs) {
+                <tr>
+                  <td class="mono-font fw-bold text-dark fs-xs">{{ row.ordenCompra }}</td>
+                  <td class="mono-font text-primary fs-xs">{{ row.refArlogs }}</td>
+                  <td class="fs-xxs text-truncate" style="max-width: 150px">{{ row.shipper }}</td>
+                  <td>
+                    <span class="badge bg-slate-100 text-dark border mono-font fs-xxs">{{
+                      row.servicio
+                    }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque: Aduana (Régimen, Distrito y Tipo de Aforo) -->
+    <div class="col-12 col-lg-6">
+      <div class="card-executive p-3 h-100">
+        <div
+          class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-slate-100"
+        >
+          <h6 class="fw-bold mb-0 text-dark fs-xs text-uppercase letter-spacing-wide">
+            Agrupación Aduanera (Régimen, Distrito y Aforo)
+          </h6>
+          <span class="badge bg-slate-100 text-dark border fs-xxs">
+            {{ customsSummary().totalCustomsJobs }} trámites con aduana
+          </span>
+        </div>
+
+        <div class="row g-2 fs-xs">
+          <div class="col-12 col-sm-4">
+            <div class="p-2 rounded-2 bg-slate-50 border border-slate-200 h-100">
+              <div class="fs-xxs fw-bold text-uppercase text-muted mb-1">Por Régimen</div>
+              @for (b of customsSummary().byRegimen; track b.label) {
+                <div class="d-flex justify-content-between align-items-center mb-1 fs-xxs">
+                  <span class="text-dark text-truncate" [title]="b.label">{{ b.label }}</span>
+                  <strong class="mono-font">{{ b.count }}</strong>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-4">
+            <div class="p-2 rounded-2 bg-slate-50 border border-slate-200 h-100">
+              <div class="fs-xxs fw-bold text-uppercase text-muted mb-1">Por Distrito</div>
+              @for (b of customsSummary().byDistrito; track b.label) {
+                <div class="d-flex justify-content-between align-items-center mb-1 fs-xxs">
+                  <span class="text-dark text-truncate" [title]="b.label">{{ b.label }}</span>
+                  <strong class="mono-font text-primary">{{ b.count }}</strong>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-4">
+            <div class="p-2 rounded-2 bg-slate-50 border border-slate-200 h-100">
+              <div class="fs-xxs fw-bold text-uppercase text-muted mb-1">Tipo de Aforo</div>
+              @for (b of customsSummary().byAforo; track b.label) {
+                <div class="d-flex justify-content-between align-items-center mb-1 fs-xxs">
+                  <span class="text-dark text-truncate" [title]="b.label">{{ b.label }}</span>
+                  <strong class="mono-font text-success">{{ b.count }}</strong>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (selectedJob()) {
+    <app-job-detail-modal
+      [job]="selectedJob()"
+      [isReadOnly]="true"
+      (close)="selectedJob.set(null)"
+    ></app-job-detail-modal>
+  }
+</div>

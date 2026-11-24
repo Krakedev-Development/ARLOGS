@@ -1,0 +1,61 @@
+@if (totalItems() > 0) {
+  <div
+    class="p-2 px-3 bg-slate-50 border-top border-slate-200 d-flex align-items-center justify-content-between flex-wrap gap-2 fs-xs"
+  >
+    <div class="d-flex align-items-center gap-2 text-muted">
+      <span>
+        Mostrando <strong>{{ startIndex() }}</strong>–<strong>{{ endIndex() }}</strong>
+        de <strong>{{ totalItems() }}</strong> {{ itemLabel() }}
+      </span>
+      @if (pageSizeOptions().length > 0) {
+        <span class="d-none d-sm-inline">&bull;</span>
+        <div class="d-flex align-items-center gap-1 d-none d-sm-flex">
+          <span class="text-muted fs-xxs">Filas:</span>
+          <div class="btn-group btn-group-sm pagination-size-group">
+            @for (opt of pageSizeOptions(); track opt) {
+              <button
+                type="button"
+                class="btn btn-xs py-0 px-2 fs-xxs"
+                [class.btn-dark]="pageSize() === opt"
+                [class.btn-outline-secondary]="pageSize() !== opt"
+                (click)="selectPageSize(opt)"
+              >
+                {{ opt }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="d-flex align-items-center gap-1">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
+        [disabled]="currentPage() === 1"
+        (click)="selectPage(currentPage() - 1)"
+      >
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      @for (p of pageNumbers(); track p) {
+        <button
+          type="button"
+          class="btn btn-sm py-0 px-2 fs-xs"
+          [class.btn-dark]="currentPage() === p"
+          [class.btn-outline-secondary]="currentPage() !== p"
+          (click)="selectPage(p)"
+        >
+          {{ p }}
+        </button>
+      }
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs"
+        [disabled]="currentPage() === totalPages()"
+        (click)="selectPage(currentPage() + 1)"
+      >
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+}

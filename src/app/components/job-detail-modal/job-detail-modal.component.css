@@ -1,0 +1,46 @@
+.letter-spacing-wide {
+  letter-spacing: 0.05em;
+}
+.bg-blue-50 {
+  background-color: #eff6ff !important;
+}
+.bg-blue-600 {
+  background-color: #2563eb !important;
+}
+.text-blue-700 {
+  color: #1d4ed8 !important;
+}
+.border-blue-200 {
+  border-color: #bfdbfe !important;
+}
+
+.bg-emerald-50 {
+  background-color: #ecfdf5 !important;
+}
+.bg-emerald-600 {
+  background-color: #059669 !important;
+}
+.text-emerald-700 {
+  color: #047857 !important;
+}
+.border-emerald-300 {
+  border-color: #6ee7b7 !important;
+}
+
+.text-amber-700 {
+  color: #b45309 !important;
+}
+
+.stepper-item {
+  min-width: 85px;
+  transition: all 0.2s ease;
+  border-color: #e2e8f0 !important;
+}
+.node-done {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+.node-na {
+  background-color: #f8fafc !important;
+  opacity: 0.55;
+}

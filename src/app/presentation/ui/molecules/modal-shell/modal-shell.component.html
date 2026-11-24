@@ -1,0 +1,25 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px)"
+>
+  <div class="modal-dialog modal-dialog-centered" [ngClass]="sizeClass()">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-slate-900 text-white border-0 py-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi {{ icon() }} {{ iconColorClass() }}"></i>
+          <h6 class="modal-title mb-0 fw-bold font-heading">{{ title() }}</h6>
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          aria-label="Cerrar"
+          (click)="closed.emit()"
+        ></button>
+      </div>
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

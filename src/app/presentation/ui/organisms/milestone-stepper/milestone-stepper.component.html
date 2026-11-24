@@ -1,0 +1,52 @@
+<div class="card-executive p-3 mb-3 bg-white">
+  <div
+    class="d-flex align-items-center justify-content-between mb-3 border-bottom border-slate-100 pb-2"
+  >
+    <span class="fs-xs fw-bold text-dark text-uppercase letter-spacing-wide">
+      Línea de Tiempo de Hitos (H1 - H10)
+    </span>
+    <span class="fs-xs text-muted">
+      Modalidad: <strong>{{ service() }}</strong> | Aduana:
+      <strong>{{ aduanaPorArlogs() }}</strong>
+    </span>
+  </div>
+
+  <div class="stepper-grid d-flex flex-wrap gap-2 justify-content-between">
+    @for (m of milestoneDefs; track m.num) {
+      @let applicable = isApplicable(m.num);
+      @let dateVal = getMilestoneDate(m.num);
+      <div
+        class="stepper-item flex-grow-1 p-2 rounded-2 border text-center transition-all"
+        [class.bg-white]="applicable && !dateVal"
+        [class.node-done]="applicable && dateVal"
+        [class.node-na]="!applicable"
+      >
+        <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
+          <span
+            class="badge rounded-pill mono-font fs-xxs"
+            [class.bg-emerald-600]="applicable && dateVal"
+            [class.bg-slate-700]="applicable && !dateVal"
+            [class.bg-slate-300]="!applicable"
+          >
+            {{ m.codigo }}
+          </span>
+          @if (applicable && dateVal) {
+            <i class="bi bi-check-circle-fill text-success fs-xs"></i>
+          }
+        </div>
+        <div class="node-title fw-bold fs-xxs text-truncate" [title]="m.nombre">
+          {{ m.nombre }}
+        </div>
+        <div class="fs-xxs mt-1">
+          @if (!applicable) {
+            <span class="text-muted">N/A</span>
+          } @else if (dateVal) {
+            <span class="text-emerald-700 fw-bold mono-font">{{ dateVal }}</span>
+          } @else {
+            <span class="text-amber-700">Pendiente</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

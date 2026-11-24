@@ -1,0 +1,26 @@
+<div class="stat-ribbon bg-white border border-slate-200 rounded-3 p-3 mb-3 shadow-xs">
+  <div class="row g-2 align-items-center text-center text-sm-start">
+    @for (item of items(); track item.label; let isLast = $last) {
+      <div class="col-6 col-md-3" [class.border-end-sm]="!isLast">
+        <div
+          class="d-flex align-items-center gap-2 justify-content-center justify-content-sm-start"
+        >
+          <div
+            class="stat-icon rounded-2 d-flex align-items-center justify-content-center"
+            [ngClass]="item.iconBgClass"
+          >
+            <i class="bi {{ item.icon }}"></i>
+          </div>
+          <div>
+            <span class="fs-xxs text-muted text-uppercase fw-semibold d-block">{{
+              item.label
+            }}</span>
+            <span class="fs-5 fw-bold mono-font" [ngClass]="item.valueColorClass || 'text-dark'">
+              {{ item.value }}
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

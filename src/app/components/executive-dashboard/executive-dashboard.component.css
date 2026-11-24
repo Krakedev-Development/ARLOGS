@@ -1,0 +1,39 @@
+.letter-spacing-wide {
+  letter-spacing: 0.05em;
+}
+.bg-blue-50 {
+  background-color: #eff6ff !important;
+}
+.text-blue-800 {
+  color: #1e40af !important;
+}
+.bg-amber-50 {
+  background-color: #fffbeb !important;
+}
+.bg-amber-100 {
+  background-color: #fef3c7 !important;
+}
+.text-amber-600 {
+  color: #d97706 !important;
+}
+.text-amber-700 {
+  color: #b45309 !important;
+}
+.text-amber-800 {
+  color: #92400e !important;
+}
+.border-amber-200 {
+  border-color: #fde68a !important;
+}
+.border-amber-300 {
+  border-color: #fcd34d !important;
+}
+.bg-emerald-50 {
+  background-color: #ecfdf5 !important;
+}
+.border-emerald-200 {
+  border-color: #a7f3d0 !important;
+}
+.text-emerald-800 {
+  color: #065f46 !important;
+}

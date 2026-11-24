@@ -1,67 +1,22 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { AuditCategory, AuditEntry, UserRole } from '../models/shipment.model';
+import { ArlogsRemoteSyncAdapter } from '../infrastructure/http/arlogs-remote-sync.adapter';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuditService {
-  readonly logs = signal<AuditEntry[]>([
-    {
-      id: 'AUD-1005',
-      timestamp: '2026-11-11 11:20:00',
-      usuario: 'Carlos Echeverría',
-      email: 'operaciones@arlogs.com',
-      rol: 'operaciones',
-      categoria: 'OPERACION_HITOS',
-      entidad: 'A905-2026',
-      accion: 'Actualización de Hito',
-      detalle: 'H3 Carga lista: vacío -> 2026-11-08',
-    },
-    {
-      id: 'AUD-1004',
-      timestamp: '2026-11-11 09:42:15',
-      usuario: 'Ing. Roberto Andrade',
-      email: 'andinas@arlogs.com',
-      rol: 'cliente_a',
-      categoria: 'SESION',
-      entidad: 'CLI-001',
-      accion: 'Ingreso al Portal',
-      detalle: 'Sesión iniciada con aislamiento estricto para Industrias Andinas DEMO S.A.',
-    },
-    {
-      id: 'AUD-1003',
-      timestamp: '2026-11-10 16:05:30',
-      usuario: 'Ing. Paul Cevallos (ClearMinds / ARLOGS)',
-      email: 'gerencia@arlogs.com',
-      rol: 'gerencia',
-      categoria: 'GERENCIA_SLA',
-      entidad: 'SLA_UMBRAL',
-      accion: 'Verificación de Umbral',
-      detalle: 'Parámetro de alerta verificado en 15 días abiertos',
-    },
-    {
-      id: 'AUD-1002',
-      timestamp: '2026-11-09 14:18:10',
-      usuario: 'Andrea Morales',
-      email: 'pricing@arlogs.com',
-      rol: 'pricing',
-      categoria: 'PRICING_QR',
-      entidad: 'QR-022-26',
-      accion: 'Creación de Cotización',
-      detalle: 'Cliente: Industrias Andinas DEMO S.A. | AEREO | OC-1008, OC-1009',
-    },
-    {
-      id: 'AUD-1001',
-      timestamp: '2026-11-02 10:15:00',
-      usuario: 'Martín Simbaña',
-      email: 'admin@arlogs.com',
-      rol: 'admin',
-      categoria: 'CREDENCIAL_CLIENTE',
-      entidad: 'pacifico@arlogs.com',
-      accion: 'Emisión de Credenciales',
-      detalle: 'Acceso de portal emitido para Comercial Pacífico DEMO Cía. Ltda. (CLI-002)',
-    },
-  ]);
+  private readonly remoteSync = inject(ArlogsRemoteSyncAdapter);
+  readonly logs = signal<AuditEntry[]>([]);
+
+  constructor() {
+    void this.hydrateAuditLogsFromDatabase();
+  }
+
+  async hydrateAuditLogsFromDatabase(): Promise<void> {
+    const rows = await this.remoteSync.fetchAuditLogs();
+    this.logs.set(rows);
+  }
 
   record(entry: {
     usuario: string;
@@ -77,12 +32,13 @@ export class AuditService {
     const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
     const newEntry: AuditEntry = {
-      id: `AUD-${1006 + this.logs().length}`,
+      id: `AUD-${Date.now().toString().slice(-6)}`,
       timestamp: ts,
       ...entry,
     };
 
     this.logs.update((list) => [newEntry, ...list]);
+    void this.remoteSync.pushAuditRecord(newEntry);
   }
 
   async exportAuditExcel(entries: AuditEntry[]): Promise<void> {

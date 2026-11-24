@@ -1,0 +1,16 @@
+.client-avatar {
+  width: 32px;
+  height: 32px;
+}
+.letter-spacing-wide {
+  letter-spacing: 0.05em;
+}
+.bg-blue-50 {
+  background-color: #eff6ff !important;
+}
+.bg-emerald-50 {
+  background-color: #ecfdf5 !important;
+}
+.bg-amber-50 {
+  background-color: #fffbeb !important;
+}
